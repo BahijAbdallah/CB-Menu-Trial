@@ -136,10 +136,10 @@ export default function AdminPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen gradient-warm flex items-center justify-center">
+      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-gold mx-auto mb-4"></div>
-          <p className="text-saddle-brown">Loading admin panel...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto mb-4"></div>
+          <p className="text-brand-green">Loading admin panel...</p>
         </div>
       </div>
     );
@@ -150,7 +150,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen gradient-warm">
+    <div className="min-h-screen bg-brand-cream">
       <div className="container mx-auto px-6 py-8">
         {/* Admin Header */}
         <Card className="mb-8">
