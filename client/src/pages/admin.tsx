@@ -19,6 +19,7 @@ import type { Category, MenuItem } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 
 
+
 export default function AdminPage() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
