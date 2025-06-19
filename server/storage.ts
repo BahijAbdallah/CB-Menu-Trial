@@ -49,8 +49,19 @@ export class MemStorage implements IStorage {
     this.currentCategoryId = 1;
     this.currentMenuItemId = 1;
 
+    // Initialize with default admin user
+    this.initializeAdmin();
     // Initialize with default categories and menu items
     this.initializeData();
+  }
+
+  private initializeAdmin() {
+    const adminUser: User = {
+      id: this.currentUserId++,
+      username: "ali@keemya.net",
+      password: "ali@keemya.net" // In production, this should be hashed
+    };
+    this.users.set(adminUser.id, adminUser);
   }
 
   private initializeData() {
