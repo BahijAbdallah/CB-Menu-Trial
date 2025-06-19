@@ -18,14 +18,15 @@ This is a full-stack restaurant menu management system built with React, Express
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ES modules
 - **Database ORM**: Drizzle ORM with PostgreSQL
-- **Database Provider**: Neon Database (serverless PostgreSQL)
+- **Database Provider**: PostgreSQL (persistent database)
+- **Authentication**: Express sessions for admin access
 - **Development**: tsx for TypeScript execution
 - **Build**: esbuild for production bundling
 
 ### Database Schema
 - **Categories Table**: Stores menu categories with bilingual names and ordering
 - **Menu Items Table**: Stores individual menu items with prices, descriptions, and availability
-- **Users Table**: Basic user authentication for admin access
+- **Users Table**: Admin authentication with username/password
 
 ## Key Components
 
@@ -88,7 +89,10 @@ This is a full-stack restaurant menu management system built with React, Express
 - **Connection Pooling**: Neon handles connection management
 
 ## Changelog
-- June 19, 2025. Initial setup
+- June 19, 2025: Initial setup with in-memory storage
+- June 19, 2025: Added PostgreSQL database with persistent storage
+- June 19, 2025: Implemented authentication system with ali@keemya.net credentials  
+- June 19, 2025: Added category management (create, edit, delete) in admin panel
 
 ## User Preferences
 
