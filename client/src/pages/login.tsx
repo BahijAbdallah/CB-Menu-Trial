@@ -36,13 +36,18 @@ export default function LoginPage() {
     mutationFn: async (data: LoginFormData) => {
       return apiRequest("POST", "/api/auth/login", data);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Wait a moment for session to be established
+      await new Promise(resolve => setTimeout(resolve, 100));
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
-      setLocation("/admin");
+      // Additional delay before redirect
+      setTimeout(() => {
+        setLocation("/admin");
+      }, 200);
     },
     onError: (error: any) => {
       toast({
