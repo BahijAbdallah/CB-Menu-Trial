@@ -7,6 +7,7 @@ import MenuCategory from "@/components/menu-category";
 import type { Category, MenuItem } from "@shared/schema";
 
 
+
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
 
