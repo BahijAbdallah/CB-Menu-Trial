@@ -24,7 +24,12 @@
   --ring: hsl(43, 89%, 38%);
   --radius: 0.75rem;
   
-  /* Custom Lebanese theme colors */
+  /* Chez Beyrouth brand colors */
+  --brand-green: hsl(120, 25%, 35%);
+  --brand-coral: hsl(15, 65%, 65%);
+  --brand-cream: hsl(48, 40%, 92%);
+  --brand-dark-green: hsl(120, 30%, 25%);
+  --brand-light-coral: hsl(15, 55%, 75%);
   --warm-gold: hsl(51, 84%, 55%);
   --saddle-brown: hsl(25, 75%, 31%);
   --peru: hsl(30, 59%, 53%);
@@ -122,11 +127,40 @@
     background-color: hsl(var(--goldenrod));
   }
 
+  /* Brand color classes */
+  .bg-brand-green {
+    background-color: hsl(var(--brand-green));
+  }
+
+  .bg-brand-coral {
+    background-color: hsl(var(--brand-coral));
+  }
+
+  .bg-brand-cream {
+    background-color: hsl(var(--brand-cream));
+  }
+
+  .text-brand-green {
+    color: hsl(var(--brand-green));
+  }
+
+  .text-brand-coral {
+    color: hsl(var(--brand-coral));
+  }
+
+  .border-brand-green {
+    border-color: hsl(var(--brand-green));
+  }
+
+  .border-brand-coral {
+    border-color: hsl(var(--brand-coral));
+  }
+
   /* Category button hover effect */
   .category-button-hover:hover {
-    background: linear-gradient(to right, hsl(51, 84%, 55%), hsl(43, 74%, 49%)) !important;
+    background: linear-gradient(to right, hsl(120, 25%, 35%), hsl(15, 65%, 65%)) !important;
     color: white !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    border-color: hsl(43, 74%, 49%) !important;
+    border-color: hsl(120, 25%, 35%) !important;
   }
 }

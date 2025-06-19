@@ -31,19 +31,19 @@ export default function MenuPage() {
 
   if (categoriesLoading || menuItemsLoading) {
     return (
-      <div className="min-h-screen gradient-warm flex items-center justify-center">
+      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-gold mx-auto mb-4"></div>
-          <p className="text-saddle-brown">Loading menu...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto mb-4"></div>
+          <p className="text-brand-green">Loading menu...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen gradient-warm">
+    <div className="min-h-screen bg-brand-cream">
       {/* Header */}
-      <header className="bg-white shadow-lg border-b-4 border-warm-gold">
+      <header className="bg-white shadow-lg border-b-4 border-brand-coral">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -55,12 +55,12 @@ export default function MenuPage() {
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <Button className="bg-warm-gold text-white hover:bg-goldenrod">
+              <Button className="bg-brand-green text-white hover:bg-brand-dark-green">
                 <Utensils className="mr-2 h-4 w-4" />
                 Digital Menu
               </Button>
               <Link href="/login">
-                <Button variant="outline" className="border-warm-gold text-warm-gold hover:bg-warm-gold hover:text-white">
+                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white">
                   <Settings className="mr-2 h-4 w-4" />
                   Admin Panel
                 </Button>
