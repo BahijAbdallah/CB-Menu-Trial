@@ -19,13 +19,19 @@ export function useAuth() {
   const { data: authData, isLoading, error, refetch } = useQuery<AuthResponse>({
     queryKey: ["/api/auth/me"],
     retry: false,
-    staleTime: 0, // Always check for fresh data
+    staleTime: 0,
     queryFn: async () => {
+      const token = localStorage.getItem('authToken');
+      
       const res = await fetch("/api/auth/me", {
         credentials: "include",
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
       });
       
       if (res.status === 401) {
+        localStorage.removeItem('authToken');
         return null;
       }
       
@@ -42,6 +48,7 @@ export function useAuth() {
       return apiRequest("POST", "/api/auth/logout", {});
     },
     onSuccess: () => {
+      localStorage.removeItem('authToken');
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
         title: "Logged out",

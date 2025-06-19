@@ -34,20 +34,21 @@ export default function LoginPage() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
-      return apiRequest("POST", "/api/auth/login", data);
+      const response = await apiRequest("POST", "/api/auth/login", data);
+      return response.json();
     },
-    onSuccess: async () => {
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 100));
+    onSuccess: async (data: any) => {
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
-      // Additional delay before redirect
       setTimeout(() => {
         setLocation("/admin");
-      }, 200);
+      }, 100);
     },
     onError: (error: any) => {
       toast({
