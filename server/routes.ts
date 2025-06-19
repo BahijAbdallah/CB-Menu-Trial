@@ -1,0 +1,185 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+import { insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
+import { z } from "zod";
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Categories routes
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/categories", async (req, res) => {
+    try {
+      const categoryData = insertCategorySchema.parse(req.body);
+      const category = await storage.createCategory(categoryData);
+      res.status(201).json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid category data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create category" });
+      }
+    }
+  });
+
+  app.put("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const categoryData = insertCategorySchema.partial().parse(req.body);
+      const category = await storage.updateCategory(id, categoryData);
+      
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      res.json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid category data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update category" });
+      }
+    }
+  });
+
+  app.delete("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteCategory(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
+  // Menu items routes
+  app.get("/api/menu-items", async (req, res) => {
+    try {
+      const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : null;
+      
+      let menuItems;
+      if (categoryId) {
+        menuItems = await storage.getMenuItemsByCategory(categoryId);
+      } else {
+        menuItems = await storage.getMenuItems();
+      }
+      
+      res.json(menuItems);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch menu items" });
+    }
+  });
+
+  app.get("/api/menu-items/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const menuItem = await storage.getMenuItemById(id);
+      
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      
+      res.json(menuItem);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch menu item" });
+    }
+  });
+
+  app.post("/api/menu-items", async (req, res) => {
+    try {
+      const itemData = insertMenuItemSchema.parse(req.body);
+      const menuItem = await storage.createMenuItem(itemData);
+      res.status(201).json(menuItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid menu item data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create menu item" });
+      }
+    }
+  });
+
+  app.put("/api/menu-items/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const itemData = insertMenuItemSchema.partial().parse(req.body);
+      const menuItem = await storage.updateMenuItem(id, itemData);
+      
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      
+      res.json(menuItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid menu item data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update menu item" });
+      }
+    }
+  });
+
+  app.delete("/api/menu-items/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteMenuItem(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete menu item" });
+    }
+  });
+
+  app.patch("/api/menu-items/:id/toggle-availability", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const menuItem = await storage.toggleMenuItemAvailability(id);
+      
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+      
+      res.json(menuItem);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to toggle menu item availability" });
+    }
+  });
+
+  // Stats endpoint for admin dashboard
+  app.get("/api/stats", async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      const categories = await storage.getCategories();
+      
+      const stats = {
+        totalItems: menuItems.length,
+        availableItems: menuItems.filter(item => item.isAvailable).length,
+        outOfStock: menuItems.filter(item => !item.isAvailable).length,
+        categories: categories.length,
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}
