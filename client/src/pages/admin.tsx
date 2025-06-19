@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { Plus, PrinterCheck, Search, ArrowLeft } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Plus, PrinterCheck, Search, ArrowLeft, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,12 +17,21 @@ import type { Category, MenuItem } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 
 export default function AdminPage() {
+  const [, setLocation] = useLocation();
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const { toast } = useToast();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      setLocation("/login");
+    }
+  }, [authLoading, isAuthenticated, setLocation]);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -120,7 +130,7 @@ export default function AdminPage() {
     }
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen gradient-warm flex items-center justify-center">
         <div className="text-center">
@@ -129,6 +139,10 @@ export default function AdminPage() {
         </div>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect to login
   }
 
   return (
@@ -142,7 +156,7 @@ export default function AdminPage() {
                 <CardTitle className="font-playfair text-3xl font-bold text-dark-brown mb-2">
                   Admin Dashboard
                 </CardTitle>
-                <p className="text-saddle-brown">Manage your digital menu with ease</p>
+                <p className="text-saddle-brown">Welcome back, {user?.username}</p>
               </div>
               <div className="flex space-x-4">
                 <Button onClick={handleAddNew} className="bg-warm-gold text-white hover:bg-goldenrod">
@@ -151,7 +165,7 @@ export default function AdminPage() {
                 </Button>
                 <Button variant="outline" className="border-warm-gold text-warm-gold hover:bg-warm-gold hover:text-white">
                   <PrinterCheck className="mr-2 h-4 w-4" />
-                  PrinterCheck Menu
+                  Print Menu
                 </Button>
                 <Link href="/">
                   <Button variant="outline">
@@ -159,6 +173,10 @@ export default function AdminPage() {
                     Back to Menu
                   </Button>
                 </Link>
+                <Button variant="outline" onClick={logout} className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
               </div>
             </div>
           </CardHeader>
