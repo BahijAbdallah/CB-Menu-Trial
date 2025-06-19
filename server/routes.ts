@@ -5,11 +5,23 @@ import { insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
 import "./types";
 
+// Simple token store for demo purposes
+const activeTokens = new Map<string, number>(); // token -> userId
+
+function generateToken(): string {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 // Authentication middleware
 function requireAuth(req: any, res: any, next: any) {
-  if (!req.session?.userId) {
+  const token = req.headers.authorization?.replace('Bearer ', '') || req.session?.authToken;
+  const userId = activeTokens.get(token);
+  
+  if (!userId) {
     return res.status(401).json({ message: "Authentication required" });
   }
+  
+  req.userId = userId;
   next();
 }
 
@@ -29,10 +41,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      req.session.userId = user.id;
-      console.log('Session after login:', req.session);
-      console.log('Session ID:', req.sessionID);
-      res.json({ message: "Login successful", user: { id: user.id, username: user.username } });
+      const token = generateToken();
+      activeTokens.set(token, user.id);
+      req.session.authToken = token;
+      
+      console.log('Generated token:', token);
+      console.log('User ID:', user.id);
+      
+      res.json({ 
+        message: "Login successful", 
+        user: { id: user.id, username: user.username },
+        token: token
+      });
     } catch (error) {
       res.status(500).json({ message: "Login failed" });
     }
@@ -48,14 +68,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", (req, res) => {
-    console.log('Auth check - Session:', req.session);
-    console.log('Auth check - Session ID:', req.sessionID);
-    console.log('Auth check - User ID:', req.session?.userId);
-    if (!req.session?.userId) {
+    const token = req.headers.authorization?.replace('Bearer ', '') || req.session?.authToken;
+    const userId = activeTokens.get(token);
+    
+    console.log('Auth check - Token:', token);
+    console.log('Auth check - User ID:', userId);
+    
+    if (!userId) {
       return res.status(401).json({ message: "Not authenticated" });
     }
     
-    storage.getUser(req.session.userId).then(user => {
+    storage.getUser(userId).then(user => {
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }

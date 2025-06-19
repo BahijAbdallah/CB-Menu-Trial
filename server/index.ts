@@ -17,17 +17,19 @@ app.use(express.static('public'));
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   store: new memoryStore({
     checkPeriod: 86400000 // prune expired entries every 24h
   }),
   cookie: {
-    secure: false, // Set to true in production with HTTPS
-    httpOnly: false, // Allow JavaScript access for debugging
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax'
-  }
+    secure: false,
+    httpOnly: false,
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: 'lax',
+    path: '/'
+  },
+  name: 'sessionId'
 }));
 
 app.use((req, res, next) => {
