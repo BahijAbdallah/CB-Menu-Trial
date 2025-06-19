@@ -5,7 +5,7 @@ import { Utensils, Clock, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MenuCategory from "@/components/menu-category";
 import type { Category, MenuItem } from "@shared/schema";
-import logoSvg from "@/assets/chez-beyrouth-logo.svg";
+
 
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
@@ -45,16 +45,12 @@ export default function MenuPage() {
       <header className="bg-white shadow-lg border-b-4 border-warm-gold">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               <img 
-                src={logoSvg} 
+                src="/logo.png" 
                 alt="Chez Beyrouth Logo" 
-                className="w-16 h-12 object-contain"
+                className="h-16 w-auto object-contain"
               />
-              <div>
-                <h1 className="font-playfair text-3xl font-bold text-dark-brown">Chez Beyrouth</h1>
-                <p className="text-saddle-brown text-sm font-medium">Not the city, the feeling</p>
-              </div>
             </div>
             
             <nav className="hidden md:flex space-x-8">
