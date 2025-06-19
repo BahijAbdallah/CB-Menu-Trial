@@ -93,7 +93,6 @@ This is a full-stack restaurant menu management system built with React, Express
 - June 19, 2025: Added PostgreSQL database with persistent storage
 - June 19, 2025: Implemented authentication system with ali@keemya.net credentials  
 - June 19, 2025: Added category management (create, edit, delete) in admin panel
-- June 19, 2025: Updated hero section to use official public/banner.png with architectural arches
 
 ## User Preferences
 
