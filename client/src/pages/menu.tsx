@@ -107,7 +107,7 @@ export default function MenuPage() {
                 onClick={() => setActiveCategory(category.slug)}
                 className={`whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all duration-200 ${
                   activeCategory === category.slug
-                    ? "bg-brand-green text-white shadow-lg transform scale-105"
+                    ? "category-button-active transform scale-105"
                     : "bg-white border-2 border-brand-green text-brand-green category-button-hover"
                 }`}
               >
