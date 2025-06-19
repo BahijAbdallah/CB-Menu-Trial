@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import logoSvg from "@/assets/chez-beyrouth-logo.svg";
+
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -60,8 +60,12 @@ export default function LoginPage() {
     <div className="min-h-screen gradient-warm flex items-center justify-center p-6">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-warm-gold to-goldenrod rounded-full flex items-center justify-center mb-4">
-            <Utensils className="text-white text-2xl" />
+          <div className="mx-auto mb-4">
+            <img 
+              src="/logo.png" 
+              alt="Chez Beyrouth Logo" 
+              className="h-16 w-auto object-contain mx-auto"
+            />
           </div>
           <CardTitle className="font-playfair text-2xl font-bold text-dark-brown">
             Admin Login

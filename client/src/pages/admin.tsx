@@ -17,7 +17,7 @@ import AdminItemModal from "@/components/admin-item-modal";
 import AdminCategoriesSection from "@/components/admin-categories-section";
 import type { Category, MenuItem } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
-import logoSvg from "@/assets/chez-beyrouth-logo.svg";
+
 
 export default function AdminPage() {
   const [, setLocation] = useLocation();
@@ -157,9 +157,9 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img 
-                  src={logoSvg} 
+                  src="/logo.png" 
                   alt="Chez Beyrouth Logo" 
-                  className="w-16 h-12 object-contain"
+                  className="h-12 w-auto object-contain"
                 />
                 <div>
                   <CardTitle className="font-playfair text-3xl font-bold text-dark-brown mb-2">
