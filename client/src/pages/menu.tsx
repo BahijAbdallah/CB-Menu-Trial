@@ -100,19 +100,19 @@ export default function MenuPage() {
       {/* Menu Categories Navigation */}
       <section className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-6 py-4">
-          <div className="flex overflow-x-auto space-x-6 scrollbar-hide">
+          <div className="flex overflow-x-auto space-x-4 scrollbar-hide">
             {categories.map((category) => (
-              <Button
+              <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.slug)}
-                className={`whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all ${
+                className={`whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all duration-200 ${
                   activeCategory === category.slug
-                    ? "bg-warm-gold text-white"
-                    : "border border-warm-gold text-warm-gold bg-transparent hover:bg-warm-gold hover:text-white"
+                    ? "bg-gradient-to-r from-warm-gold to-goldenrod text-white shadow-lg transform scale-105"
+                    : "bg-white border-2 border-warm-gold text-warm-gold hover:bg-warm-gold hover:text-white hover:shadow-md"
                 }`}
               >
                 {category.name}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
