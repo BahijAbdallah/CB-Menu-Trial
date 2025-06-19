@@ -72,8 +72,13 @@ export default function MenuPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden hero-section">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent z-10"></div>
+      <section className="relative h-48 overflow-hidden" style={{
+        backgroundImage: 'url(/banner.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#E07A5F'
+      }}>
         
         <div className="absolute inset-0 z-20 flex items-end pb-8">
           <div className="container mx-auto px-6">
