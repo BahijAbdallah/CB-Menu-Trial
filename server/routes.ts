@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
+import "./types";
 
 // Authentication middleware
 function requireAuth(req: any, res: any, next: any) {

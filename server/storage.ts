@@ -78,7 +78,12 @@ export class MemStorage implements IStorage {
     ];
 
     categoryData.forEach(cat => {
-      const category: Category = { ...cat, id: this.currentCategoryId++ };
+      const category: Category = { 
+        ...cat, 
+        id: this.currentCategoryId++,
+        nameArabic: cat.nameArabic || null,
+        order: cat.order || 0
+      };
       this.categories.set(category.id, category);
     });
 
@@ -152,7 +157,12 @@ export class MemStorage implements IStorage {
 
   async createCategory(category: InsertCategory): Promise<Category> {
     const id = this.currentCategoryId++;
-    const newCategory: Category = { ...category, id };
+    const newCategory: Category = { 
+      ...category, 
+      id,
+      nameArabic: category.nameArabic || null,
+      order: category.order || 0
+    };
     this.categories.set(id, newCategory);
     return newCategory;
   }
@@ -187,7 +197,16 @@ export class MemStorage implements IStorage {
 
   async createMenuItem(item: InsertMenuItem): Promise<MenuItem> {
     const id = this.currentMenuItemId++;
-    const newItem: MenuItem = { ...item, id };
+    const newItem: MenuItem = { 
+      ...item, 
+      id,
+      nameArabic: item.nameArabic || null,
+      description: item.description || null,
+      descriptionArabic: item.descriptionArabic || null,
+      imageUrl: item.imageUrl || null,
+      order: item.order || 0,
+      isAvailable: item.isAvailable !== undefined ? item.isAvailable : true
+    };
     this.menuItems.set(id, newItem);
     return newItem;
   }
