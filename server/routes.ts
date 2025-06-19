@@ -200,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/menu-items/:id/toggle-availability", async (req, res) => {
+  app.patch("/api/menu-items/:id/toggle-availability", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const menuItem = await storage.toggleMenuItemAvailability(id);
@@ -216,7 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stats endpoint for admin dashboard
-  app.get("/api/stats", async (req, res) => {
+  app.get("/api/stats", requireAuth, async (req, res) => {
     try {
       const menuItems = await storage.getMenuItems();
       const categories = await storage.getCategories();
