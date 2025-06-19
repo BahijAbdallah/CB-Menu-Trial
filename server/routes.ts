@@ -4,7 +4,61 @@ import { storage } from "./storage";
 import { insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Authentication middleware
+function requireAuth(req: any, res: any, next: any) {
+  if (!req.session?.userId) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+  next();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      const user = await storage.getUserByUsername(username);
+      
+      if (!user || user.password !== password) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      req.session.userId = user.id;
+      res.json({ message: "Login successful", user: { id: user.id, username: user.username } });
+    } catch (error) {
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.json({ message: "Logout successful" });
+    });
+  });
+
+  app.get("/api/auth/me", (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    storage.getUser(req.session.userId).then(user => {
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      res.json({ user: { id: user.id, username: user.username } });
+    }).catch(() => {
+      res.status(500).json({ message: "Failed to get user" });
+    });
+  });
+
   // Categories routes
   app.get("/api/categories", async (req, res) => {
     try {
@@ -15,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/categories", async (req, res) => {
+  app.post("/api/categories", requireAuth, async (req, res) => {
     try {
       const categoryData = insertCategorySchema.parse(req.body);
       const category = await storage.createCategory(categoryData);
@@ -29,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/categories/:id", async (req, res) => {
+  app.put("/api/categories/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const categoryData = insertCategorySchema.partial().parse(req.body);
@@ -49,7 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/categories/:id", async (req, res) => {
+  app.delete("/api/categories/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteCategory(id);
@@ -97,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/menu-items", async (req, res) => {
+  app.post("/api/menu-items", requireAuth, async (req, res) => {
     try {
       const itemData = insertMenuItemSchema.parse(req.body);
       const menuItem = await storage.createMenuItem(itemData);
@@ -111,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/menu-items/:id", async (req, res) => {
+  app.put("/api/menu-items/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const itemData = insertMenuItemSchema.partial().parse(req.body);
@@ -131,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/menu-items/:id", async (req, res) => {
+  app.delete("/api/menu-items/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteMenuItem(id);
