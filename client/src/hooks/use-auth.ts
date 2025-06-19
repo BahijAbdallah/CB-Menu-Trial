@@ -19,6 +19,21 @@ export function useAuth() {
   const { data: authData, isLoading, error } = useQuery<AuthResponse>({
     queryKey: ["/api/auth/me"],
     retry: false,
+    queryFn: async () => {
+      const res = await fetch("/api/auth/me", {
+        credentials: "include",
+      });
+      
+      if (res.status === 401) {
+        return null;
+      }
+      
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
+      
+      return await res.json();
+    },
   });
 
   const logoutMutation = useMutation({
@@ -42,7 +57,7 @@ export function useAuth() {
     },
   });
 
-  const isAuthenticated = !!authData?.user && !error;
+  const isAuthenticated = !!authData?.user;
   const user = authData?.user || null;
 
   const logout = () => {
