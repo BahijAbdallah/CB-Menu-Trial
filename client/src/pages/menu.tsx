@@ -108,7 +108,7 @@ export default function MenuPage() {
                 className={`whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all duration-200 ${
                   activeCategory === category.slug
                     ? "bg-gradient-to-r from-warm-gold to-goldenrod text-white shadow-lg transform scale-105"
-                    : "bg-white border-2 border-warm-gold text-warm-gold hover:bg-gradient-to-r hover:from-warm-gold hover:to-goldenrod hover:text-white hover:shadow-lg hover:border-goldenrod"
+                    : "bg-white border-2 border-warm-gold text-warm-gold category-button-hover"
                 }`}
               >
                 {category.name}
