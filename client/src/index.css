@@ -158,7 +158,7 @@
 
   /* Category button hover effect */
   .category-button-hover:hover {
-    background: linear-gradient(to right, hsl(120, 25%, 35%), hsl(15, 65%, 65%)) !important;
+    background: hsl(120, 25%, 35%) !important;
     color: white !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border-color: hsl(120, 25%, 35%) !important;

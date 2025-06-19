@@ -57,7 +57,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen gradient-warm flex items-center justify-center p-6">
+    <div className="min-h-screen bg-brand-cream flex items-center justify-center p-6">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
@@ -67,10 +67,10 @@ export default function LoginPage() {
               className="h-16 w-auto object-contain mx-auto"
             />
           </div>
-          <CardTitle className="font-playfair text-2xl font-bold text-dark-brown">
+          <CardTitle className="font-playfair text-2xl font-bold text-brand-green">
             Admin Login
           </CardTitle>
-          <p className="text-saddle-brown">
+          <p className="text-brand-green">
             Access Chez Beyrouth Admin Panel
           </p>
         </CardHeader>
@@ -115,7 +115,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-warm-gold text-white hover:bg-goldenrod"
+                className="w-full bg-brand-green text-white hover:bg-brand-dark-green"
                 disabled={loginMutation.isPending}
               >
                 {loginMutation.isPending ? (
