@@ -1,0 +1,95 @@
+# Restaurant Menu Management System
+
+## Overview
+
+This is a full-stack restaurant menu management system built with React, Express, and PostgreSQL. The application provides both a customer-facing menu interface and an admin dashboard for managing menu items and categories. It features bilingual support (English/Arabic) and modern UI components.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with custom Lebanese-themed color palette
+- **UI Components**: Radix UI primitives with shadcn/ui component library
+- **State Management**: TanStack Query (React Query) for server state
+- **Routing**: Wouter for lightweight client-side routing
+- **Form Handling**: React Hook Form with Zod validation
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js
+- **Language**: TypeScript with ES modules
+- **Database ORM**: Drizzle ORM with PostgreSQL
+- **Database Provider**: Neon Database (serverless PostgreSQL)
+- **Development**: tsx for TypeScript execution
+- **Build**: esbuild for production bundling
+
+### Database Schema
+- **Categories Table**: Stores menu categories with bilingual names and ordering
+- **Menu Items Table**: Stores individual menu items with prices, descriptions, and availability
+- **Users Table**: Basic user authentication for admin access
+
+## Key Components
+
+### Data Layer
+- **Drizzle Schema**: Centralized schema definitions in `shared/schema.ts`
+- **Storage Interface**: Abstract storage layer with in-memory implementation for development
+- **Type Safety**: Full TypeScript integration with Drizzle-Zod for runtime validation
+
+### API Layer
+- **RESTful Routes**: Express routes for CRUD operations
+- **Error Handling**: Centralized error handling with proper HTTP status codes
+- **Request Validation**: Zod schema validation for all API endpoints
+
+### UI Components
+- **Menu Display**: Category-based menu organization with responsive design
+- **Admin Dashboard**: Full CRUD interface for menu management
+- **Modal Forms**: Dynamic forms for creating/editing menu items
+- **Statistics Dashboard**: Admin overview with key metrics
+
+## Data Flow
+
+1. **Client Requests**: React components make API calls through TanStack Query
+2. **API Processing**: Express routes validate requests and interact with storage layer
+3. **Data Persistence**: Drizzle ORM handles database operations with PostgreSQL
+4. **Response Handling**: Data flows back through the same path with error handling
+5. **UI Updates**: React Query manages cache invalidation and UI synchronization
+
+## External Dependencies
+
+### Database
+- **Neon Database**: Serverless PostgreSQL for production
+- **Connection**: Uses DATABASE_URL environment variable
+- **Migrations**: Drizzle Kit for schema migrations
+
+### Third-party Services
+- **Unsplash**: Default menu item images
+- **Replit Integration**: Development environment optimizations
+
+### Build Tools
+- **Vite**: Frontend build tool with React plugin
+- **PostCSS**: CSS processing with Tailwind
+- **TypeScript**: Type checking and compilation
+
+## Deployment Strategy
+
+### Development
+- **Hot Reload**: Vite dev server with HMR
+- **TypeScript**: Real-time type checking
+- **Database**: Local or cloud PostgreSQL instance
+
+### Production
+- **Frontend**: Vite builds static assets to `dist/public`
+- **Backend**: esbuild bundles server code to `dist/index.js`
+- **Deployment**: Replit autoscale deployment
+- **Environment**: NODE_ENV=production with optimizations
+
+### Database Management
+- **Schema Push**: `npm run db:push` for development
+- **Migrations**: Drizzle Kit handles schema changes
+- **Connection Pooling**: Neon handles connection management
+
+## Changelog
+- June 19, 2025. Initial setup
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.

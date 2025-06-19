@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(48, 100%, 97%);
+  --foreground: hsl(24, 45%, 12%);
+  --muted: hsl(48, 20%, 95%);
+  --muted-foreground: hsl(25, 20%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(24, 45%, 12%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(24, 45%, 12%);
+  --border: hsl(45, 30%, 85%);
+  --input: hsl(45, 30%, 85%);
+  --primary: hsl(43, 89%, 38%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(48, 20%, 95%);
+  --secondary-foreground: hsl(24, 45%, 12%);
+  --accent: hsl(43, 60%, 55%);
+  --accent-foreground: hsl(24, 45%, 12%);
+  --destructive: hsl(0, 85%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(43, 89%, 38%);
+  --radius: 0.75rem;
+  
+  /* Custom Lebanese theme colors */
+  --warm-gold: hsl(51, 84%, 55%);
+  --saddle-brown: hsl(25, 75%, 31%);
+  --peru: hsl(30, 59%, 53%);
+  --sandy-brown: hsl(33, 87%, 65%);
+  --fire-brick: hsl(0, 68%, 42%);
+  --goldenrod: hsl(43, 74%, 49%);
+  --cornsilk: hsl(48, 100%, 93%);
+  --dark-brown: hsl(24, 45%, 12%);
+  --warm-beige: hsl(60, 56%, 91%);
+}
+
+.dark {
+  --background: hsl(24, 20%, 8%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(24, 15%, 15%);
+  --muted-foreground: hsl(240, 5%, 65%);
+  --popover: hsl(24, 20%, 8%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(24, 20%, 8%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(24, 15%, 15%);
+  --input: hsl(24, 15%, 15%);
+  --primary: hsl(43, 89%, 38%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(24, 15%, 15%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(24, 15%, 15%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  .font-playfair {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gradient-warm {
+    background: linear-gradient(135deg, hsl(var(--cornsilk)) 0%, hsl(var(--warm-beige)) 100%);
+  }
+
+  .text-warm-gold {
+    color: hsl(var(--warm-gold));
+  }
+
+  .text-saddle-brown {
+    color: hsl(var(--saddle-brown));
+  }
+
+  .text-dark-brown {
+    color: hsl(var(--dark-brown));
+  }
+
+  .bg-warm-gold {
+    background-color: hsl(var(--warm-gold));
+  }
+
+  .bg-goldenrod {
+    background-color: hsl(var(--goldenrod));
+  }
+
+  .bg-cornsilk {
+    background-color: hsl(var(--cornsilk));
+  }
+
+  .border-warm-gold {
+    border-color: hsl(var(--warm-gold));
+  }
+
+  .hover\:bg-warm-gold:hover {
+    background-color: hsl(var(--warm-gold));
+  }
+
+  .hover\:bg-goldenrod:hover {
+    background-color: hsl(var(--goldenrod));
+  }
+}
