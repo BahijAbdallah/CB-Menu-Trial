@@ -59,7 +59,7 @@ export default function MenuPage() {
                 <Utensils className="mr-2 h-4 w-4" />
                 Digital Menu
               </Button>
-              <Link href="/admin">
+              <Link href="/login">
                 <Button variant="outline" className="border-warm-gold text-warm-gold hover:bg-warm-gold hover:text-white">
                   <Settings className="mr-2 h-4 w-4" />
                   Admin Panel
