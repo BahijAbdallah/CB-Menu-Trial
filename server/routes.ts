@@ -30,6 +30,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       req.session.userId = user.id;
+      console.log('Session after login:', req.session);
+      console.log('Session ID:', req.sessionID);
       res.json({ message: "Login successful", user: { id: user.id, username: user.username } });
     } catch (error) {
       res.status(500).json({ message: "Login failed" });
@@ -46,6 +48,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", (req, res) => {
+    console.log('Auth check - Session:', req.session);
+    console.log('Auth check - Session ID:', req.sessionID);
+    console.log('Auth check - User ID:', req.session?.userId);
     if (!req.session?.userId) {
       return res.status(401).json({ message: "Not authenticated" });
     }

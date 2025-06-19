@@ -16,9 +16,10 @@ export function useAuth() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: authData, isLoading, error } = useQuery<AuthResponse>({
+  const { data: authData, isLoading, error, refetch } = useQuery<AuthResponse>({
     queryKey: ["/api/auth/me"],
     retry: false,
+    staleTime: 0, // Always check for fresh data
     queryFn: async () => {
       const res = await fetch("/api/auth/me", {
         credentials: "include",
@@ -70,5 +71,6 @@ export function useAuth() {
     isLoading,
     logout,
     isLoggingOut: logoutMutation.isPending,
+    refetch,
   };
 }
