@@ -119,7 +119,7 @@ export default function MenuPage() {
       </section>
 
       {/* Menu Categories Navigation */}
-      <section className="bg-white shadow-sm border-b">
+      <section className="bg-white shadow-sm border-b relative z-10">
         <div className="container mx-auto px-6 py-4">
           <div className="flex overflow-x-auto space-x-4 scrollbar-hide">
             {categories.map((category) => (
@@ -140,7 +140,7 @@ export default function MenuPage() {
       </section>
 
       {/* Menu Items Display */}
-      <section className="container mx-auto px-6 py-12">
+      <section className="container mx-auto px-6 py-12 relative z-10">
         {activeCategoryData && (
           <MenuCategory 
             category={activeCategoryData} 
