@@ -155,7 +155,7 @@ export default function AdminPage() {
         {/* Admin Header */}
         <Card className="mb-8">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <img 
                   src="/logo.png" 
@@ -163,13 +163,13 @@ export default function AdminPage() {
                   className="h-12 w-auto object-contain"
                 />
                 <div>
-                  <CardTitle className="font-playfair text-3xl font-bold text-dark-brown mb-2">
+                  <CardTitle className="font-playfair text-2xl lg:text-3xl font-bold text-dark-brown mb-2">
                     Admin Dashboard
                   </CardTitle>
                   <p className="text-saddle-brown">Welcome back, {user?.username}</p>
                 </div>
               </div>
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap gap-2 lg:gap-4">
                 <Button onClick={handleAddNew} className="bg-brand-green text-white hover:bg-brand-dark-green">
                   <Plus className="mr-2 h-4 w-4" />
                   Add New Item
@@ -212,6 +212,15 @@ export default function AdminPage() {
           <TabsContent value="menu-items">
             <Card>
               <CardContent className="p-8">
+                {/* Add New Item Button */}
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-semibold text-dark-brown">Menu Items Management</h3>
+                  <Button onClick={handleAddNew} className="bg-brand-green text-white hover:bg-brand-dark-green">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New Item
+                  </Button>
+                </div>
+                
                 {/* Search and Filters */}
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
                   <div className="flex-1 relative">
