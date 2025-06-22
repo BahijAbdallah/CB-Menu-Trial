@@ -5,6 +5,7 @@ import { Utensils, Clock, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MenuCategory from "@/components/menu-category";
 import type { Category, MenuItem } from "@shared/schema";
+import clockTowerImage from "@/assets/chez_1750587966495.png";
 
 
 
@@ -112,7 +113,7 @@ export default function MenuPage() {
               {/* Clock Tower Image */}
               <div className="hidden lg:block ml-12 flex-shrink-0">
                 <img 
-                  src="/attached_assets/chez_1750587966495.png" 
+                  src={clockTowerImage}
                   alt="A Place To Feel - Architectural Clock Tower" 
                   className="h-80 w-auto opacity-90 filter drop-shadow-2xl object-contain"
                 />
