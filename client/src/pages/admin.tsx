@@ -215,9 +215,9 @@ export default function AdminPage() {
                 {/* Add New Item Button */}
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-semibold text-brand-green">Menu Items Management</h3>
-                  <Button onClick={handleAddNew} className="bg-brand-green hover:bg-brand-dark-green" style={{ color: 'white' }}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add New Item
+                  <Button onClick={handleAddNew} className="bg-brand-green hover:bg-brand-dark-green !text-white font-medium">
+                    <Plus className="mr-2 h-4 w-4 text-white" />
+                    <span className="text-white">Add New Item</span>
                   </Button>
                 </div>
                 
