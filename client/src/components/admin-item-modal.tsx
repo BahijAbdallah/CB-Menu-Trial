@@ -274,8 +274,13 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
             <div className="flex space-x-4">
               <Button
                 type="submit"
-                className="flex-1 bg-brand-green text-white hover:bg-brand-dark-green"
+                className="flex-1 hover:opacity-90"
                 disabled={isSubmitting}
+                style={{
+                  backgroundColor: '#527A53',
+                  color: '#ffffff',
+                  border: 'none'
+                }}
               >
                 {isSubmitting ? "Saving..." : "Save Menu Item"}
               </Button>
@@ -284,7 +289,11 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                 variant="outline"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
+                style={{
+                  borderColor: '#c86f60',
+                  color: '#c86f60'
+                }}
+                className="hover:bg-brand-coral hover:text-white"
               >
                 Cancel
               </Button>
