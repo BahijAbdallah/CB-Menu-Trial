@@ -96,6 +96,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - June 19, 2025: Fixed authentication issues with token-based system
 - June 19, 2025: Applied complete brand color scheme across application
 - June 22, 2025: Removed background image from banner, replaced with branded design using official colors
+- June 22, 2025: Added Dancing Script font for main headings while maintaining Playfair Display for menu item content
 
 ## User Preferences
 
