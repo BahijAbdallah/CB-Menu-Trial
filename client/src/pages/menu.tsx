@@ -112,7 +112,7 @@ export default function MenuPage() {
               {/* Clock Tower Image */}
               <div className="hidden lg:block ml-12 flex-shrink-0">
                 <img 
-                  src="/attached_assets/Screenshot 2025-06-22 at 1.21.21 PM_1750587761087.png" 
+                  src="/attached_assets/chez_1750587966495.png" 
                   alt="A Place To Feel - Architectural Clock Tower" 
                   className="h-80 w-auto opacity-90 filter drop-shadow-2xl object-contain"
                 />
