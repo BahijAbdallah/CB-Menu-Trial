@@ -71,29 +71,29 @@ export default function MenuPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10"></div>
-        <img 
-          src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=600" 
-          alt="Elegant restaurant interior with warm lighting" 
-          className="w-full h-full object-cover"
-        />
+      <section className="relative h-96 bg-gradient-to-br from-brand-green via-brand-green to-brand-dark-green">
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-coral/20 to-transparent"></div>
         
-        <div className="absolute inset-0 z-20 flex items-center">
+        <div className="relative flex items-center h-full z-10">
           <div className="container mx-auto px-6">
             <div className="max-w-2xl">
               <h2 className="font-playfair text-5xl font-bold text-white mb-4">
                 A Place To Feel
               </h2>
-              <p className="text-xl text-cornsilk leading-relaxed mb-6">
+              <p className="text-xl text-white/90 leading-relaxed mb-6">
                 Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
               </p>
-              <div className="flex items-center space-x-4 text-warm-gold">
+              <div className="flex items-center space-x-4 text-white/80">
                 <Clock className="h-5 w-5" />
                 <span className="text-white">Open Daily 7:00 AM - 11:00 PM</span>
               </div>
             </div>
           </div>
+        </div>
+        
+        {/* Decorative pattern overlay */}
+        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-10">
+          <div className="w-full h-full bg-gradient-to-tl from-brand-coral to-transparent rounded-full transform translate-x-32 translate-y-32"></div>
         </div>
       </section>
 
