@@ -150,7 +150,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-cream">
+    <div className="min-h-screen bg-light-cream">
       <div className="container mx-auto px-6 py-8">
         {/* Admin Header */}
         <Card className="mb-8">
