@@ -83,19 +83,19 @@ export default function MenuPage() {
         
         <div className="relative flex items-center h-full z-10">
           <div className="container mx-auto px-6">
-            <div className="max-w-2xl bg-gradient-to-br from-brand-cream via-brand-cream to-brand-cream/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-brand-coral/20">
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full opacity-60"></div>
-              <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full opacity-40"></div>
+            <div className="max-w-2xl bg-brand-cream backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-2 border-brand-coral/30">
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
+              <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
               
-              <h2 className="font-playfair text-5xl font-bold bg-gradient-to-r from-brand-green to-brand-dark-green bg-clip-text text-transparent mb-4">
+              <h2 className="font-playfair text-5xl font-bold text-brand-green mb-4">
                 A Place To Feel
               </h2>
               <p className="text-xl text-brand-green leading-relaxed mb-6">
                 Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
               </p>
-              <div className="flex items-center space-x-4 bg-brand-coral/10 rounded-full px-4 py-2 w-fit">
+              <div className="flex items-center space-x-4 bg-brand-coral/20 rounded-full px-4 py-3 w-fit border border-brand-coral/40">
                 <Clock className="h-5 w-5 text-brand-coral" />
-                <span className="text-brand-green font-medium">Open Daily 7:00 AM - 11:00 PM</span>
+                <span className="text-brand-green font-semibold">Open Daily 7:00 AM - 11:00 PM</span>
               </div>
             </div>
           </div>
