@@ -215,7 +215,7 @@ export default function AdminPage() {
                 {/* Add New Item Button */}
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-semibold text-brand-green">Menu Items Management</h3>
-                  <Button onClick={handleAddNew} className="bg-brand-green text-white hover:bg-brand-dark-green">
+                  <Button onClick={handleAddNew} className="bg-brand-green hover:bg-brand-dark-green" style={{ color: 'white' }}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add New Item
                   </Button>
@@ -234,26 +234,26 @@ export default function AdminPage() {
                     />
                   </div>
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-48 text-brand-green border-brand-green/30">
-                      <SelectValue placeholder="All Categories" className="text-brand-green" />
+                    <SelectTrigger className="w-48 border-brand-green/30" style={{ color: '#527A53' }}>
+                      <SelectValue placeholder="All Categories" style={{ color: '#527A53' }} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all" className="text-brand-green">All Categories</SelectItem>
+                      <SelectItem value="all" style={{ color: '#527A53' }}>All Categories</SelectItem>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.slug} className="text-brand-green">
+                        <SelectItem key={category.id} value={category.slug} style={{ color: '#527A53' }}>
                           {category.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                    <SelectTrigger className="w-32 text-brand-green border-brand-green/30">
-                      <SelectValue placeholder="All Status" className="text-brand-green" />
+                    <SelectTrigger className="w-32 border-brand-green/30" style={{ color: '#527A53' }}>
+                      <SelectValue placeholder="All Status" style={{ color: '#527A53' }} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all" className="text-brand-green">All Status</SelectItem>
-                      <SelectItem value="available" className="text-brand-green">Available</SelectItem>
-                      <SelectItem value="unavailable" className="text-brand-coral">Out of Stock</SelectItem>
+                      <SelectItem value="all" style={{ color: '#527A53' }}>All Status</SelectItem>
+                      <SelectItem value="available" style={{ color: '#527A53' }}>Available</SelectItem>
+                      <SelectItem value="unavailable" style={{ color: '#c86f60' }}>Out of Stock</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
