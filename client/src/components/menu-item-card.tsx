@@ -17,11 +17,11 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
         className="w-full h-48 object-cover"
       />
       <div className="p-6">
-        <h4 className="font-playfair text-xl font-semibold text-dark-brown mb-2">
+        <h4 className="font-script text-2xl font-semibold text-brand-green mb-2">
           {item.name}
         </h4>
         {item.nameArabic && (
-          <h5 className="text-lg text-saddle-brown mb-2" dir="rtl">
+          <h5 className="font-script text-lg text-brand-coral mb-2" dir="rtl">
             {item.nameArabic}
           </h5>
         )}
@@ -31,7 +31,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </p>
         )}
         <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-warm-gold">
+          <span className="text-2xl font-bold text-brand-coral">
             ${item.price}
           </span>
           <Badge 

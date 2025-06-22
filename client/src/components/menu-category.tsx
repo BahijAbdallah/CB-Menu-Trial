@@ -10,11 +10,11 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
   return (
     <div>
       <div className="text-center mb-12">
-        <h3 className="font-playfair text-4xl font-bold text-dark-brown mb-4">
+        <h3 className="font-script text-5xl font-bold text-brand-green mb-4">
           {category.name}
         </h3>
         {category.nameArabic && (
-          <h4 className="font-playfair text-2xl text-saddle-brown mb-4" dir="rtl">
+          <h4 className="font-script text-3xl text-brand-coral mb-4" dir="rtl">
             {category.nameArabic}
           </h4>
         )}
