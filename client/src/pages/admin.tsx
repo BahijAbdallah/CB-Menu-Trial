@@ -224,36 +224,36 @@ export default function AdminPage() {
                 {/* Search and Filters */}
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
                   <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-saddle-brown h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brand-green h-4 w-4" />
                     <Input
                       type="text"
                       placeholder="Search menu items..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 text-brand-green placeholder:text-brand-green/60 border-brand-green/30"
                     />
                   </div>
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="All Categories" />
+                    <SelectTrigger className="w-48 text-brand-green border-brand-green/30">
+                      <SelectValue placeholder="All Categories" className="text-brand-green" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="all" className="text-brand-green">All Categories</SelectItem>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.slug}>
+                        <SelectItem key={category.id} value={category.slug} className="text-brand-green">
                           {category.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="All Status" />
+                    <SelectTrigger className="w-32 text-brand-green border-brand-green/30">
+                      <SelectValue placeholder="All Status" className="text-brand-green" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="available">Available</SelectItem>
-                      <SelectItem value="unavailable">Out of Stock</SelectItem>
+                      <SelectItem value="all" className="text-brand-green">All Status</SelectItem>
+                      <SelectItem value="available" className="text-brand-green">Available</SelectItem>
+                      <SelectItem value="unavailable" className="text-brand-coral">Out of Stock</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -262,17 +262,17 @@ export default function AdminPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-4 px-2 font-semibold text-dark-brown">Item</th>
-                        <th className="text-left py-4 px-2 font-semibold text-dark-brown">Category</th>
-                        <th className="text-left py-4 px-2 font-semibold text-dark-brown">Price</th>
-                        <th className="text-left py-4 px-2 font-semibold text-dark-brown">Status</th>
-                        <th className="text-left py-4 px-2 font-semibold text-dark-brown">Actions</th>
+                      <tr className="border-b border-brand-green/20">
+                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Item</th>
+                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Category</th>
+                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Price</th>
+                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Status</th>
+                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredItems.map((item, index) => (
-                        <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <tr key={item.id} className="border-b border-brand-green/10 hover:bg-brand-cream/30">
                           <td className="py-4 px-2">
                             <div className="flex items-center space-x-3">
                               <img
@@ -281,20 +281,20 @@ export default function AdminPage() {
                                 className="w-12 h-12 rounded-lg object-cover"
                               />
                               <div>
-                                <p className="font-medium text-dark-brown">{item.name}</p>
-                                <p className="text-sm text-saddle-brown line-clamp-1">
+                                <p className="font-medium text-brand-green">{item.name}</p>
+                                <p className="text-sm text-brand-green/70 line-clamp-1">
                                   {item.description || "No description"}
                                 </p>
                               </div>
                             </div>
                           </td>
                           <td className="py-4 px-2">
-                            <Badge variant="secondary">
+                            <Badge variant="secondary" className="bg-brand-coral/20 text-brand-coral">
                               {getCategoryName(item.categoryId)}
                             </Badge>
                           </td>
                           <td className="py-4 px-2">
-                            <span className="font-semibold text-dark-brown">${item.price}</span>
+                            <span className="font-semibold text-brand-green">${item.price}</span>
                           </td>
                           <td className="py-4 px-2">
                             <Switch
@@ -332,7 +332,7 @@ export default function AdminPage() {
 
                 {filteredItems.length === 0 && (
                   <div className="text-center py-12">
-                    <p className="text-saddle-brown text-lg">No menu items found matching your criteria.</p>
+                    <p className="text-brand-green text-lg">No menu items found matching your criteria.</p>
                   </div>
                 )}
               </CardContent>
