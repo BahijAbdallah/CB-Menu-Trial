@@ -170,11 +170,11 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="flex space-x-4">
-                <Button onClick={handleAddNew} className="bg-warm-gold text-white hover:bg-goldenrod">
+                <Button onClick={handleAddNew} className="bg-brand-green text-white hover:bg-brand-dark-green">
                   <Plus className="mr-2 h-4 w-4" />
                   Add New Item
                 </Button>
-                <Button variant="outline" className="border-warm-gold text-warm-gold hover:bg-warm-gold hover:text-white">
+                <Button variant="outline" className="border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white">
                   <PrinterCheck className="mr-2 h-4 w-4" />
                   Print Menu
                 </Button>
@@ -300,7 +300,7 @@ export default function AdminPage() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleEdit(item)}
-                                className="text-blue-600 hover:bg-blue-100"
+                                className="text-brand-green hover:bg-brand-green/10"
                               >
                                 Edit
                               </Button>
@@ -308,7 +308,7 @@ export default function AdminPage() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleDelete(item.id)}
-                                className="text-red-600 hover:bg-red-100"
+                                className="text-brand-coral hover:bg-brand-coral/10"
                                 disabled={deleteItemMutation.isPending}
                               >
                                 Delete
