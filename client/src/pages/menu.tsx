@@ -31,7 +31,7 @@ export default function MenuPage() {
 
   if (categoriesLoading || menuItemsLoading) {
     return (
-      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
+      <div className="min-h-screen bg-light-cream flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto mb-4"></div>
           <p className="text-brand-green">Loading menu...</p>
@@ -41,7 +41,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-cream relative">
+    <div className="min-h-screen bg-light-cream relative">
       {/* Background Pattern */}
       <div 
         className="fixed inset-0 opacity-5 pointer-events-none z-0"
@@ -95,7 +95,7 @@ export default function MenuPage() {
               <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
               <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
               
-              <h2 className="font-script text-6xl font-bold text-brand-green mb-4">
+              <h2 className="font-script text-6xl font-bold text-title-coral mb-4">
                 A Place To Feel
               </h2>
               <p className="text-xl text-brand-green leading-relaxed mb-6">
