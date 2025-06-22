@@ -71,29 +71,42 @@ export default function MenuPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-br from-brand-green via-brand-green to-brand-dark-green">
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-coral/20 to-transparent"></div>
+      <section className="relative h-96 bg-gradient-to-br from-brand-green via-brand-green to-brand-dark-green overflow-hidden">
+        {/* Layered background patterns */}
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-coral/30 via-transparent to-brand-coral/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-bl from-brand-cream/10 to-transparent"></div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-10 right-10 w-32 h-32 bg-brand-coral/20 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 left-20 w-24 h-24 bg-brand-cream/20 rounded-full blur-lg"></div>
+        <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-brand-coral/15 rounded-full blur-md"></div>
         
         <div className="relative flex items-center h-full z-10">
           <div className="container mx-auto px-6">
-            <div className="max-w-2xl bg-brand-cream/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl">
-              <h2 className="font-playfair text-5xl font-bold text-brand-green mb-4">
+            <div className="max-w-2xl bg-gradient-to-br from-brand-cream via-brand-cream to-brand-cream/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-brand-coral/20">
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full opacity-60"></div>
+              <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full opacity-40"></div>
+              
+              <h2 className="font-playfair text-5xl font-bold bg-gradient-to-r from-brand-green to-brand-dark-green bg-clip-text text-transparent mb-4">
                 A Place To Feel
               </h2>
               <p className="text-xl text-brand-green leading-relaxed mb-6">
                 Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
               </p>
-              <div className="flex items-center space-x-4 text-brand-coral">
-                <Clock className="h-5 w-5" />
-                <span className="text-brand-green">Open Daily 7:00 AM - 11:00 PM</span>
+              <div className="flex items-center space-x-4 bg-brand-coral/10 rounded-full px-4 py-2 w-fit">
+                <Clock className="h-5 w-5 text-brand-coral" />
+                <span className="text-brand-green font-medium">Open Daily 7:00 AM - 11:00 PM</span>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Decorative pattern overlay */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-10">
-          <div className="w-full h-full bg-gradient-to-tl from-brand-coral to-transparent rounded-full transform translate-x-32 translate-y-32"></div>
+        {/* Enhanced decorative pattern overlay */}
+        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-15">
+          <div className="w-full h-full bg-gradient-to-tl from-brand-coral via-brand-coral/50 to-transparent rounded-full transform translate-x-32 translate-y-32"></div>
+        </div>
+        <div className="absolute top-0 left-0 w-64 h-64 opacity-10">
+          <div className="w-full h-full bg-gradient-to-br from-brand-cream to-transparent rounded-full transform -translate-x-20 -translate-y-20"></div>
         </div>
       </section>
 
