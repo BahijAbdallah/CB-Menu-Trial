@@ -76,14 +76,14 @@ export default function MenuPage() {
         
         <div className="relative flex items-center h-full z-10">
           <div className="container mx-auto px-6">
-            <div className="max-w-2xl">
-              <h2 className="font-playfair text-5xl font-bold text-white mb-4">
+            <div className="max-w-2xl bg-black/30 backdrop-blur-sm rounded-2xl p-8">
+              <h2 className="font-playfair text-5xl font-bold text-white mb-4 drop-shadow-lg">
                 A Place To Feel
               </h2>
-              <p className="text-xl text-white/90 leading-relaxed mb-6">
+              <p className="text-xl text-white leading-relaxed mb-6 drop-shadow-md">
                 Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
               </p>
-              <div className="flex items-center space-x-4 text-white/80">
+              <div className="flex items-center space-x-4 text-white drop-shadow-md">
                 <Clock className="h-5 w-5" />
                 <span className="text-white">Open Daily 7:00 AM - 11:00 PM</span>
               </div>
