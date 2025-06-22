@@ -53,25 +53,27 @@ export default function MenuPage() {
       ></div>
       {/* Header */}
       <header className="bg-white shadow-lg border-b-4 border-brand-coral relative z-10">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <img 
                 src="/logo.png" 
                 alt="Chez Beyrouth Logo" 
-                className="h-16 w-auto object-contain"
+                className="h-12 sm:h-16 w-auto object-contain"
               />
             </div>
             
-            <nav className="hidden md:flex space-x-8">
-              <Button className="bg-brand-green text-white hover:bg-brand-dark-green">
-                <Utensils className="mr-2 h-4 w-4" />
-                Digital Menu
+            <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-8">
+              <Button className="bg-brand-green text-white hover:bg-brand-dark-green text-xs sm:text-sm px-3 sm:px-4 py-2">
+                <Utensils className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Digital Menu</span>
+                <span className="sm:hidden">Menu</span>
               </Button>
               <Link href="/login">
-                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Admin Panel
+                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white text-xs sm:text-sm px-3 sm:px-4 py-2">
+                  <Settings className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Admin Panel</span>
+                  <span className="sm:hidden">Admin</span>
                 </Button>
               </Link>
             </nav>
@@ -80,7 +82,7 @@ export default function MenuPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-br from-brand-green via-brand-green to-brand-dark-green overflow-hidden z-10">
+      <section className="relative min-h-96 lg:h-96 bg-gradient-to-br from-brand-green via-brand-green to-brand-dark-green overflow-hidden z-10">
         {/* Layered background patterns */}
         <div className="absolute inset-0 bg-gradient-to-r from-brand-coral/30 via-transparent to-brand-coral/20"></div>
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-bl from-brand-cream/10 to-transparent"></div>
@@ -91,31 +93,31 @@ export default function MenuPage() {
         <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-brand-coral/15 rounded-full blur-md"></div>
         
         <div className="relative flex items-center h-full z-10">
-          <div className="container mx-auto px-6">
-            <div className="flex items-center justify-between max-w-6xl mx-auto">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex flex-col lg:flex-row items-center justify-between max-w-6xl mx-auto gap-8 lg:gap-12">
               {/* Content Rectangle */}
-              <div className="max-w-2xl bg-brand-cream backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-2 border-brand-coral/30 relative">
+              <div className="w-full max-w-2xl bg-brand-cream backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-brand-coral/30 relative">
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
                 <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
                 
-                <h2 className="font-script text-6xl font-bold text-title-coral mb-4">
+                <h2 className="font-script text-4xl sm:text-5xl lg:text-6xl font-bold text-title-coral mb-4 text-center lg:text-left">
                   A Place To Feel
                 </h2>
-                <p className="text-xl text-brand-green leading-relaxed mb-6">
+                <p className="text-lg sm:text-xl text-brand-green leading-relaxed mb-6 text-center lg:text-left">
                   Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
                 </p>
-                <div className="flex items-center space-x-4 bg-brand-coral/20 rounded-full px-4 py-3 w-fit border border-brand-coral/40">
+                <div className="flex items-center justify-center lg:justify-start space-x-4 bg-brand-coral/20 rounded-full px-4 py-3 w-fit mx-auto lg:mx-0 border border-brand-coral/40">
                   <Clock className="h-5 w-5 text-brand-coral" />
-                  <span className="text-brand-green font-semibold">Open Daily 7:00 AM - 11:00 PM</span>
+                  <span className="text-brand-green font-semibold text-sm sm:text-base">Open Daily 7:00 AM - 11:00 PM</span>
                 </div>
               </div>
               
               {/* Clock Tower Image */}
-              <div className="hidden lg:block ml-12 flex-shrink-0">
+              <div className="flex-shrink-0 w-full lg:w-auto flex justify-center">
                 <img 
                   src={clockTowerImage}
                   alt="A Place To Feel - Architectural Clock Tower" 
-                  className="h-80 w-auto opacity-90 filter drop-shadow-2xl object-contain"
+                  className="h-64 sm:h-72 md:h-80 lg:h-80 w-auto opacity-90 filter drop-shadow-2xl object-contain max-w-full"
                 />
               </div>
             </div>
@@ -133,13 +135,13 @@ export default function MenuPage() {
 
       {/* Menu Categories Navigation */}
       <section className="bg-white shadow-sm border-b relative z-10">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex overflow-x-auto space-x-4 scrollbar-hide">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex overflow-x-auto space-x-2 sm:space-x-4 scrollbar-hide pb-2">
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.slug)}
-                className={`whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                className={`whitespace-nowrap px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-200 text-sm sm:text-base ${
                   activeCategory === category.slug
                     ? "category-button-active transform scale-105"
                     : "bg-white border-2 border-brand-green text-brand-green category-button-hover"
@@ -153,7 +155,7 @@ export default function MenuPage() {
       </section>
 
       {/* Menu Items Display */}
-      <section className="container mx-auto px-6 py-12 relative z-10">
+      <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
         {activeCategoryData && (
           <MenuCategory 
             category={activeCategoryData} 
