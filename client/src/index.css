@@ -1,7 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: 'Parslay';
+  src: url('./assets/parslay.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --background: hsl(48, 100%, 97%);
@@ -78,7 +85,7 @@
   }
 
   .font-script {
-    font-family: 'Dancing Script', cursive;
+    font-family: 'Parsley', cursive;
   }
 }
 
