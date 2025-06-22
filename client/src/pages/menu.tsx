@@ -96,7 +96,7 @@ export default function MenuPage() {
           <div className="container mx-auto px-4 sm:px-6">
             <div className="flex flex-col lg:flex-row items-center justify-between max-w-6xl mx-auto gap-8 lg:gap-12">
               {/* Content Rectangle */}
-              <div className="w-full max-w-2xl bg-brand-cream backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-brand-coral/30 relative">
+              <div className="w-full max-w-2xl bg-brand-cream backdrop-blur-sm rounded-3xl p-8 sm:p-10 lg:p-12 shadow-2xl border-2 border-brand-coral/30 relative">
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
                 <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
                 
