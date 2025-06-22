@@ -111,64 +111,11 @@ export default function MenuPage() {
               
               {/* Clock Tower Image */}
               <div className="hidden lg:block ml-12 flex-shrink-0">
-                <div className="w-48 h-80 relative">
-                  <svg viewBox="0 0 200 400" className="w-full h-full opacity-90 filter drop-shadow-2xl">
-                    {/* Clock Tower Base */}
-                    <rect x="20" y="350" width="160" height="50" fill="#527A53" stroke="#3D5A3E" strokeWidth="2"/>
-                    
-                    {/* Main Tower Body */}
-                    <rect x="40" y="80" width="120" height="270" fill="#527A53" stroke="#3D5A3E" strokeWidth="2"/>
-                    
-                    {/* Tower Details - Vertical Lines */}
-                    <line x1="50" y1="80" x2="50" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="60" y1="80" x2="60" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="70" y1="80" x2="70" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="80" y1="80" x2="80" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="90" y1="80" x2="90" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="110" y1="80" x2="110" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="120" y1="80" x2="120" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="130" y1="80" x2="130" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="140" y1="80" x2="140" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    <line x1="150" y1="80" x2="150" y2="350" stroke="#3D5A3E" strokeWidth="2"/>
-                    
-                    {/* Clock Face */}
-                    <circle cx="100" cy="140" r="35" fill="#F5F2E8" stroke="#3D5A3E" strokeWidth="3"/>
-                    
-                    {/* Clock Hands */}
-                    <line x1="100" y1="140" x2="100" y2="120" stroke="#3D5A3E" strokeWidth="3" strokeLinecap="round"/>
-                    <line x1="100" y1="140" x2="115" y2="140" stroke="#3D5A3E" strokeWidth="2" strokeLinecap="round"/>
-                    <circle cx="100" cy="140" r="3" fill="#3D5A3E"/>
-                    
-                    {/* Clock Numbers */}
-                    <text x="100" y="115" textAnchor="middle" fill="#3D5A3E" fontSize="12" fontWeight="bold">12</text>
-                    <text x="125" y="145" textAnchor="middle" fill="#3D5A3E" fontSize="12" fontWeight="bold">3</text>
-                    <text x="100" y="170" textAnchor="middle" fill="#3D5A3E" fontSize="12" fontWeight="bold">6</text>
-                    <text x="75" y="145" textAnchor="middle" fill="#3D5A3E" fontSize="12" fontWeight="bold">9</text>
-                    
-                    {/* Tower Top Section */}
-                    <rect x="30" y="40" width="140" height="40" fill="#527A53" stroke="#3D5A3E" strokeWidth="2"/>
-                    
-                    {/* Tower Crown */}
-                    <polygon points="25,40 175,40 160,20 40,20" fill="#527A53" stroke="#3D5A3E" strokeWidth="2"/>
-                    
-                    {/* Decorative Elements */}
-                    <rect x="85" y="200" width="30" height="40" fill="none" stroke="#3D5A3E" strokeWidth="2"/>
-                    <rect x="85" y="260" width="30" height="40" fill="none" stroke="#3D5A3E" strokeWidth="2"/>
-                    
-                    {/* Side Text "A Place To Feel" */}
-                    <text x="185" y="120" textAnchor="start" fill="#c86f60" fontSize="16" fontFamily="cursive" fontWeight="bold" transform="rotate(90 185 120)">A Place</text>
-                    <text x="185" y="200" textAnchor="start" fill="#c86f60" fontSize="16" fontFamily="cursive" fontWeight="bold" transform="rotate(90 185 200)">To Feel</text>
-                    
-                    {/* Decorative Leaf Elements */}
-                    <g transform="translate(15,30)">
-                      <path d="M10,15 Q5,5 0,0 Q10,5 20,0 Q15,5 10,15 Z" fill="#527A53" opacity="0.7"/>
-                    </g>
-                    
-                    <g transform="translate(165,320)">
-                      <path d="M10,15 Q5,5 0,0 Q10,5 20,0 Q15,5 10,15 Z" fill="#527A53" opacity="0.7"/>
-                    </g>
-                  </svg>
-                </div>
+                <img 
+                  src="/attached_assets/Screenshot 2025-06-22 at 1.21.21 PM_1750587761087.png" 
+                  alt="A Place To Feel - Architectural Clock Tower" 
+                  className="h-80 w-auto opacity-90 filter drop-shadow-2xl object-contain"
+                />
               </div>
             </div>
           </div>
