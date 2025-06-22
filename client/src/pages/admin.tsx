@@ -214,7 +214,7 @@ export default function AdminPage() {
               <CardContent className="p-8">
                 {/* Add New Item Button */}
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-semibold text-dark-brown">Menu Items Management</h3>
+                  <h3 className="text-xl font-semibold text-brand-green">Menu Items Management</h3>
                   <Button onClick={handleAddNew} className="bg-brand-green text-white hover:bg-brand-dark-green">
                     <Plus className="mr-2 h-4 w-4" />
                     Add New Item
