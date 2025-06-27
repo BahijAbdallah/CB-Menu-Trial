@@ -14,7 +14,7 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
           {category.name}
         </h3>
         {category.nameArabic && (
-          <h4 className="font-arabic text-3xl text-title-coral mb-4">
+          <h4 className="font-arabic text-3xl text-title-coral mb-4 text-center">
             {category.nameArabic}
           </h4>
         )}
