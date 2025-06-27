@@ -187,6 +187,25 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="descriptionArabic"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (Arabic)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="أدخل وصف الطبق"
+                      className="font-arabic"
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid md:grid-cols-3 gap-6">
               <FormField
                 control={form.control}

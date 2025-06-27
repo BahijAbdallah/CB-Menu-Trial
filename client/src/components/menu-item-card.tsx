@@ -30,6 +30,11 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
             {item.description}
           </p>
         )}
+        {item.descriptionArabic && (
+          <p className="font-arabic text-saddle-brown text-sm mb-4 line-clamp-2">
+            {item.descriptionArabic}
+          </p>
+        )}
         <div className="flex justify-between items-center">
           <span className="text-2xl font-bold text-warm-gold">
             ${item.price}
