@@ -100,15 +100,15 @@ export default function MenuPage() {
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
                 <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
                 
-                <h2 className="font-script text-4xl sm:text-5xl lg:text-6xl font-bold text-title-coral mb-4 text-center lg:text-left">
+                <h2 className="font-script text-3xl sm:text-4xl lg:text-5xl font-bold text-title-coral mb-3 text-center lg:text-left">
                   A Place To Feel
                 </h2>
-                <p className="text-lg sm:text-xl text-brand-green leading-relaxed mb-6 text-center lg:text-left">
+                <p className="text-base sm:text-lg text-brand-green leading-relaxed mb-5 text-center lg:text-left">
                   Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
                 </p>
-                <div className="flex items-center justify-center lg:justify-start space-x-4 bg-brand-coral/20 rounded-full px-4 py-3 w-fit mx-auto lg:mx-0 border border-brand-coral/40">
-                  <Clock className="h-5 w-5 text-brand-coral" />
-                  <span className="text-brand-green font-semibold text-sm sm:text-base">Open Daily 7:00 AM - 11:00 PM</span>
+                <div className="flex items-center justify-center lg:justify-start space-x-3 bg-brand-coral/20 rounded-full px-3 py-2 w-fit mx-auto lg:mx-0 border border-brand-coral/40">
+                  <Clock className="h-4 w-4 text-brand-coral" />
+                  <span className="text-brand-green font-semibold text-xs sm:text-sm">Open Daily 7:00 AM - 11:00 PM</span>
                 </div>
               </div>
               
