@@ -4,7 +4,7 @@
 
 @font-face {
   font-family: 'Parslay';
-  src: url('./assets/parslay.otf') format('opentype');
+  src: url('/Parslay.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -95,7 +95,7 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-parslay antialiased bg-background text-foreground;
   }
 
   .font-playfair {

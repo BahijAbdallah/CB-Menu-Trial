@@ -6,6 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        'sans': ['Parslay', 'sans-serif'],
         'arabic': ['Ubuntu-Arabic', 'Arial Unicode MS', 'Tahoma', 'sans-serif'],
         'parslay': ['Parslay', 'cursive'],
         'playfair': ['Playfair Display', 'serif'],
