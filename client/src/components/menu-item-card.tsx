@@ -17,7 +17,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
         className="w-full h-48 object-cover"
       />
       <div className="p-6">
-        <h4 className="font-playfair text-xl font-semibold text-dark-brown mb-2">
+        <h4 className="text-xl font-semibold text-dark-brown mb-2">
           {item.name}
         </h4>
         {item.nameArabic && (
