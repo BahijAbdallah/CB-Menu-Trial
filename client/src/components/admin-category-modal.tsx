@@ -118,7 +118,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-playfair text-2xl font-bold text-dark-brown">
+          <DialogTitle className="font-parslay text-2xl font-bold text-dark-brown">
             {editingCategory ? "Edit Category" : "Add New Category"}
           </DialogTitle>
         </DialogHeader>

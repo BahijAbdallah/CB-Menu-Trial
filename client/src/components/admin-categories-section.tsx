@@ -82,7 +82,7 @@ export default function AdminCategoriesSection() {
                 <Layers className="text-blue-500 h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="font-playfair text-xl font-bold text-dark-brown">
+                <CardTitle className="font-parslay text-xl font-bold text-dark-brown">
                   Menu Categories
                 </CardTitle>
                 <p className="text-saddle-brown text-sm">Organize your menu structure</p>
