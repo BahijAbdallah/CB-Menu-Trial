@@ -132,7 +132,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-playfair text-2xl font-bold text-dark-brown">
+          <DialogTitle className="font-parslay text-2xl font-bold text-dark-brown">
             {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
           </DialogTitle>
         </DialogHeader>

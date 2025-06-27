@@ -163,7 +163,7 @@ export default function AdminPage() {
                   className="h-12 w-auto object-contain"
                 />
                 <div>
-                  <CardTitle className="text-2xl lg:text-3xl font-bold text-dark-brown mb-2">
+                  <CardTitle className="font-parslay text-2xl lg:text-3xl font-bold text-dark-brown mb-2">
                     Admin Dashboard
                   </CardTitle>
                   <p className="text-saddle-brown">Welcome back, {user?.username}</p>
