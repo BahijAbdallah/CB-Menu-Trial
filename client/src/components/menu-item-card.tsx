@@ -21,7 +21,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           {item.name}
         </h4>
         {item.nameArabic && (
-          <h5 className="text-lg text-saddle-brown mb-2" dir="rtl">
+          <h5 className="font-arabic text-lg text-saddle-brown mb-2">
             {item.nameArabic}
           </h5>
         )}

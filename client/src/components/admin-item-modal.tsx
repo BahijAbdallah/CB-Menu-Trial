@@ -161,7 +161,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                   <FormItem>
                     <FormLabel>Item Name (Arabic)</FormLabel>
                     <FormControl>
-                      <Input placeholder="أدخل اسم الطبق" dir="rtl" {...field} />
+                      <Input placeholder="أدخل اسم الطبق" className="font-arabic" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
