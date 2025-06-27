@@ -10,6 +10,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Ubuntu-Arabic';
+  src: url('/Ubuntu-Arabic-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ubuntu-Arabic';
+  src: url('/Ubuntu-Arabic-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: hsl(48, 100%, 97%);
   --foreground: hsl(24, 45%, 12%);
@@ -88,6 +104,19 @@
 
   .font-script {
     font-family: 'Parslay', cursive;
+  }
+
+  .font-arabic {
+    font-family: 'Ubuntu-Arabic', 'Arial Unicode MS', 'Tahoma', sans-serif;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .font-arabic-bold {
+    font-family: 'Ubuntu-Arabic', 'Arial Unicode MS', 'Tahoma', sans-serif;
+    font-weight: bold;
+    direction: rtl;
+    text-align: right;
   }
 
   .bg-light-cream {
