@@ -108,7 +108,7 @@ export default function AdminCategoriesSection() {
                   <div>
                     <h4 className="font-medium text-dark-brown">{category.name}</h4>
                     {category.nameArabic && (
-                      <p className="text-sm text-saddle-brown" dir="rtl">
+                      <p className="font-arabic text-sm text-saddle-brown">
                         {category.nameArabic}
                       </p>
                     )}
