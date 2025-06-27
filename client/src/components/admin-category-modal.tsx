@@ -147,7 +147,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
                   <FormItem>
                     <FormLabel>Category Name (Arabic)</FormLabel>
                     <FormControl>
-                      <Input placeholder="أدخل اسم الفئة" dir="rtl" {...field} />
+                      <Input placeholder="أدخل اسم الفئة" className="font-arabic" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
