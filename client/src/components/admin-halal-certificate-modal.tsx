@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,14 +21,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Upload, FileText, Link } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title must be less than 255 characters"),
   description: z.string().optional(),
   fileName: z.string().min(1, "File name is required"),
-  fileUrl: z.string().url("Please enter a valid URL"),
+  fileUrl: z.string().min(1, "File URL is required"),
   isActive: z.boolean().default(true),
   displayOrder: z.number().min(0, "Display order must be 0 or greater").default(0),
 });
@@ -54,6 +57,9 @@ interface AdminHalalCertificateModalProps {
 export default function AdminHalalCertificateModal({ isOpen, onClose, editingCertificate }: AdminHalalCertificateModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadMethod, setUploadMethod] = useState<"upload" | "url">("upload");
+  const [uploadedFile, setUploadedFile] = useState<{ fileName: string; fileUrl: string } | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -66,6 +72,81 @@ export default function AdminHalalCertificateModal({ isOpen, onClose, editingCer
       displayOrder: editingCertificate?.displayOrder || 0,
     },
   });
+
+  // File upload mutation
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('certificate', file);
+      
+      const response = await fetch('/api/halal-certificates/upload', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setUploadedFile(data);
+      form.setValue('fileName', data.fileName);
+      form.setValue('fileUrl', data.fileUrl);
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to upload file",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: "Error",
+          description: "Only PDF files are allowed",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "File size must be less than 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      uploadMutation.mutate(file);
+    }
+  };
+
+  // Reset form when modal opens/closes
+  const handleClose = () => {
+    form.reset();
+    setUploadedFile(null);
+    setUploadMethod("upload");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    onClose();
+  };
 
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -104,8 +185,7 @@ export default function AdminHalalCertificateModal({ isOpen, onClose, editingCer
           ? "Certificate updated successfully"
           : "Certificate created successfully",
       });
-      onClose();
-      form.reset();
+      handleClose();
     },
     onError: (error) => {
       toast({
@@ -120,10 +200,27 @@ export default function AdminHalalCertificateModal({ isOpen, onClose, editingCer
     mutation.mutate(data);
   };
 
-  const handleClose = () => {
-    form.reset();
-    onClose();
+  // Reset form when certificate changes or modal closes
+  const resetForm = () => {
+    form.reset({
+      title: editingCertificate?.title || "",
+      description: editingCertificate?.description || "",
+      fileName: editingCertificate?.fileName || "",
+      fileUrl: editingCertificate?.fileUrl || "",
+      isActive: editingCertificate?.isActive ?? true,
+      displayOrder: editingCertificate?.displayOrder || 0,
+    });
+    setUploadedFile(null);
+    setUploadMethod(editingCertificate ? "url" : "upload");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
+
+  // Reset when certificate changes
+  if (editingCertificate && form.watch("title") !== editingCertificate.title) {
+    resetForm();
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -174,23 +271,86 @@ export default function AdminHalalCertificateModal({ isOpen, onClose, editingCer
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="fileUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-dark-brown font-medium">PDF File URL *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://example.com/certificate.pdf"
-                      {...field}
-                      className="border-gray-300 focus:border-brand-green focus:ring-brand-green"
+            <div className="space-y-4">
+              <FormLabel className="text-dark-brown font-medium">PDF File *</FormLabel>
+              <Tabs value={uploadMethod} onValueChange={(value) => setUploadMethod(value as "upload" | "url")}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="upload" className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    Upload File
+                  </TabsTrigger>
+                  <TabsTrigger value="url" className="flex items-center gap-2">
+                    <Link className="h-4 w-4" />
+                    File URL
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="upload" className="space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-brand-green transition-colors">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileSelect}
+                      className="hidden"
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    
+                    {uploadedFile ? (
+                      <div className="space-y-2">
+                        <FileText className="h-12 w-12 text-brand-green mx-auto" />
+                        <p className="text-sm font-medium text-green-600">File uploaded successfully!</p>
+                        <p className="text-sm text-gray-600">{uploadedFile.fileName}</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+                        >
+                          Replace File
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Upload className="h-12 w-12 text-gray-400 mx-auto" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Click to upload a PDF file</p>
+                          <p className="text-xs text-gray-500">Maximum file size: 10MB</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadMutation.isPending}
+                          className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+                        >
+                          {uploadMutation.isPending ? "Uploading..." : "Choose File"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="url" className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="fileUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="https://example.com/certificate.pdf"
+                            {...field}
+                            className="border-gray-300 focus:border-brand-green focus:ring-brand-green"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
 
             <FormField
               control={form.control}
