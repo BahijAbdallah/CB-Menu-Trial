@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCategorySchema, insertMenuItemSchema } from "@shared/schema";
+import { insertCategorySchema, insertMenuItemSchema, insertHalalCertificateSchema } from "@shared/schema";
 import { z } from "zod";
 import "./types";
 
@@ -266,6 +266,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Halal Certificates API
+  app.get("/api/halal-certificates", async (req, res) => {
+    try {
+      const certificates = await storage.getHalalCertificates();
+      res.json(certificates);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch halal certificates" });
+    }
+  });
+
+  app.get("/api/halal-certificates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const certificate = await storage.getHalalCertificateById(id);
+      
+      if (!certificate) {
+        return res.status(404).json({ message: "Certificate not found" });
+      }
+      
+      res.json(certificate);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch certificate" });
+    }
+  });
+
+  app.post("/api/halal-certificates", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertHalalCertificateSchema.parse(req.body);
+      const certificate = await storage.createHalalCertificate(parsed);
+      res.status(201).json(certificate);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid certificate data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create certificate" });
+    }
+  });
+
+  app.put("/api/halal-certificates/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const parsed = insertHalalCertificateSchema.partial().parse(req.body);
+      const certificate = await storage.updateHalalCertificate(id, parsed);
+      
+      if (!certificate) {
+        return res.status(404).json({ message: "Certificate not found" });
+      }
+      
+      res.json(certificate);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid certificate data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update certificate" });
+    }
+  });
+
+  app.delete("/api/halal-certificates/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteHalalCertificate(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Certificate not found" });
+      }
+      
+      res.json({ message: "Certificate deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete certificate" });
     }
   });
 
