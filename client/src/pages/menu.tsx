@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Utensils, Clock, Settings } from "lucide-react";
+import { Utensils, Clock, Settings, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MenuCategory from "@/components/menu-category";
 import type { Category, MenuItem } from "@shared/schema";
@@ -130,6 +130,21 @@ export default function MenuPage() {
         </div>
         <div className="absolute top-0 left-0 w-64 h-64 opacity-10">
           <div className="w-full h-full bg-gradient-to-br from-brand-cream to-transparent rounded-full transform -translate-x-20 -translate-y-20"></div>
+        </div>
+      </section>
+
+      {/* Main Navigation */}
+      <section className="bg-white shadow-sm border-b relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 py-2">
+          <div className="flex justify-center">
+            <Link
+              href="/halal-certificates"
+              className="inline-flex items-center px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-sm border border-green-200"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Halal Certificates
+            </Link>
+          </div>
         </div>
       </section>
 

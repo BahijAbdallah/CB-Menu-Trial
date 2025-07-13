@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, varchar, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -49,3 +49,23 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Halal Certificates Table
+export const halalCertificates = pgTable("halal_certificates", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  fileUrl: varchar("file_url", { length: 500 }).notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+});
+
+export const insertHalalCertificateSchema = createInsertSchema(halalCertificates).omit({
+  id: true,
+  uploadedAt: true,
+});
+
+export type InsertHalalCertificate = z.infer<typeof insertHalalCertificateSchema>;
+export type HalalCertificate = typeof halalCertificates.$inferSelect;

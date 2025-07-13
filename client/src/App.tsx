@@ -7,11 +7,13 @@ import NotFound from "@/pages/not-found";
 import MenuPage from "@/pages/menu";
 import AdminPage from "@/pages/admin";
 import LoginPage from "@/pages/login";
+import HalalCertificatesPage from "@/pages/halal-certificates";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={MenuPage} />
+      <Route path="/halal-certificates" component={HalalCertificatesPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />

@@ -1,13 +1,16 @@
 import { 
   users, 
   categories, 
-  menuItems, 
+  menuItems,
+  halalCertificates,
   type User, 
   type InsertUser,
   type Category,
   type InsertCategory,
   type MenuItem,
-  type InsertMenuItem
+  type InsertMenuItem,
+  type HalalCertificate,
+  type InsertHalalCertificate
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -33,23 +36,34 @@ export interface IStorage {
   updateMenuItem(id: number, item: Partial<InsertMenuItem>): Promise<MenuItem | undefined>;
   deleteMenuItem(id: number): Promise<boolean>;
   toggleMenuItemAvailability(id: number): Promise<MenuItem | undefined>;
+
+  // Halal certificate methods
+  getHalalCertificates(): Promise<HalalCertificate[]>;
+  getHalalCertificateById(id: number): Promise<HalalCertificate | undefined>;
+  createHalalCertificate(certificate: InsertHalalCertificate): Promise<HalalCertificate>;
+  updateHalalCertificate(id: number, certificate: Partial<InsertHalalCertificate>): Promise<HalalCertificate | undefined>;
+  deleteHalalCertificate(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private categories: Map<number, Category>;
   private menuItems: Map<number, MenuItem>;
+  private halalCertificates: Map<number, HalalCertificate>;
   private currentUserId: number;
   private currentCategoryId: number;
   private currentMenuItemId: number;
+  private currentHalalCertificateId: number;
 
   constructor() {
     this.users = new Map();
     this.categories = new Map();
     this.menuItems = new Map();
+    this.halalCertificates = new Map();
     this.currentUserId = 1;
     this.currentCategoryId = 1;
     this.currentMenuItemId = 1;
+    this.currentHalalCertificateId = 1;
 
     // Initialize with default admin user
     this.initializeAdmin();
@@ -234,6 +248,43 @@ export class MemStorage implements IStorage {
     this.menuItems.set(id, updated);
     return updated;
   }
+
+  // Halal certificate methods
+  async getHalalCertificates(): Promise<HalalCertificate[]> {
+    return Array.from(this.halalCertificates.values())
+      .filter(cert => cert.isActive)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  async getHalalCertificateById(id: number): Promise<HalalCertificate | undefined> {
+    return this.halalCertificates.get(id);
+  }
+
+  async createHalalCertificate(certificate: InsertHalalCertificate): Promise<HalalCertificate> {
+    const id = this.currentHalalCertificateId++;
+    const newCertificate: HalalCertificate = { 
+      ...certificate, 
+      id,
+      uploadedAt: new Date(),
+      isActive: certificate.isActive !== undefined ? certificate.isActive : true,
+      displayOrder: certificate.displayOrder || 0
+    };
+    this.halalCertificates.set(id, newCertificate);
+    return newCertificate;
+  }
+
+  async updateHalalCertificate(id: number, certificate: Partial<InsertHalalCertificate>): Promise<HalalCertificate | undefined> {
+    const existing = this.halalCertificates.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...certificate };
+    this.halalCertificates.set(id, updated);
+    return updated;
+  }
+
+  async deleteHalalCertificate(id: number): Promise<boolean> {
+    return this.halalCertificates.delete(id);
+  }
 }
 
 // Database storage implementation
@@ -336,6 +387,41 @@ export class DatabaseStorage implements IStorage {
       .where(eq(menuItems.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  // Halal certificate methods
+  async getHalalCertificates(): Promise<HalalCertificate[]> {
+    return await db.select()
+      .from(halalCertificates)
+      .where(eq(halalCertificates.isActive, true))
+      .orderBy(halalCertificates.displayOrder);
+  }
+
+  async getHalalCertificateById(id: number): Promise<HalalCertificate | undefined> {
+    const [certificate] = await db.select().from(halalCertificates).where(eq(halalCertificates.id, id));
+    return certificate || undefined;
+  }
+
+  async createHalalCertificate(certificate: InsertHalalCertificate): Promise<HalalCertificate> {
+    const [newCertificate] = await db
+      .insert(halalCertificates)
+      .values(certificate)
+      .returning();
+    return newCertificate;
+  }
+
+  async updateHalalCertificate(id: number, certificate: Partial<InsertHalalCertificate>): Promise<HalalCertificate | undefined> {
+    const [updated] = await db
+      .update(halalCertificates)
+      .set(certificate)
+      .where(eq(halalCertificates.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteHalalCertificate(id: number): Promise<boolean> {
+    const result = await db.delete(halalCertificates).where(eq(halalCertificates.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
