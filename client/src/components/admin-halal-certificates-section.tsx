@@ -123,9 +123,14 @@ export default function AdminHalalCertificatesSection() {
             </div>
             <Button
               onClick={() => setIsModalOpen(true)}
-              className="bg-brand-green hover:bg-brand-green/90 text-white"
+              style={{ 
+                backgroundColor: '#527A53', 
+                color: '#ffffff',
+                border: 'none'
+              }}
+              className="hover:opacity-90 font-medium px-4 py-2"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" style={{ color: '#ffffff' }} />
               Add Certificate
             </Button>
           </div>
@@ -139,9 +144,14 @@ export default function AdminHalalCertificatesSection() {
               <p className="text-gray-500 mb-4">Upload your first halal certificate to get started.</p>
               <Button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-brand-green hover:bg-brand-green/90 text-white"
+                style={{ 
+                  backgroundColor: '#527A53', 
+                  color: '#ffffff',
+                  border: 'none'
+                }}
+                className="hover:opacity-90 font-medium px-4 py-2"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2" style={{ color: '#ffffff' }} />
                 Add First Certificate
               </Button>
             </div>
