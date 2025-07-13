@@ -1,8 +1,12 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertMenuItemSchema, insertHalalCertificateSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import "./types";
 
 // Simple token store for demo purposes
@@ -11,6 +15,39 @@ const activeTokens = new Map<string, number>(); // token -> userId
 function generateToken(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'certificates');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Multer configuration for file uploads
+const storage_multer = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'halal-cert-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage_multer,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Only allow PDF files
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
 
 // Authentication middleware
 function requireAuth(req: any, res: any, next: any) {
@@ -26,6 +63,9 @@ function requireAuth(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files statically
+  app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
@@ -269,6 +309,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // File upload endpoint for halal certificates
+  app.post("/api/halal-certificates/upload", requireAuth, upload.single('certificate'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Generate the file URL for serving
+      const fileUrl = `/uploads/certificates/${req.file.filename}`;
+      
+      res.json({
+        fileName: req.file.originalname,
+        fileUrl: fileUrl,
+        filePath: req.file.path,
+        size: req.file.size
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
+  // File deletion endpoint
+  app.delete("/api/halal-certificates/file", requireAuth, async (req, res) => {
+    try {
+      const { fileUrl } = req.body;
+      
+      if (!fileUrl || !fileUrl.startsWith('/uploads/certificates/')) {
+        return res.status(400).json({ message: "Invalid file URL" });
+      }
+
+      const fileName = path.basename(fileUrl);
+      const filePath = path.join(uploadsDir, fileName);
+      
+      // Check if file exists and delete it
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        res.json({ message: "File deleted successfully" });
+      } else {
+        res.status(404).json({ message: "File not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete file" });
+    }
+  });
+
   // Halal Certificates API
   app.get("/api/halal-certificates", async (req, res) => {
     try {
@@ -329,10 +414,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/halal-certificates/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get certificate details before deletion to remove file
+      const certificate = await storage.getHalalCertificateById(id);
+      if (!certificate) {
+        return res.status(404).json({ message: "Certificate not found" });
+      }
+      
       const success = await storage.deleteHalalCertificate(id);
       
       if (!success) {
         return res.status(404).json({ message: "Certificate not found" });
+      }
+      
+      // Delete the physical file if it exists and is in our uploads directory
+      if (certificate.fileUrl && certificate.fileUrl.startsWith('/uploads/certificates/')) {
+        const fileName = path.basename(certificate.fileUrl);
+        const filePath = path.join(uploadsDir, fileName);
+        
+        if (fs.existsSync(filePath)) {
+          try {
+            fs.unlinkSync(filePath);
+          } catch (error) {
+            console.error('Failed to delete file:', error);
+            // Continue even if file deletion fails
+          }
+        }
       }
       
       res.json({ message: "Certificate deleted successfully" });
