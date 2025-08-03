@@ -12,7 +12,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
       <img
-        src={item.imageUrl || "/menu-item-food.jpg"}
+        src={item.imageUrl || getDefaultImageForItem(category.slug, index)}
         alt={item.name}
         className="w-full h-48 object-cover"
       />
