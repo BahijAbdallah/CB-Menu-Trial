@@ -6,14 +6,15 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Billmake', 'sans-serif'],
+        'sans': ['ClashDisplay', 'sans-serif'],
         'arabic': ['Ubuntu-Arabic', 'Arial Unicode MS', 'Tahoma', 'sans-serif'],
         'parslay': ['Parslay', 'cursive'],
         'playfair': ['Playfair Display', 'serif'],
         'adero': ['Adero', 'sans-serif'],
-        'billmake': ['Billmake', 'sans-serif'],
-        'alethia': ['Billmake', 'sans-serif'],
-        'alethia-italic': ['Billmake', 'sans-serif'],
+        'clash': ['ClashDisplay', 'sans-serif'],
+        'billmake': ['ClashDisplay', 'sans-serif'],
+        'alethia': ['ClashDisplay', 'sans-serif'],
+        'alethia-italic': ['ClashDisplay', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
