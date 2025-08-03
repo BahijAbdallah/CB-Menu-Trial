@@ -59,18 +59,10 @@
 }
 
 @font-face {
-  font-family: 'AlethiaNextLight';
-  src: url('/fonts/alethianext-light.otf') format('opentype');
+  font-family: 'Billmake';
+  src: url('/fonts/Billmake-Regular.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'AlethiaNextLightItalic';
-  src: url('/fonts/alethianext-lightitalic.otf') format('opentype');
-  font-weight: normal;
-  font-style: italic;
   font-display: swap;
 }
 
@@ -144,25 +136,29 @@
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'AlethiaNextLight', sans-serif !important;
+    font-family: 'Billmake', sans-serif !important;
   }
 
-  /* Apply AlethiaNext globally to all text elements */
+  /* Apply Billmake globally to all text elements */
   *, *::before, *::after {
-    font-family: 'AlethiaNextLight', sans-serif;
+    font-family: 'Billmake', sans-serif;
   }
 
   em, i {
-    font-family: 'AlethiaNextLightItalic', sans-serif !important;
+    font-family: 'Billmake', sans-serif !important;
   }
 
   /* Font utility classes */
+  .font-billmake {
+    font-family: 'Billmake', sans-serif !important;
+  }
+
   .font-alethia {
-    font-family: 'AlethiaNextLight', sans-serif !important;
+    font-family: 'Billmake', sans-serif !important;
   }
 
   .font-alethia-italic {
-    font-family: 'AlethiaNextLightItalic', sans-serif !important;
+    font-family: 'Billmake', sans-serif !important;
   }
 
   .font-playfair {
