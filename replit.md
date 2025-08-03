@@ -104,6 +104,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - June 27, 2025: Implemented Ubuntu-Arabic font family for proper Arabic text rendering with bilingual menu support
 - June 27, 2025: Configured Adero font family as default body text with Parslay reserved for headlines and decorative elements
 - July 13, 2025: Added comprehensive halal certificates management system with database schema, API endpoints, admin interface, and customer-facing page
+- August 3, 2025: Integrated AlethiaNext font family as new global default with light and italic variants replacing previous font hierarchy
 
 ## User Preferences
 

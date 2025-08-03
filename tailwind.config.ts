@@ -6,11 +6,13 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Adero', 'sans-serif'],
+        'sans': ['AlethiaNextLight', 'sans-serif'],
         'arabic': ['Ubuntu-Arabic', 'Arial Unicode MS', 'Tahoma', 'sans-serif'],
         'parslay': ['Parslay', 'cursive'],
         'playfair': ['Playfair Display', 'serif'],
         'adero': ['Adero', 'sans-serif'],
+        'alethia': ['AlethiaNextLight', 'sans-serif'],
+        'alethia-italic': ['AlethiaNextLightItalic', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
