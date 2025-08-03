@@ -100,7 +100,7 @@ export default function MenuPage() {
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
                 <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
                 
-                <h2 className="font-script text-3xl sm:text-4xl lg:text-5xl font-bold text-title-coral mb-3 text-center lg:text-left">
+                <h2 className="font-parslay text-3xl sm:text-4xl lg:text-5xl font-bold text-title-coral mb-3 text-center lg:text-left">
                   A Place To Feel
                 </h2>
                 <p className="text-base sm:text-lg text-brand-green leading-relaxed mb-5 text-center lg:text-left">
