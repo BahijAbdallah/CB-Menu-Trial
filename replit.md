@@ -106,6 +106,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - July 13, 2025: Added comprehensive halal certificates management system with database schema, API endpoints, admin interface, and customer-facing page
 - August 3, 2025: Integrated AlethiaNext font family as new global default with light and italic variants replacing previous font hierarchy
 - August 3, 2025: Replaced all fonts with Billmake-Regular.otf as the new global default font across the entire website
+- August 3, 2025: Implemented Clash Display font family with complete weight range (Extralight 200, Light 300, Regular 400, Medium 500, Semibold 600, Bold 700) as new global typography system
 
 ## User Preferences
 
