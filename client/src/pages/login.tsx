@@ -74,7 +74,7 @@ export default function LoginPage() {
               className="h-16 w-auto object-contain mx-auto"
             />
           </div>
-          <CardTitle className="font-playfair text-2xl font-bold text-brand-green">
+          <CardTitle className="font-alethia text-2xl font-bold text-brand-green">
             Admin Login
           </CardTitle>
           <p className="text-brand-green">

@@ -144,11 +144,25 @@
 
   body {
     @apply antialiased bg-background text-foreground;
+    font-family: 'AlethiaNextLight', sans-serif !important;
+  }
+
+  /* Apply AlethiaNext globally to all text elements */
+  *, *::before, *::after {
     font-family: 'AlethiaNextLight', sans-serif;
   }
 
   em, i {
-    font-family: 'AlethiaNextLightItalic', sans-serif;
+    font-family: 'AlethiaNextLightItalic', sans-serif !important;
+  }
+
+  /* Font utility classes */
+  .font-alethia {
+    font-family: 'AlethiaNextLight', sans-serif !important;
+  }
+
+  .font-alethia-italic {
+    font-family: 'AlethiaNextLightItalic', sans-serif !important;
   }
 
   .font-playfair {

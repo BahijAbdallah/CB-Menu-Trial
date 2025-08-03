@@ -10,7 +10,7 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
   return (
     <div>
       <div className="text-center mb-12">
-        <h3 className="font-script text-5xl font-bold text-title-coral mb-4">
+        <h3 className="font-parslay text-5xl font-bold text-title-coral mb-4">
           {category.name}
         </h3>
         {category.nameArabic && (
