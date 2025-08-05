@@ -32,11 +32,11 @@ export function LanguageSwitcher() {
         <Button 
           variant="outline" 
           size="sm"
-          className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white px-2 sm:px-3 py-2"
+          className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white px-2 sm:px-3 py-2 whitespace-nowrap"
         >
-          <Globe className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2" />
-          <span className="hidden sm:inline ml-1 lg:ml-0 text-xs sm:text-sm">{currentLanguage.name}</span>
-          <span className="sm:hidden ml-1">{currentLanguage.flag}</span>
+          <Globe className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2 flex-shrink-0" />
+          <span className="hidden sm:inline text-xs sm:text-sm">{currentLanguage.name}</span>
+          <span className="sm:hidden">{currentLanguage.flag}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
