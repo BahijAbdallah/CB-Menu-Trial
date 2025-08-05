@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 import type { Category, MenuItem } from "@shared/schema";
 
@@ -9,6 +10,8 @@ interface MenuItemCardProps {
 }
 
 export default function MenuItemCard({ item, category, index }: MenuItemCardProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
       <img
@@ -20,19 +23,9 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
         <h4 className="font-alethia text-xl font-semibold text-dark-brown mb-2">
           {item.name}
         </h4>
-        {item.nameArabic && (
-          <h5 className="font-arabic text-lg text-saddle-brown mb-2">
-            {item.nameArabic}
-          </h5>
-        )}
         {item.description && (
           <p className="text-saddle-brown text-sm mb-4 line-clamp-2">
             {item.description}
-          </p>
-        )}
-        {item.descriptionArabic && (
-          <p className="font-arabic text-saddle-brown text-sm mb-4 line-clamp-2">
-            {item.descriptionArabic}
           </p>
         )}
         <div className="flex justify-between items-center">
@@ -41,7 +34,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </span>
           {!item.isAvailable && (
             <Badge variant="secondary" className="bg-red-100 text-red-800">
-              Out of Stock
+              {t('menu.outOfStock')}
             </Badge>
           )}
         </div>

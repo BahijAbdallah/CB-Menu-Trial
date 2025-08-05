@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "digitalMenu": "Digital Menu",
+    "adminPanel": "Admin Panel",
+    "halalCertificates": "Halal Certificates"
+  },
+  "hero": {
+    "title": "A Place To Feel",
+    "subtitle": "Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.",
+    "openHours": "Open Daily 7:00 AM - 11:00 PM"
+  },
+  "menu": {
+    "title": "Menu",
+    "subtitle": "Discover our authentic Lebanese cuisine crafted with passion and tradition",
+    "available": "Available",
+    "outOfStock": "Out of Stock"
+  },
+  "categories": {
+    "breakfast-items": "Breakfast Items",
+    "appetizers": "Appetizers", 
+    "salads": "Salads",
+    "main-courses": "Main Courses",
+    "desserts": "Desserts",
+    "beverages": "Beverages",
+    "specialties": "Chef's Specialties",
+    "vegetarian": "Vegetarian Options"
+  },
+  "admin": {
+    "login": "Login",
+    "dashboard": "Admin Dashboard",
+    "menuManagement": "Menu Management",
+    "categories": "Categories",
+    "items": "Menu Items",
+    "halalCertificates": "Halal Certificates"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "price": "Price",
+    "description": "Description",
+    "name": "Name",
+    "noItems": "No items available in this category at the moment."
+  }
+}

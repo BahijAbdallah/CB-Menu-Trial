@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "digitalMenu": "القائمة الرقمية",
+    "adminPanel": "لوحة الإدارة",
+    "halalCertificates": "شهادات الحلال"
+  },
+  "hero": {
+    "title": "مكان للشعور",
+    "subtitle": "عندنا، كأنك في بيتك. أهلاً وسهلاً. أنت لا تزور شيز بيروت، بل تعود إليه.",
+    "openHours": "مفتوح يومياً من 7:00 صباحاً - 11:00 مساءً"
+  },
+  "menu": {
+    "title": "القائمة",
+    "subtitle": "اكتشف مأكولاتنا اللبنانية الأصيلة المحضرة بحب وتقليد",
+    "available": "متوفر",
+    "outOfStock": "غير متوفر"
+  },
+  "categories": {
+    "breakfast-items": "أطباق الفطور",
+    "appetizers": "المقبلات",
+    "salads": "السلطات", 
+    "main-courses": "الأطباق الرئيسية",
+    "desserts": "الحلويات",
+    "beverages": "المشروبات",
+    "specialties": "أطباق الشيف الخاصة",
+    "vegetarian": "الخيارات النباتية"
+  },
+  "admin": {
+    "login": "تسجيل الدخول",
+    "dashboard": "لوحة إدارة",
+    "menuManagement": "إدارة القائمة",
+    "categories": "الفئات",
+    "items": "عناصر القائمة",
+    "halalCertificates": "شهادات الحلال"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "add": "إضافة",
+    "price": "السعر",
+    "description": "الوصف",
+    "name": "الاسم",
+    "noItems": "لا توجد عناصر متاحة في هذه الفئة في الوقت الحالي."
+  }
+}

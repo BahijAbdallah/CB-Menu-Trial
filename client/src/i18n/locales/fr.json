@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "digitalMenu": "Menu Numérique",
+    "adminPanel": "Panneau d'Administration",
+    "halalCertificates": "Certificats Halal"
+  },
+  "hero": {
+    "title": "Un Lieu Pour Ressentir",
+    "subtitle": "Chez nous, c'est chez vous. Bienvenue à la maison. Vous ne visitez pas Chez Beyrouth. Vous y retournez.",
+    "openHours": "Ouvert Tous les Jours 7h00 - 23h00"
+  },
+  "menu": {
+    "title": "Menu",
+    "subtitle": "Découvrez notre cuisine libanaise authentique préparée avec passion et tradition",
+    "available": "Disponible",
+    "outOfStock": "Rupture de Stock"
+  },
+  "categories": {
+    "breakfast-items": "Petits Déjeuners",
+    "appetizers": "Entrées",
+    "salads": "Salades",
+    "main-courses": "Plats Principaux", 
+    "desserts": "Desserts",
+    "beverages": "Boissons",
+    "specialties": "Spécialités du Chef",
+    "vegetarian": "Options Végétariennes"
+  },
+  "admin": {
+    "login": "Connexion",
+    "dashboard": "Tableau de Bord Admin",
+    "menuManagement": "Gestion du Menu",
+    "categories": "Catégories",
+    "items": "Articles du Menu",
+    "halalCertificates": "Certificats Halal"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "add": "Ajouter",
+    "price": "Prix",
+    "description": "Description",
+    "name": "Nom",
+    "noItems": "Aucun article disponible dans cette catégorie pour le moment."
+  }
+}

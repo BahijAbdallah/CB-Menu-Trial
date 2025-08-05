@@ -13,6 +13,8 @@ This is a full-stack restaurant menu management system built with React, Express
 - **State Management**: TanStack Query (React Query) for server state
 - **Routing**: Wouter for lightweight client-side routing
 - **Form Handling**: React Hook Form with Zod validation
+- **Internationalization**: react-i18next with language detection and RTL support
+- **Languages**: English (default), Arabic (RTL), French with localized translation files
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js
@@ -108,6 +110,10 @@ This is a full-stack restaurant menu management system built with React, Express
 - August 3, 2025: Replaced all fonts with Billmake-Regular.otf as the new global default font across the entire website
 - August 3, 2025: Implemented Clash Display font family with complete weight range (Extralight 200, Light 300, Regular 400, Medium 500, Semibold 600, Bold 700) as new global typography system
 - August 4, 2025: Replaced Clash Display with Billmake-Regular.otf as the new global default font across the entire website
+- August 5, 2025: Implemented comprehensive internationalization (i18n) system with react-i18next supporting English, Arabic, and French languages
+- August 5, 2025: Removed Arabic text from database and created translation files for multilingual support
+- August 5, 2025: Added language switcher component in header with proper RTL layout support for Arabic
+- August 5, 2025: Enhanced availability badge system to only show "Out of Stock" for unavailable items, removing "Available" badges for cleaner presentation
 
 ## User Preferences
 
