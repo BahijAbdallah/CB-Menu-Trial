@@ -36,7 +36,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </p>
         )}
         <div className="flex justify-between items-center">
-          <span className="font-bold text-warm-gold text-[20px]">
+          <span className="font-bold text-warm-gold text-[17px]">
             ${item.price}
           </span>
           <Badge 
