@@ -39,12 +39,11 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           <span className="font-bold text-warm-gold text-[17px]">
             $ {item.price}
           </span>
-          <Badge 
-            variant={item.isAvailable ? "default" : "secondary"}
-            className={item.isAvailable ? "bg-green-100 text-green-800" : ""}
-          >
-            {item.isAvailable ? "Available" : "Out of Stock"}
-          </Badge>
+          {!item.isAvailable && (
+            <Badge variant="secondary" className="bg-red-100 text-red-800">
+              Out of Stock
+            </Badge>
+          )}
         </div>
       </div>
     </div>
