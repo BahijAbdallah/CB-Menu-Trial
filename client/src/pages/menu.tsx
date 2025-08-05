@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { Utensils, Clock, Settings, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MenuCategory from "@/components/menu-category";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
 import clockTowerImage from "@/assets/chez_1750587966495.png";
 
 
 
 export default function MenuPage() {
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("");
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
@@ -35,7 +38,7 @@ export default function MenuPage() {
       <div className="min-h-screen bg-light-cream flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto mb-4"></div>
-          <p className="text-brand-green">Loading menu...</p>
+          <p className="text-brand-green">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -64,24 +67,25 @@ export default function MenuPage() {
             </div>
             
             <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-8">
+              <LanguageSwitcher />
               <Link
                 href="/halal-certificates"
                 className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-xs sm:text-sm border border-green-200"
               >
                 <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Halal Certificates</span>
-                <span className="sm:hidden">Halal</span>
+                <span className="hidden sm:inline">{t('nav.halalCertificates')}</span>
+                <span className="sm:hidden">{t('nav.halalCertificates').split(' ')[0]}</span>
               </Link>
               <Button className="bg-brand-green text-white hover:bg-brand-dark-green text-xs sm:text-sm px-3 sm:px-4 py-2">
                 <Utensils className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Digital Menu</span>
-                <span className="sm:hidden">Menu</span>
+                <span className="hidden sm:inline">{t('nav.digitalMenu')}</span>
+                <span className="sm:hidden">{t('nav.digitalMenu').split(' ')[0]}</span>
               </Button>
               <Link href="/login">
                 <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white text-xs sm:text-sm px-3 sm:px-4 py-2">
                   <Settings className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Admin Panel</span>
-                  <span className="sm:hidden">Admin</span>
+                  <span className="hidden sm:inline">{t('nav.adminPanel')}</span>
+                  <span className="sm:hidden">{t('nav.adminPanel').split(' ')[0]}</span>
                 </Button>
               </Link>
             </nav>
@@ -109,14 +113,14 @@ export default function MenuPage() {
                 <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
                 
                 <h2 className="font-parslay text-3xl sm:text-4xl lg:text-5xl font-bold text-title-coral mb-3 text-center lg:text-left">
-                  A Place To Feel
+                  {t('hero.title')}
                 </h2>
                 <p className="text-base sm:text-lg text-brand-green leading-relaxed mb-5 text-center lg:text-left">
-                  Chez nous, c'est chez vous. Welcome home. You don't visit Chez Beyrouth. You return to it.
+                  {t('hero.subtitle')}
                 </p>
                 <div className="flex items-center justify-center lg:justify-start space-x-3 bg-brand-coral/20 rounded-full px-3 py-2 w-fit mx-auto lg:mx-0 border border-brand-coral/40">
                   <Clock className="h-4 w-4 text-brand-coral" />
-                  <span className="text-brand-green font-semibold text-xs sm:text-sm">Open Daily 7:00 AM - 11:00 PM</span>
+                  <span className="text-brand-green font-semibold text-xs sm:text-sm">{t('hero.openHours')}</span>
                 </div>
               </div>
               
@@ -157,7 +161,7 @@ export default function MenuPage() {
                     : "bg-white border-2 border-brand-green text-brand-green category-button-hover"
                 }`}
               >
-                {category.name}
+                {t(`categories.${category.slug}`, category.name)}
               </button>
             ))}
           </div>

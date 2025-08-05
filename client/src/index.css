@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .ltr {
+  text-align: left;
+}
+
+[dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+/* Arabic Font Support */
+[lang="ar"] {
+  font-family: 'Ubuntu-Arabic', 'Arabic UI Display', 'SF Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* French Font Support */
+[lang="fr"] {
+  font-feature-settings: "liga" 1;
+}
+
 @font-face {
   font-family: 'Parslay';
   src: url('/Parslay.otf') format('opentype');

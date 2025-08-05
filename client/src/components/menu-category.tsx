@@ -1,4 +1,5 @@
 import MenuItemCard from "./menu-item-card";
+import { useTranslation } from "react-i18next";
 import type { Category, MenuItem } from "@shared/schema";
 
 interface MenuCategoryProps {
@@ -7,19 +8,16 @@ interface MenuCategoryProps {
 }
 
 export default function MenuCategory({ category, items }: MenuCategoryProps) {
+  const { t } = useTranslation();
+  
   return (
     <div>
       <div className="text-center mb-12">
         <h3 className="font-parslay text-5xl font-bold text-title-coral mb-4">
-          {category.name}
+          {t(`categories.${category.slug}`, category.name)}
         </h3>
-        {category.nameArabic && (
-          <h4 className="font-arabic text-3xl text-title-coral mb-4 text-center">
-            {category.nameArabic}
-          </h4>
-        )}
         <p className="text-saddle-brown text-lg max-w-2xl mx-auto">
-          Discover our carefully crafted selections, blending Lebanese traditions with international favorites.
+          {t('menu.subtitle')}
         </p>
       </div>
       
@@ -31,7 +29,7 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
 
       {items.filter(item => item.isAvailable).length === 0 && (
         <div className="text-center py-12">
-          <p className="text-saddle-brown text-lg">No items available in this category at the moment.</p>
+          <p className="text-saddle-brown text-lg">{t('menu.noItems', 'No items available in this category at the moment.')}</p>
         </div>
       )}
     </div>
