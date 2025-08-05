@@ -37,7 +37,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
         )}
         <div className="flex justify-between items-center">
           <span className="font-bold text-warm-gold text-[17px]">
-            ${item.price}
+            $ {item.price}
           </span>
           <Badge 
             variant={item.isAvailable ? "default" : "secondary"}
