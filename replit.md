@@ -114,6 +114,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - August 5, 2025: Removed Arabic text from database and created translation files for multilingual support
 - August 5, 2025: Added language switcher component in header with proper RTL layout support for Arabic
 - August 5, 2025: Enhanced availability badge system to only show "Out of Stock" for unavailable items, removing "Available" badges for cleaner presentation
+- August 5, 2025: Removed admin panel button from public header navigation while maintaining secure admin access through direct /admin route with authentication protection
 
 ## User Preferences
 

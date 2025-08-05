@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Utensils, Clock, Settings, FileText } from "lucide-react";
+import { Utensils, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -81,13 +81,6 @@ export default function MenuPage() {
                 <span className="hidden sm:inline">{t('nav.digitalMenu')}</span>
                 <span className="sm:hidden">{t('nav.digitalMenu').split(' ')[0]}</span>
               </Button>
-              <Link href="/login">
-                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white text-xs sm:text-sm px-3 sm:px-4 py-2">
-                  <Settings className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">{t('nav.adminPanel')}</span>
-                  <span className="sm:hidden">{t('nav.adminPanel').split(' ')[0]}</span>
-                </Button>
-              </Link>
             </nav>
           </div>
         </div>
