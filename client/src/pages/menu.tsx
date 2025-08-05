@@ -66,20 +66,18 @@ export default function MenuPage() {
               />
             </div>
             
-            <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-8">
+            <nav className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
               <LanguageSwitcher />
               <Link
                 href="/halal-certificates"
-                className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-xs sm:text-sm border border-green-200"
+                className="inline-flex items-center px-2 sm:px-3 lg:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-xs sm:text-sm border border-green-200"
               >
-                <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">{t('nav.halalCertificates')}</span>
-                <span className="sm:hidden">{t('nav.halalCertificates').split(' ')[0]}</span>
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2" />
+                <span className="hidden sm:inline ml-1 lg:ml-0">{t('nav.halalCertificates')}</span>
               </Link>
-              <Button className="bg-brand-green text-white hover:bg-brand-dark-green text-xs sm:text-sm px-3 sm:px-4 py-2">
-                <Utensils className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">{t('nav.digitalMenu')}</span>
-                <span className="sm:hidden">{t('nav.digitalMenu').split(' ')[0]}</span>
+              <Button className="bg-brand-green text-white hover:bg-brand-dark-green text-xs sm:text-sm px-2 sm:px-3 lg:px-4 py-2">
+                <Utensils className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2" />
+                <span className="hidden sm:inline ml-1 lg:ml-0">{t('nav.digitalMenu')}</span>
               </Button>
             </nav>
           </div>
