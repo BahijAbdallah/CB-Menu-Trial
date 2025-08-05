@@ -64,6 +64,14 @@ export default function MenuPage() {
             </div>
             
             <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-8">
+              <Link
+                href="/halal-certificates"
+                className="inline-flex items-center px-3 sm:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-xs sm:text-sm border border-green-200"
+              >
+                <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Halal Certificates</span>
+                <span className="sm:hidden">Halal</span>
+              </Link>
               <Button className="bg-brand-green text-white hover:bg-brand-dark-green text-xs sm:text-sm px-3 sm:px-4 py-2">
                 <Utensils className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Digital Menu</span>
@@ -133,20 +141,7 @@ export default function MenuPage() {
         </div>
       </section>
 
-      {/* Main Navigation */}
-      <section className="bg-white shadow-sm border-b relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 py-2">
-          <div className="flex justify-center">
-            <Link
-              href="/halal-certificates"
-              className="inline-flex items-center px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-sm border border-green-200"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Halal Certificates
-            </Link>
-          </div>
-        </div>
-      </section>
+
 
       {/* Menu Categories Navigation */}
       <section className="bg-white shadow-sm border-b relative z-10">
