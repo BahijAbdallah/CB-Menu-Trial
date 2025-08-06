@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Utensils, Clock, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Clock, FileText } from "lucide-react";
+
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
@@ -75,10 +75,7 @@ export default function MenuPage() {
                 <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2 flex-shrink-0" />
                 <span className="hidden sm:inline">{t('nav.halalCertificates')}</span>
               </Link>
-              <Button className="bg-brand-green text-white hover:bg-brand-dark-green text-xs sm:text-sm px-2 sm:px-3 lg:px-4 py-2 whitespace-nowrap">
-                <Utensils className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2 flex-shrink-0" />
-                <span className="hidden sm:inline">{t('nav.digitalMenu')}</span>
-              </Button>
+
             </nav>
           </div>
         </div>
