@@ -57,7 +57,7 @@ export default function MenuPage() {
       {/* Header */}
       <header className="bg-white shadow-lg border-b-4 border-brand-coral relative z-10">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between">
             <div className="flex items-center">
               <img 
                 src="/logo.png" 
@@ -66,9 +66,7 @@ export default function MenuPage() {
               />
             </div>
             
-            <div className="flex-1"></div>
-            
-            <nav className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 ml-auto">
+            <nav className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
               <LanguageSwitcher />
               <Link
                 href="/halal-certificates"
