@@ -118,6 +118,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - August 5, 2025: Moved all header navigation buttons (language switcher, halal certificates, digital menu) to the right side with improved responsive spacing and professional alignment
 - August 5, 2025: Aligned header buttons to the absolute far right edge with flex-1 spacer and ml-auto for perfect edge alignment across all screen sizes
 - August 8, 2025: Updated 8 menu items with professional food photography: Continental Breakfast, Honey Yogurt With Fruits, Oriental Breakfast, Tuna Tartar Crispy Rice, Salmon Sashimi, Artichoke Salad, Quinoa Fetta Frisee, and Buratta Salad
+- August 8, 2025: Updated 3 additional menu items with professional food photography: Chicken Breast (grilled with vegetables), Parmigiano Reggiano باذنجان (eggplant parmigiana), and Shrimps (grilled prawns with microgreens)
 
 ## User Preferences
 
