@@ -14,6 +14,9 @@ app.use(express.urlencoded({ extended: false }));
 // Serve static files from public directory
 app.use(express.static('public'));
 
+// Serve static files from attached_assets directory
+app.use('/attached_assets', express.static('attached_assets'));
+
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
