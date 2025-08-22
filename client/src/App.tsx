@@ -10,6 +10,8 @@ import MenuPage from "@/pages/menu";
 import AdminPage from "@/pages/admin";
 import LoginPage from "@/pages/login";
 import HalalCertificatesPage from "@/pages/halal-certificates";
+import ComingSoon from "@/components/coming-soon";
+import { shouldShowComingSoon, getGateConfig, shouldBlockSearchEngines } from "@/lib/gate-utils";
 import './i18n';
 
 function Router() {
@@ -19,7 +21,27 @@ function Router() {
     // Set initial direction and language
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
+    
+    // Add meta robots tag if coming soon is active
+    if (shouldBlockSearchEngines()) {
+      const metaRobots = document.createElement('meta');
+      metaRobots.name = 'robots';
+      metaRobots.content = 'noindex,nofollow';
+      document.head.appendChild(metaRobots);
+      
+      // Remove existing robots meta if present
+      const existingRobots = document.querySelector('meta[name="robots"]');
+      if (existingRobots && existingRobots !== metaRobots) {
+        existingRobots.remove();
+      }
+    }
   }, [i18n.language]);
+
+  // Check if we should show coming soon page
+  const gateConfig = getGateConfig();
+  if (shouldShowComingSoon(gateConfig)) {
+    return <ComingSoon />;
+  }
 
   return (
     <Switch>

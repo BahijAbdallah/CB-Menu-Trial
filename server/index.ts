@@ -17,6 +17,22 @@ app.use(express.static('public'));
 // Serve static files from attached_assets directory
 app.use('/attached_assets', express.static('attached_assets'));
 
+// Handle robots.txt for coming soon gate
+app.get('/robots.txt', (req, res) => {
+  const hostname = req.get('host') || '';
+  const publicLaunch = process.env.VITE_PUBLIC_LAUNCH === 'true';
+  
+  // If on custom domain and not launched publicly, disallow all
+  if (hostname.includes('menu.chezbeyrouth.com') && !publicLaunch) {
+    res.type('text/plain');
+    res.send(`User-agent: *\nDisallow: /`);
+  } else {
+    // Allow normal crawling
+    res.type('text/plain');
+    res.send(`User-agent: *\nAllow: /`);
+  }
+});
+
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
