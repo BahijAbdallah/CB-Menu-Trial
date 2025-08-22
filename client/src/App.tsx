@@ -10,6 +10,7 @@ import MenuPage from "@/pages/menu";
 import AdminPage from "@/pages/admin";
 import LoginPage from "@/pages/login";
 import HalalCertificatesPage from "@/pages/halal-certificates";
+import ComingSoonPage from "@/pages/coming-soon";
 import './i18n';
 
 function Router() {
@@ -23,7 +24,8 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={MenuPage} />
+      <Route path="/" component={ComingSoonPage} />
+      <Route path="/menu" component={MenuPage} />
       <Route path="/halal-certificates" component={HalalCertificatesPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/admin" component={AdminPage} />
