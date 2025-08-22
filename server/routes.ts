@@ -7,7 +7,6 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { setupRobotsRoutes } from "./routes/robots";
 import "./types";
 
 // Simple token store for demo purposes
@@ -448,9 +447,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to delete certificate" });
     }
   });
-
-  // Setup robots.txt and sitemap routes
-  setupRobotsRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
