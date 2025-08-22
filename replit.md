@@ -47,6 +47,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - **Admin Dashboard**: Full CRUD interface for menu management
 - **Modal Forms**: Dynamic forms for creating/editing menu items
 - **Statistics Dashboard**: Admin overview with key metrics
+- **Coming Soon Gate**: Domain-based launch gate with preview bypass and SEO protection
 
 ## Data Flow
 
@@ -119,6 +120,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - August 5, 2025: Aligned header buttons to the absolute far right edge with flex-1 spacer and ml-auto for perfect edge alignment across all screen sizes
 - August 8, 2025: Updated 8 menu items with professional food photography: Continental Breakfast, Honey Yogurt With Fruits, Oriental Breakfast, Tuna Tartar Crispy Rice, Salmon Sashimi, Artichoke Salad, Quinoa Fetta Frisee, and Buratta Salad
 - August 8, 2025: Updated 3 additional menu items with professional food photography: Chicken Breast (grilled with vegetables), Parmigiano Reggiano باذنجان (eggplant parmigiana), and Shrimps (grilled prawns with microgreens)
+- August 22, 2025: Implemented domain-based Coming Soon gate with hostname detection, preview bypass functionality, SEO protection (robots.txt and meta tags), and responsive design matching brand colors
 
 ## User Preferences
 
