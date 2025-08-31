@@ -29,7 +29,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </p>
         )}
         <div className="flex justify-between items-center">
-          <span className="font-bold text-warm-gold text-[17px]">
+          <span className="font-bold text-warm-gold text-[15px]">
             $ {item.price}
           </span>
           {!item.isAvailable && (
