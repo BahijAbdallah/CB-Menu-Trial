@@ -34,6 +34,22 @@ const storage_multer = multer.diskStorage({
   }
 });
 
+// Multer configuration for image uploads
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const imageDir = path.join(process.cwd(), 'attached_assets');
+    if (!fs.existsSync(imageDir)) {
+      fs.mkdirSync(imageDir, { recursive: true });
+    }
+    cb(null, imageDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'menu-item-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
 const upload = multer({
   storage: storage_multer,
   limits: {
@@ -45,6 +61,21 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
+
+const uploadImage = multer({
+  storage: imageStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Only allow image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
     }
   }
 });
@@ -105,6 +136,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ message: "Logout successful" });
     });
+  });
+
+  // Image upload endpoint
+  app.post("/api/upload-image", requireAuth, uploadImage.single('image'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+      
+      // For now, we'll use the attached_assets directory for uploaded images
+      // In production, you might want to use cloud storage
+      const imageUrl = `/attached_assets/${req.file.filename}`;
+      
+      res.json({ imageUrl });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to upload image" });
+    }
   });
 
   app.get("/api/auth/me", (req, res) => {

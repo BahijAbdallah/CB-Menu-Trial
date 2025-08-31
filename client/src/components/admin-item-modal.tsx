@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Trash2, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -37,6 +38,9 @@ interface AdminItemModalProps {
 
 export default function AdminItemModal({ isOpen, onClose, editingItem, categories }: AdminItemModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -67,6 +71,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         isAvailable: editingItem.isAvailable,
         order: editingItem.order,
       });
+      setImagePreview(editingItem.imageUrl || "");
     } else {
       form.reset({
         name: "",
@@ -79,8 +84,80 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         isAvailable: true,
         order: 0,
       });
+      setImagePreview("");
     }
   }, [editingItem, form]);
+
+  // Image upload functionality
+  const handleImageUpload = async (file: File) => {
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const data = await response.json();
+      const imageUrl = data.imageUrl;
+      
+      form.setValue('imageUrl', imageUrl);
+      setImagePreview(imageUrl);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "Error",
+          description: "Image size must be less than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Please select a valid image file",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      handleImageUpload(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    form.setValue('imageUrl', '');
+    setImagePreview('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -206,6 +283,79 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
               )}
             />
 
+            {/* Image Management Section */}
+            <div className="space-y-4">
+              <FormLabel className="text-base font-semibold">Menu Item Image</FormLabel>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                {imagePreview ? (
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Item preview"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveImage}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingImage}
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        Change Image
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center space-y-4">
+                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">No image uploaded</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingImage}
+                      >
+                        {isUploadingImage ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-green mr-2"></div>
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Image
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Supported formats: JPG, PNG, WebP (Max 5MB)
+                    </p>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-3 gap-6">
               <FormField
                 control={form.control}
@@ -273,19 +423,26 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
               />
             </div>
 
+            {/* Availability Toggle */}
             <FormField
               control={form.control}
-              name="imageUrl"
+              name="isAvailable"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL</FormLabel>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Item Availability
+                    </FormLabel>
+                    <div className="text-sm text-gray-600">
+                      Toggle to mark this item as {field.value ? 'available' : 'out of stock'}
+                    </div>
+                  </div>
                   <FormControl>
-                    <Input
-                      placeholder="https://example.com/image.jpg"
-                      {...field}
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
