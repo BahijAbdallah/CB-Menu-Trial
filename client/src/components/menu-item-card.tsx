@@ -13,7 +13,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
   const { t } = useTranslation();
   
   return (
-    <div className={`bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 relative ${!item.isAvailable ? 'opacity-75' : ''}`}>
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 relative">
       <div className="relative">
         <img
           src={item.imageUrl || getDefaultImageForItem(category.slug, index)}
@@ -21,8 +21,8 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           className="w-full h-48 object-cover"
         />
         {!item.isAvailable && (
-          <div className="absolute inset-0 bg-red-900/40 flex items-center justify-center">
-            <Badge className="bg-red-600 text-white font-semibold px-3 py-1 text-sm shadow-lg">
+          <div className="absolute z-10">
+            <Badge className="bg-red-600 text-white font-bold border-2 border-white rounded-full out-of-stock-badge">
               {t('menu.outOfStock')}
             </Badge>
           </div>
@@ -38,15 +38,9 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </p>
         )}
         <div className="flex justify-between items-center">
-          {item.isAvailable ? (
-            <span className="font-bold text-warm-gold text-[15px]">
-              $ {item.price}
-            </span>
-          ) : (
-            <span className="font-bold text-gray-400 text-[15px] line-through">
-              $ {item.price}
-            </span>
-          )}
+          <span className="font-bold text-warm-gold text-[15px]">
+            $ {item.price}
+          </span>
         </div>
       </div>
     </div>
