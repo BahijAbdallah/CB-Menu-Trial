@@ -21,10 +21,10 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           className="w-full h-48 object-cover"
         />
         {!item.isAvailable && (
-          <div className="absolute -top-2 -right-2 z-10">
-            <Badge className="bg-red-600 text-white font-bold border-2 border-white rounded-full out-of-stock-badge">
+          <div className="absolute -top-3 -right-3 z-10">
+            <span className="out-of-stock-badge">
               {t('menu.outOfStock')}
-            </Badge>
+            </span>
           </div>
         )}
       </div>

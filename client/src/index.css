@@ -386,29 +386,71 @@
 
   /* Out of Stock Badge Enhancements */
   .out-of-stock-badge {
-    animation: pulse-subtle 2s ease-in-out infinite;
-    backdrop-filter: blur(2px);
-    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4);
+    background-color: #B91C1C !important;
+    color: white !important;
+    border: 2px solid white;
+    border-radius: 50px;
+    font-weight: 700;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
+    animation: badge-entrance 0.5s ease-out, pulse-subtle 3s ease-in-out infinite 1s;
+    transform-origin: center;
+    white-space: nowrap;
+    letter-spacing: 0.025em;
+  }
+
+  @keyframes badge-entrance {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.8) translateY(-10px); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1) translateY(0); 
+    }
   }
 
   @keyframes pulse-subtle {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    0%, 100% { 
+      transform: scale(1); 
+      box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    50% { 
+      transform: scale(1.02); 
+      box-shadow: 0 6px 16px rgba(185, 28, 28, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
   }
 
   /* Mobile-specific out of stock badge */
   @media (max-width: 640px) {
     .out-of-stock-badge {
+      font-size: 0.65rem;
+      padding: 0.4rem 0.8rem;
+      min-width: fit-content;
+    }
+  }
+
+  /* Tablet-specific out of stock badge */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .out-of-stock-badge {
       font-size: 0.7rem;
-      padding: 0.25rem 0.5rem;
+      padding: 0.45rem 0.9rem;
     }
   }
 
   /* Desktop out of stock badge */
-  @media (min-width: 641px) {
+  @media (min-width: 1025px) {
     .out-of-stock-badge {
       font-size: 0.75rem;
-      padding: 0.375rem 0.75rem;
+      padding: 0.5rem 1rem;
     }
+  }
+
+  /* Hover effect for badges (subtle enhancement) */
+  .out-of-stock-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(185, 28, 28, 0.6), 0 3px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
   }
 }
