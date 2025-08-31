@@ -383,4 +383,36 @@
       scroll-padding-right: 24px;
     }
   }
+
+  /* Out of Stock Badge Enhancements */
+  .out-of-stock-badge {
+    animation: pulse-subtle 2s ease-in-out infinite;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4);
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  /* Mobile-specific out of stock badge */
+  @media (max-width: 640px) {
+    .out-of-stock-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      top: -0.375rem;
+      right: -0.375rem;
+    }
+  }
+
+  /* Desktop out of stock badge */
+  @media (min-width: 641px) {
+    .out-of-stock-badge {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+      top: -0.5rem;
+      right: -0.5rem;
+    }
+  }
 }
