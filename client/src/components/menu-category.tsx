@@ -22,14 +22,14 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
       </div>
       
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {items.filter(item => item.isAvailable).map((item, index) => (
+        {items.map((item, index) => (
           <MenuItemCard key={item.id} item={item} category={category} index={index} />
         ))}
       </div>
 
-      {items.filter(item => item.isAvailable).length === 0 && (
+      {items.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-saddle-brown text-lg">{t('menu.noItems', 'No items available in this category at the moment.')}</p>
+          <p className="text-saddle-brown text-lg">{t('common.noItems')}</p>
         </div>
       )}
     </div>
