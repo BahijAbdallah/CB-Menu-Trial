@@ -2,12 +2,27 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Clock, FileText } from "lucide-react";
+import { Clock } from "lucide-react";
 
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
 import clockTowerImage from "@/assets/chez_1750587966495.png";
+
+// Halal Crescent and Star Icon Component
+function HalalIcon({ className }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M9.5 2C5.35 2 2 5.35 2 9.5c0 4.15 3.35 7.5 7.5 7.5 1.85 0 3.55-.7 4.86-1.8-.5.1-1.02.15-1.56.15-3.86 0-7-3.14-7-7s3.14-7 7-7c.54 0 1.06.05 1.56.15C13.05 2.7 11.35 2 9.5 2z"/>
+      <polygon points="18,5 19.5,8.5 23,8.5 20.25,10.5 21.75,14 18,11.5 14.25,14 15.75,10.5 13,8.5 16.5,8.5"/>
+    </svg>
+  );
+}
 
 
 
@@ -72,7 +87,7 @@ export default function MenuPage() {
                 href="/halal-certificates"
                 className="inline-flex items-center px-2 sm:px-3 lg:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-xs sm:text-sm border border-green-200 whitespace-nowrap"
               >
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2 flex-shrink-0" />
+                <HalalIcon className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2 flex-shrink-0" />
                 <span className="hidden sm:inline">{t('nav.halalCertificates')}</span>
               </Link>
 
