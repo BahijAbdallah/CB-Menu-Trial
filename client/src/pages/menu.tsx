@@ -152,21 +152,53 @@ export default function MenuPage() {
 
       {/* Menu Categories Navigation */}
       <section className="bg-white shadow-sm border-b relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex overflow-x-auto space-x-2 sm:space-x-4 scrollbar-hide pb-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.slug)}
-                className={`whitespace-nowrap px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-200 text-sm sm:text-base ${
-                  activeCategory === category.slug
-                    ? "category-button-active transform scale-105"
-                    : "bg-white border-2 border-brand-green text-brand-green category-button-hover"
-                }`}
-              >
-                {t(`categories.${category.slug}`, category.name)}
-              </button>
-            ))}
+        <div className="container mx-auto py-3 sm:py-4">
+          {/* Categories scroll container with enhanced fade effects */}
+          <div className="relative group">
+            {/* Left fade gradient - more prominent */}
+            <div className="absolute left-0 top-0 bottom-0 w-6 sm:w-8 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+            
+            {/* Right fade gradient - more prominent */}
+            <div className="absolute right-0 top-0 bottom-0 w-6 sm:w-8 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+            
+            {/* Optional scroll indicators */}
+            <div className="absolute left-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-brand-green/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none"></div>
+            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-brand-green/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none"></div>
+            
+            {/* Scrollable categories container */}
+            <div 
+              className="flex overflow-x-auto pb-2 smooth-scroll"
+              style={{ 
+                scrollBehavior: 'smooth',
+                scrollSnapType: 'x proximity',
+                paddingLeft: '1.5rem',
+                paddingRight: '1.5rem'
+              }}
+            >
+              {/* First spacer for proper left padding */}
+              <div className="flex-shrink-0 w-3 sm:w-6"></div>
+              
+              {categories.map((category, index) => (
+                <button
+                  key={category.id}
+                  onClick={() => setActiveCategory(category.slug)}
+                  className={`flex-shrink-0 whitespace-nowrap px-4 sm:px-5 lg:px-7 py-2.5 sm:py-3.5 rounded-full font-medium transition-all duration-300 text-sm sm:text-base mr-3 sm:mr-5 ${
+                    activeCategory === category.slug
+                      ? "category-button-active transform scale-105 shadow-xl"
+                      : "bg-white border-2 border-brand-green text-brand-green category-button-hover shadow-md hover:shadow-lg"
+                  }`}
+                  style={{ 
+                    scrollSnapAlign: 'start',
+                    minWidth: 'fit-content'
+                  }}
+                >
+                  {t(`categories.${category.slug}`, category.name)}
+                </button>
+              ))}
+              
+              {/* Last spacer for proper right padding */}
+              <div className="flex-shrink-0 w-3 sm:w-6"></div>
+            </div>
           </div>
         </div>
       </section>
