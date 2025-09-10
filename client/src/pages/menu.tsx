@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
+import { Mosque } from "lucide-react";
 
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -19,7 +20,7 @@ function AllergensLegend() {
         <p>
           {t(
             "allergens.description",
-            "Please ask our staff for guidance on allergens and cross-contamination.",
+            " Please be adviced that our food may contain or come  into contact with common allergens, including:",
           )}
         </p>
         <ul className="legend-row">
@@ -114,7 +115,7 @@ export default function MenuPage() {
 
             <Link href="/halal-certificates">
               <button className="halal-chip" type="button">
-                <img src="/icons/halal.svg" alt="" aria-hidden="true" />
+                <Mosque className="w-4 h-4" aria-hidden="true" />
                 <span>Halal Certification</span>
               </button>
             </Link>
