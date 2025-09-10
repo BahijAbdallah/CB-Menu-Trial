@@ -11,14 +11,19 @@ import { ALLERGENS } from "@/constants/allergens";
 // Allergens Legend Component
 function AllergensLegend() {
   const { t } = useTranslation();
-  
+
   return (
     <section className="allergens-legend">
       <div className="container">
-        <h3 style={font-family: 'Billmake', sans-serif;}>{t('allergens.title', 'ALLERGENS')}</h3>
-        <p>{t('allergens.description', 'Please ask our staff for guidance on allergens and cross-contamination.')}</p>
+        <h4>{t("allergens.title", "ALLERGENS")}</h4>
+        <p>
+          {t(
+            "allergens.description",
+            "Please ask our staff for guidance on allergens and cross-contamination.",
+          )}
+        </p>
         <ul className="legend-row">
-          {ALLERGENS.map(a => (
+          {ALLERGENS.map((a) => (
             <li key={a.slug}>
               <img className="allergen-img" src={a.icon} alt={a.label} />
               <span>{a.label}</span>
@@ -30,8 +35,6 @@ function AllergensLegend() {
   );
 }
 
-
-
 export default function MenuPage() {
   const { t, i18n } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("");
@@ -40,21 +43,25 @@ export default function MenuPage() {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 4) {
-        document.body.classList.add('scrolled');
+        document.body.classList.add("scrolled");
       } else {
-        document.body.classList.remove('scrolled');
+        document.body.classList.remove("scrolled");
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<
+    Category[]
+  >({
     queryKey: ["/api/categories"],
   });
 
-  const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<MenuItem[]>({
+  const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
+    MenuItem[]
+  >({
     queryKey: ["/api/menu-items"],
   });
 
@@ -63,9 +70,11 @@ export default function MenuPage() {
     setActiveCategory(categories[0].slug);
   }
 
-  const activeCategoryData = categories.find(cat => cat.slug === activeCategory);
-  const categoryItems = menuItems.filter(item => 
-    activeCategoryData ? item.categoryId === activeCategoryData.id : false
+  const activeCategoryData = categories.find(
+    (cat) => cat.slug === activeCategory,
+  );
+  const categoryItems = menuItems.filter((item) =>
+    activeCategoryData ? item.categoryId === activeCategoryData.id : false,
   );
 
   if (categoriesLoading || menuItemsLoading) {
@@ -73,7 +82,7 @@ export default function MenuPage() {
       <div className="min-h-screen bg-light-cream flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto mb-4"></div>
-          <p className="text-brand-green">{t('common.loading')}</p>
+          <p className="text-brand-green">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -89,10 +98,15 @@ export default function MenuPage() {
           </a>
 
           <div className="hdr-actions">
-            <select id="lang-switch" aria-label="Language" className="pill" onChange={(e) => {
-              const lang = e.target.value;
-              i18n.changeLanguage(lang);
-            }}>
+            <select
+              id="lang-switch"
+              aria-label="Language"
+              className="pill"
+              onChange={(e) => {
+                const lang = e.target.value;
+                i18n.changeLanguage(lang);
+              }}
+            >
               <option value="en">EN</option>
               <option value="fr">FR</option>
               <option value="ar">AR</option>
@@ -114,48 +128,60 @@ export default function MenuPage() {
           <div className="hero-lockup">
             <div className="sprout"></div>
             <h1 className="hero-title">
-              <span className="line-1">{t('brand.menuTitle', 'The Menu')}</span><br/>
-              <span className="line-2">{t('brand.subtitle', 'OF BEYROUTH')}</span>
+              <span className="line-1">{t("brand.menuTitle", "The Menu")}</span>
+              <br />
+              <span className="line-2">
+                {t("brand.subtitle", "OF BEYROUTH")}
+              </span>
             </h1>
           </div>
         </div>
       </section>
-      
+
       {/* Allergens Legend */}
       <AllergensLegend />
 
-
-
       {/* Menu Categories Navigation and Items Display - White Background */}
-      <div style={{ background: 'white' }}>
-        <nav className="menu-tabs" onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
-          if (e.deltaY === 0) return;
-          e.currentTarget.scrollLeft += e.deltaY;
-          e.preventDefault();
-        }}>
+      <div style={{ background: "white" }}>
+        <nav
+          className="menu-tabs"
+          onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
+            if (e.deltaY === 0) return;
+            e.currentTarget.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }}
+        >
           {categories.map((category, i) => {
-            const COLOR_CYCLE = ['olive','coral','taupe','yellow'] as const; // repeats
-            const COLOR_BY_SLUG: Record<string, typeof COLOR_CYCLE[number]> = {
-              'breakfast items':'olive',
-              'salads':'coral',
-              'hot appetizers':'taupe',
-              'cold appetizers':'yellow',
-              'main course':'taupe',              // stays taupe when active
-              'sandwiches & burgers':'olive',
-              'plat du jour':'yellow',
-              'desserts':'coral',
-            };
-            const norm = (s:string)=>s.toLowerCase().trim();
-            
-            const categoryName = t(`categories.${category.slug}`, category.name);
-            const tone = COLOR_BY_SLUG[norm(categoryName)] ?? COLOR_CYCLE[i % COLOR_CYCLE.length];
-            const isActive = norm(categoryName) === norm(t(`categories.${activeCategory}`, activeCategory));
-            
+            const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
+            const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
+              {
+                "breakfast items": "olive",
+                salads: "coral",
+                "hot appetizers": "taupe",
+                "cold appetizers": "yellow",
+                "main course": "taupe", // stays taupe when active
+                "sandwiches & burgers": "olive",
+                "plat du jour": "yellow",
+                desserts: "coral",
+              };
+            const norm = (s: string) => s.toLowerCase().trim();
+
+            const categoryName = t(
+              `categories.${category.slug}`,
+              category.name,
+            );
+            const tone =
+              COLOR_BY_SLUG[norm(categoryName)] ??
+              COLOR_CYCLE[i % COLOR_CYCLE.length];
+            const isActive =
+              norm(categoryName) ===
+              norm(t(`categories.${activeCategory}`, activeCategory));
+
             return (
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.slug)}
-                className={`menu-tab variant-${tone} ${isActive ? 'is-active' : ''}`}
+                className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
               >
                 {categoryName}
               </button>
@@ -166,10 +192,7 @@ export default function MenuPage() {
         {/* Menu Items Display */}
         <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
           {activeCategoryData && (
-            <MenuCategory 
-              category={activeCategoryData} 
-              items={categoryItems}
-            />
+            <MenuCategory category={activeCategoryData} items={categoryItems} />
           )}
         </section>
       </div>
