@@ -210,34 +210,40 @@ h1, h2, h3 {
   color: var(--ink);
 }
 
-/* CARD stays a single-column list of rows */
+/* List stays a single stacked column */
 .menu-list{ 
   list-style:none; margin:0; padding:0;
   display:grid; grid-auto-flow:row; gap:24px;
   max-width:1100px; margin-inline:auto;
 }
 
-/* Ensure the grid row defines a height the image can stretch to */
+/* Card grid: image | text | price/icons */
 .menu-card{
   display:grid;
-  grid-template-columns: 176px 1fr auto;   /* image | text | price/icons */
-  align-items: stretch;                    /* <-- let column items stretch */
+  grid-template-columns:176px 1fr auto;
+  align-items:stretch;            /* <-- makes the first column match card height */
   gap:24px;
   padding:22px;
   background:var(--comfort,#ECE6DB);
   border-radius:14px;
   box-shadow:0 2px 0 rgba(0,0,0,.03);
-  min-height:152px;                        /* gives a target height */
+  min-height:152px;               /* ensures consistent card height */
 }
 
-/* 🔧 Make the thumbnail fill the card's height and the first column width */
+/* Image wrapper fills the whole first column (card height) */
+.thumb-wrap{
+  position:relative;
+  align-self:stretch;             /* full card height */
+  justify-self:stretch;           /* fill grid track width */
+  border-radius:14px;
+  overflow:hidden;                /* clean rounded corners */
+}
+
+/* Image fills wrapper (no distortion) */
 .menu-thumb{
-  grid-column:1;
-  align-self:stretch;                      /* stretch inside the row */
-  width:100% !important;                   /* fill the 176px column */
-  height:100% !important;                  /* match card height */
-  object-fit:cover !important;             /* crop nicely */
-  border-radius:14px !important;           /* rounded corners */
+  position:absolute; inset:0;     /* top/right/bottom/left = 0 */
+  width:100%; height:100%;
+  object-fit:cover;
   display:block;
 }
 
@@ -253,18 +259,6 @@ h1, h2, h3 {
   font-family:'Billmake',sans-serif; font-weight:700; font-size:28px; color:var(--olive,#3b4b30);
 }
 
-.menu-alls {
-  grid-column: 3;
-  align-self: end;
-  display: flex;
-  gap: 6px;
-  justify-content: flex-end;
-}
-
-.menu-alls img {
-  width: 18px;
-  height: 18px;
-}
 
 /* nuke all old circle styles */
 .legend-row .chip,
@@ -326,13 +320,10 @@ h1, h2, h3 {
 .allergen-chip input{ display:none; }
 .allergen-chip.is-on{ background:var(--cream); }
 
-/* Responsive — still fills the card's height */
+/* Mobile */
 @media (max-width:768px){
-  .menu-card{
-    grid-template-columns:120px 1fr auto;
-    min-height:120px;
-    gap:16px; padding:16px;
-  }
+  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
+  .thumb-wrap{ border-radius:12px; }
   .menu-title{ font-size:24px; margin-bottom:6px; }
   .menu-price{ font-size:22px; }
   .menu-alls img{ width:32px; height:32px; }
