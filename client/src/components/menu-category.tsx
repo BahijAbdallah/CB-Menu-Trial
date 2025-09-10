@@ -49,7 +49,7 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
               <div className="menu-alls">
                 {allergens.map((slug: AllergenSlug) => {
                   const a = ALLERGENS_MAP[slug];
-                  return <img key={slug} src={a.icon} title={a.label} alt={a.label} className="allergen-icon"/>;
+                  return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
                 })}
               </div>
             </li>
