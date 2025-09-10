@@ -21,6 +21,7 @@ export const menuItems = pgTable("menu_items", {
   imageUrl: text("image_url"),
   isAvailable: boolean("is_available").notNull().default(true),
   order: integer("order").notNull().default(0),
+  allergens: text("allergens").default("[]"),
 });
 
 export const insertCategorySchema = createInsertSchema(categories).omit({
