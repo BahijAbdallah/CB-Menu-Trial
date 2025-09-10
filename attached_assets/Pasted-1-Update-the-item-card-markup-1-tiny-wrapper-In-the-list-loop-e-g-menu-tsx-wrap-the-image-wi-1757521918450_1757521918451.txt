@@ -1,0 +1,76 @@
+1) Update the item card markup (1 tiny wrapper)
+In the list loop (e.g., menu.tsx), wrap the image with a .thumb-wrap:
+
+<li className="menu-card">
+  <div className="thumb-wrap">
+    <img className="menu-thumb" src={item.image} alt={item.name} />
+  </div>
+
+  <div className="menu-meta">
+    <h3 className="menu-title">{item.name}</h3>
+    <p className="menu-desc">{item.description}</p>
+  </div>
+
+  <div className="menu-price">{item.priceFormatted ?? `${item.price} $`}</div>
+
+  <div className="menu-alls">
+    {(item.allergens ?? []).map(slug => {
+      const a = ALLERGENS_MAP[slug];
+      return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
+    })}
+  </div>
+</li>
+
+
+2) CSS — make the image column stretch and the image fill it
+Add/replace in public/styles.css:
+
+/* List stays a single stacked column */
+.menu-list{ display:grid; grid-auto-flow:row; gap:24px; }
+
+/* Card grid: image | text | price/icons */
+.menu-card{
+  display:grid;
+  grid-template-columns:176px 1fr auto;
+  align-items:stretch;            /* <-- makes the first column match card height */
+  gap:24px;
+  padding:22px;
+  background:var(--comfort,#ECE6DB);
+  border-radius:14px;
+  box-shadow:0 2px 0 rgba(0,0,0,.03);
+}
+
+/* Image wrapper fills the whole first column (card height) */
+.thumb-wrap{
+  position:relative;
+  align-self:stretch;             /* full card height */
+  width:176px;
+  border-radius:14px;
+  overflow:hidden;                /* clean rounded corners */
+}
+
+/* Image fills wrapper (no distortion) */
+.menu-thumb{
+  position:absolute; inset:0;     /* top/right/bottom/left = 0 */
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Mobile */
+@media (max-width:768px){
+  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; }
+  .thumb-wrap{ width:120px; border-radius:12px; }
+}
+
+
+3) Clean up old rules that fight this
+Delete/override any previous .menu-thumb { height:132px } or .menu-thumb { height:auto } or global img{height:auto!important}. The rules above will take precedence.
+
+Done when
+
+The left image is exactly the same height as the card, with rounded corners.
+
+Layout stays a vertical list (one card per row).
+
+No stretching or letterboxing; the image is cropped nicely via object-fit: cover.
