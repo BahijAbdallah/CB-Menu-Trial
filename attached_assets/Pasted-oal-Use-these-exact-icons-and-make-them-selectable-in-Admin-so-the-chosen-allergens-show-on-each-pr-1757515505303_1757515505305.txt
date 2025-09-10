@@ -1,0 +1,132 @@
+oal: Use these exact icons and make them selectable in Admin so the chosen allergens show on each product card and in the legend.
+
+1) Assets
+Create this folder and filenames (place your PNGs there):
+
+/public/icons/allergens/
+  milk.png        // from Icons-01.png
+  gluten.png      // from Icons-02.png
+  fish.png        // from Icons-03.png
+  peanuts.png     // from Icons-05.png
+  soya.png        // from Icons-06.png
+  nuts.png        // from Icons-04.png
+
+
+2) Constants (single source of truth)
+Create/replace src/constants/allergens.ts:
+
+export type AllergenSlug = 'milk'|'gluten'|'fish'|'soya'|'peanuts'|'nuts';
+
+export const ALLERGENS: { slug: AllergenSlug; label: string; icon: string }[] = [
+  { slug: 'milk',    label: 'Milk',    icon: '/icons/allergens/milk.png' },
+  { slug: 'gluten',  label: 'Gluten',  icon: '/icons/allergens/gluten.png' },
+  { slug: 'fish',    label: 'Fish',    icon: '/icons/allergens/fish.png' },
+  { slug: 'soya',    label: 'Soya',    icon: '/icons/allergens/soya.png' },
+  { slug: 'peanuts', label: 'Peanuts', icon: '/icons/allergens/peanuts.png' },
+  { slug: 'nuts',    label: 'Nuts',    icon: '/icons/allergens/nuts.png' },
+];
+
+export const ALLERGENS_MAP = Object.fromEntries(
+  ALLERGENS.map(a => [a.slug, a])
+) as Record<AllergenSlug, {slug: AllergenSlug; label: string; icon: string}>;
+
+
+3) Backend (if not already)
+
+Ensure menu_items has allergens_json TEXT DEFAULT '[]'.
+
+GET /api/menu returns allergens: string[].
+
+POST/PUT /api/menu accept { allergens: AllergenSlug[] } and store as JSON.
+
+4) Admin UI (multi-select with icons)
+In the create/edit product form component:
+
+import { ALLERGENS } from '@/constants/allergens';
+
+const [selectedAllergens, setSelectedAllergens] = useState<AllergenSlug[]>(item?.allergens ?? []);
+
+function toggleAllergen(slug: AllergenSlug){
+  setSelectedAllergens(prev => prev.includes(slug) ? prev.filter(s => s!==slug) : [...prev, slug]);
+}
+
+<div className="admin-allergens">
+  {ALLERGENS.map(a => (
+    <label key={a.slug} className={`allergen-chip ${selectedAllergens.includes(a.slug) ? 'is-on':''}`}>
+      <input
+        type="checkbox"
+        checked={selectedAllergens.includes(a.slug)}
+        onChange={() => toggleAllergen(a.slug)}
+        aria-label={a.label}
+      />
+      <img src={a.icon} alt="" aria-hidden="true" />
+      <span>{a.label}</span>
+    </label>
+  ))}
+</div>
+
+
+When saving:
+
+await fetch(saveUrl, {
+  method: method,
+  headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ ...formValues, allergens: selectedAllergens })
+});
+
+
+5) Product cards (show icons)
+In the menu list card component:
+
+import { ALLERGENS_MAP } from '@/constants/allergens';
+
+<div className="menu-alls">
+  {(item.allergens ?? []).map((slug: AllergenSlug) => {
+    const a = ALLERGENS_MAP[slug];
+    return <img key={slug} src={a.icon} title={a.label} alt={a.label} className="allergen-icon"/>;
+  })}
+</div>
+
+
+6) Legend band (under hero)
+
+import { ALLERGENS } from '@/constants/allergens';
+
+<ul id="legendRow" className="legend-row">
+  {ALLERGENS.map(a=>(
+    <li key={a.slug}>
+      <span className="chip"><img src={a.icon} alt="" aria-hidden="true"/></span>
+      <span>{a.label}</span>
+    </li>
+  ))}
+</ul>
+
+
+7) Minimal CSS
+
+.allergen-icon{ width:18px; height:18px; }
+
+.admin-allergens{ display:flex; flex-wrap:wrap; gap:10px; }
+.allergen-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px; border:2px solid var(--olive);
+  background:#fff; color:var(--olive); cursor:pointer;
+}
+.allergen-chip input{ display:none; }
+.allergen-chip img{ width:18px; height:18px; }
+.allergen-chip.is-on{ background:var(--comfort); }
+
+.legend-row .chip{
+  width:42px; height:42px; border-radius:999px; background:var(--olive);
+  display:grid; place-items:center;
+}
+.legend-row .chip img{ width:22px; height:22px; filter:invert(1) brightness(10); }
+
+
+8) Acceptance
+
+New icons appear in the legend, admin selector, and on each product per selection.
+
+Old allergen assets are no longer referenced.
+
+Admin saves/edits persist the allergens array correctly.

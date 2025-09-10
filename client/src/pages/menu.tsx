@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
-import { ALLERGENS } from "@shared/allergens";
+import { ALLERGENS } from "@/constants/allergens";
 
 // Allergens Legend Component
 function AllergensLegend() {

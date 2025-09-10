@@ -15,7 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category, MenuItem, InsertMenuItem } from "@shared/schema";
-import { ALLERGENS, parseAllergens, serializeAllergens } from "@shared/allergens";
+import { ALLERGENS, type AllergenSlug } from "@/constants/allergens";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -64,7 +64,20 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
 
   useEffect(() => {
     if (editingItem) {
-      const allergens = parseAllergens(editingItem.allergens || "[]");
+      // Parse allergens from JSON string or use array directly
+      let allergens: AllergenSlug[] = [];
+      if (editingItem.allergens) {
+        if (typeof editingItem.allergens === 'string') {
+          try {
+            allergens = JSON.parse(editingItem.allergens);
+          } catch {
+            allergens = [];
+          }
+        } else {
+          allergens = editingItem.allergens;
+        }
+      }
+      
       form.reset({
         name: editingItem.name,
         nameArabic: editingItem.nameArabic || "",
@@ -175,7 +188,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         description: data.description || null,
         descriptionArabic: data.descriptionArabic || null,
         imageUrl: data.imageUrl || null,
-        allergens: serializeAllergens(data.allergens),
+        allergens: JSON.stringify(data.allergens),
       };
 
       if (editingItem) {
@@ -441,30 +454,25 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                   <div className="text-sm text-gray-600 mb-3">
                     Select all allergens present in this menu item
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 border rounded-lg p-4">
-                    {ALLERGENS.map((allergen) => (
-                      <div key={allergen.slug} className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={field.value.includes(allergen.slug)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              field.onChange([...field.value, allergen.slug]);
+                  <div className="admin-allergens">
+                    {ALLERGENS.map((a) => (
+                      <label key={a.slug} className={`allergen-chip ${field.value.includes(a.slug) ? 'is-on' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={field.value.includes(a.slug)}
+                          onChange={() => {
+                            const current = field.value as AllergenSlug[];
+                            if (current.includes(a.slug)) {
+                              field.onChange(current.filter((slug) => slug !== a.slug));
                             } else {
-                              field.onChange(field.value.filter((slug) => slug !== allergen.slug));
+                              field.onChange([...current, a.slug]);
                             }
                           }}
+                          aria-label={a.label}
                         />
-                        <div className="flex items-center space-x-2">
-                          <img 
-                            src={allergen.icon} 
-                            alt={allergen.label}
-                            className="w-5 h-5"
-                          />
-                          <label className="text-sm font-medium">
-                            {allergen.label}
-                          </label>
-                        </div>
-                      </div>
+                        <img src={a.icon} alt="" aria-hidden="true" />
+                        <span>{a.label}</span>
+                      </label>
                     ))}
                   </div>
                   <FormMessage />
