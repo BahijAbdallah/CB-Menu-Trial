@@ -1,0 +1,107 @@
+Edit public/styles.css and add/replace:
+
+/* -------- 0) Resets to stop "weird" mobile shifts -------- */
+* { box-sizing: border-box; }
+html, body { width: 100%; overflow-x: hidden; }
+
+/* -------- 1) Header: NOT sticky -------- */
+.site-header{
+  position: static !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  z-index: 5;
+}
+/* remove any offsets added for a fixed header */
+body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
+
+/* -------- 2) Category pills -------- */
+/* Mobile-first: EXACTLY 3 per row */
+.menu-tabs{
+  width:100%;
+  margin:14px auto 8px;
+  padding:0 8px;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  max-width:1100px;
+}
+.menu-tab{ width:100%; text-align:center; }
+
+/* Desktop/tablet: smooth horizontal scroller */
+@media (min-width:769px){
+  .menu-tabs{
+    display:flex;
+    gap:12px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    justify-content:flex-start;
+    padding:8px 24px;
+    /* soft edge fade so pills feel native */
+    -webkit-mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
+            mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
+  }
+  .menu-tab{ scroll-snap-align:start; width:auto; }
+  .menu-tabs::-webkit-scrollbar{ height:6px; }
+  .menu-tabs::-webkit-scrollbar-thumb{ background:#ddd; border-radius:999px; }
+}
+
+/* -------- 3) Item cards: responsive and stable -------- */
+.menu-list{
+  list-style:none; margin:0; padding:0;
+  display:grid; grid-auto-flow:row; gap:24px;
+  max-width:1100px; margin-inline:auto; padding-inline:16px;
+}
+.menu-card{
+  display:grid;
+  grid-template-columns:176px 1fr auto;
+  align-items:stretch;
+  gap:24px; padding:22px;
+  background:var(--comfort, #ECE6DB);
+  border-radius:14px; box-shadow:0 2px 0 rgba(0,0,0,.03);
+  min-height:152px;
+}
+.thumb-wrap{ position:relative; align-self:stretch; width:176px; border-radius:14px; overflow:hidden; }
+.menu-thumb{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.menu-meta{ align-self:center; min-width:0; }
+.menu-title{ font-family:'Billmake',sans-serif; font-weight:700; font-size:32px; line-height:1.15; margin:0 0 10px; color:var(--olive,#3b4b30); overflow-wrap:anywhere; }
+.menu-desc{  font-family:'Billmake',sans-serif; font-size:13px; line-height:1.5; color:#6d756f; margin:0; }
+.menu-price{ grid-column:3; grid-row:1; justify-self:end; align-self:start; font-family:'Billmake',sans-serif; font-weight:700; font-size:28px; color:var(--olive,#3b4b30); }
+.menu-alls{ grid-column:3; grid-row:1; justify-self:end; align-self:end; display:flex; gap:12px; margin-top:auto; }
+.menu-alls img{ width:32px; height:32px; object-fit:contain; }
+
+/* Mobile tighten: nothing breaks, clean wrap */
+@media (max-width:768px){
+  .menu-list{ padding-inline:12px; gap:16px; }
+  .menu-card{ grid-template-columns:110px 1fr auto; gap:14px; padding:14px; min-height:110px; }
+  .thumb-wrap{ width:110px; border-radius:12px; }
+  .menu-title{ font-size:20px; margin-bottom:6px; }
+  .menu-desc{ font-size:12px; }
+  .menu-price{ font-size:18px; }
+  .menu-alls img{ width:22px; height:22px; }
+}
+
+/* Optional: prevent accidental horizontal scroll anywhere */
+section, header, footer, .hero { overflow-x: clip; }
+
+
+(Optional) Desktop wheel → horizontal for the pill bar (paste in the nav component):
+
+const onWheelScrollX = (e: React.WheelEvent<HTMLDivElement>) => {
+  if (e.deltaY === 0) return;
+  e.currentTarget.scrollLeft += e.deltaY;
+  e.preventDefault();
+};
+<nav className="menu-tabs" onWheel={onWheelScrollX}>…</nav>
+
+
+Result:
+
+Header is not sticky.
+
+Desktop pills scroll horizontally; mobile shows 3 per row.
+
+Item cards scale cleanly on phones (no overflow or layout glitches).
