@@ -49,19 +49,20 @@ h1, h2, h3 {
   height: 76px;
   z-index: 50;
   background: transparent;
+  border: 0;
   backdrop-filter: none;
-  border-bottom: none;
 }
 
-.hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* hide brand only in header so we show the large logo inside hero */
 .site-header .brand {
   display: none !important;
+}
+
+.site-header .hdr {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 22px;
 }
 
 .brand img {
@@ -93,30 +94,29 @@ h1, h2, h3 {
   border-bottom: 1px solid rgba(59, 75, 48, .18);
 }
 
-/* HERO background */
-.hero {
-  position: relative;
-  height: 520px;
-  background: url('/images/hero.jpg') right center / cover no-repeat !important;
-}
-
+/* kill any overlays/patterns that could hide the image */
+.hero,
 .hero::before,
 .hero::after {
+  background-image: none !important;
   content: none !important;
 }
 
-/* Top-left logo in hero */
+.hero {
+  position: relative;
+  min-height: 520px;
+}
+
+.hero-inner {
+  position: relative;
+  height: 100%;
+}
+
 .hero-logo {
   position: absolute;
   top: 18px;
   left: 22px;
-  height: 72px;
-}
-
-/* Title lockup bottom-left */
-.hero-inner {
-  position: relative;
-  height: 100%;
+  height: 92px;
 }
 
 .hero-title {
@@ -128,7 +128,7 @@ h1, h2, h3 {
   line-height: 1.06;
 }
 
-/* SWAP FONTS: line-1 Billmake, line-2 Parslay */
+/* SWAP FONTS exactly as requested */
 .hero-title .line-1 {
   font-family: 'Billmake', sans-serif;
   font-size: 38px;
@@ -150,15 +150,12 @@ h1, h2, h3 {
   margin-bottom: 6px;
 }
 
-@media (min-width: 992px) {
-  .hero-logo {
-    height: 92px;
-  }
-}
-
 @media (max-width: 768px) {
   .hero {
-    height: 400px;
+    min-height: 400px;
+  }
+  .hero-logo {
+    height: 72px;
   }
   .hero-title .line-1,
   .hero-title .line-2 {

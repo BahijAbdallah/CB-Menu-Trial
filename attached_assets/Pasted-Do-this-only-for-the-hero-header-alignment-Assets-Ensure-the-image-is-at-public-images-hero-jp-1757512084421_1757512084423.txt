@@ -1,0 +1,82 @@
+Do this only for the hero + header alignment.
+
+Assets
+
+Ensure the image is at /public/images/hero.jpg (rename if needed).
+
+Ensure the logo is at /public/images/logo.png.
+
+Header (pills right, hide brand)
+
+Keep EN/Halal pills in the fixed header, hide the header’s brand so it doesn’t overlap the hero logo.
+
+Right-align the pills.
+
+.site-header{position:fixed;inset:0 0 auto 0;height:76px;z-index:50;background:transparent;border:0;backdrop-filter:none}
+.site-header .brand{display:none!important;}
+.site-header .hdr{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:10px 22px}
+
+
+Hero markup (logo inside hero + two lines for font swap)
+In the top/landing component (e.g. menu.tsx), replace the hero with:
+
+import heroImg from '/images/hero.jpg?url'; // force-resolve even if /public path was flaky
+
+export default function Page(){
+  return (
+    <section
+      className="hero"
+      aria-label="Hero"
+      style={{
+        backgroundImage: `url(${heroImg})`,
+        backgroundPosition: 'right center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <img src="/images/logo.png" alt="Chez Beyrouth" className="hero-logo" />
+      <div className="hero-inner">
+        <h1 className="hero-title">
+          <span className="line-1">The Menu</span><br/>
+          <span className="line-2">OF BEYROUTH</span>
+        </h1>
+      </div>
+    </section>
+  );
+}
+
+
+Hero styles (force background to show, bigger logo, swap fonts)
+Add/replace in public/styles.css:
+
+/* kill any overlays/patterns that could hide the image */
+.hero, .hero::before, .hero::after{background-image:none!important;content:none!important;}
+
+.hero{position:relative;min-height:520px;}
+.hero-inner{position:relative;height:100%;}
+.hero-logo{position:absolute;top:18px;left:22px;height:92px;}
+@media (max-width:768px){.hero{min-height:400px}.hero-logo{height:72px}}
+
+.hero-title{position:absolute;left:22px;bottom:28px;margin:0;color:#3b4b30;line-height:1.06}
+
+/* SWAP FONTS exactly as requested */
+.hero-title .line-1{font-family:'Billmake',sans-serif;font-size:38px;letter-spacing:.02em}
+.hero-title .line-2{font-family:'Parslay',serif;font-size:38px;letter-spacing:.06em}
+@media (max-width:768px){.hero-title .line-1,.hero-title .line-2{font-size:30px}}
+
+
+Cache-bust if still blank
+If the image still doesn’t appear, change the import to:
+
+import heroImg from '/images/hero.jpg?v=1&url';
+
+
+Result
+
+Background image shows full-bleed.
+
+Bigger logo sits top-left inside the hero.
+
+EN/Halal stay top-right in the fixed header (no overlap).
+
+Fonts swapped: “The Menu” = Billmake, “OF BEYROUTH” = Parslay.
