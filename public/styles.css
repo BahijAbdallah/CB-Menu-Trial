@@ -264,6 +264,58 @@ h1, h2, h3 {
   height: 18px;
 }
 
+/* Allergen Styles */
+.allergen-icon{ 
+  width:18px; 
+  height:18px; 
+}
+
+.admin-allergens{ 
+  display:flex; 
+  flex-wrap:wrap; 
+  gap:10px; 
+}
+
+.allergen-chip{
+  display:inline-flex; 
+  align-items:center; 
+  gap:8px;
+  padding:8px 12px; 
+  border-radius:999px; 
+  border:2px solid var(--olive);
+  background:#fff; 
+  color:var(--olive); 
+  cursor:pointer;
+}
+
+.allergen-chip input{ 
+  display:none; 
+}
+
+.allergen-chip img{ 
+  width:18px; 
+  height:18px; 
+}
+
+.allergen-chip.is-on{ 
+  background:var(--cream); 
+}
+
+.legend-row .chip{
+  width:42px; 
+  height:42px; 
+  border-radius:999px; 
+  background:var(--olive);
+  display:grid; 
+  place-items:center;
+}
+
+.legend-row .chip img{ 
+  width:22px; 
+  height:22px; 
+  filter:invert(1) brightness(10); 
+}
+
 /* Mobile Responsive */
 @media (max-width: 640px) {
   .menu-card {

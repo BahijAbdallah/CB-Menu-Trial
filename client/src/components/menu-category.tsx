@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { Category, MenuItem } from "@shared/schema";
-import { ALLERGENS, parseAllergens, getAllergensByItem } from "@shared/allergens";
+import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 
 interface MenuCategoryProps {
   category: Category;
@@ -18,8 +18,19 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
     <section className="container">
       <ul id="menuList" className="menu-list">
         {items.map((item, index) => {
-          const allergens = parseAllergens(item.allergens || "[]");
-          const allergenData = getAllergensByItem(allergens);
+          // Parse allergens from JSON string or use array directly
+          let allergens: AllergenSlug[] = [];
+          if (item.allergens) {
+            if (typeof item.allergens === 'string') {
+              try {
+                allergens = JSON.parse(item.allergens);
+              } catch {
+                allergens = [];
+              }
+            } else {
+              allergens = item.allergens;
+            }
+          }
           
           return (
             <li key={item.id} className="menu-card">
@@ -36,14 +47,10 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
                 ${parseFloat(item.price).toFixed(2)}
               </div>
               <div className="menu-alls">
-                {allergenData.map((allergen) => (
-                  <img 
-                    key={allergen.slug}
-                    src={allergen.icon} 
-                    alt={allergen.label}
-                    aria-label={allergen.label}
-                  />
-                ))}
+                {allergens.map((slug: AllergenSlug) => {
+                  const a = ALLERGENS_MAP[slug];
+                  return <img key={slug} src={a.icon} title={a.label} alt={a.label} className="allergen-icon"/>;
+                })}
               </div>
             </li>
           );
