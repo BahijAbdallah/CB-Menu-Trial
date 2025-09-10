@@ -13,27 +13,29 @@
 :root {
   --cream: #f0eee7;
   --taupe: #cabeac;
-  --orange: #efa25f;
+  --soft-yellow: #efa25f;
   --amber: #efc785;
   --coral: #e46f60;
   --olive: #3b4b30;
-  --comfort: #ece6db;
+
+  --bg: var(--cream);
   --ink: #26332D;
-  --card: #ffffff;
+  --card: #EFEAE0;
   --radius: 14px;
   --shadow: 0 8px 24px rgba(0,0,0,.06);
 }
 
 html, body {
-  background: var(--cream);
+  background: var(--bg);
   color: var(--ink);
   font-family: Billmake, system-ui, sans-serif;
   line-height: 1.6;
 }
 
 h1, h2, h3 {
-  font-family: Billmake, sans-serif;
+  font-family: Parslay, serif;
   color: var(--olive);
+  letter-spacing: .2px;
 }
 
 .container {
@@ -46,27 +48,20 @@ h1, h2, h3 {
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
-  height: 76px;
+  height: 72px;
   z-index: 50;
   background: transparent;
-  border: 0;
-  backdrop-filter: none;
+  backdrop-filter: saturate(120%) blur(2px);
 }
 
-.site-header .brand {
-  display: none !important;
-}
-
-.site-header .hdr {
+.hdr {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 12px;
-  padding: 10px 22px;
+  justify-content: space-between;
 }
 
 .brand img {
-  height: 96px;
+  height: 34px;
 }
 
 .pill {
@@ -94,17 +89,11 @@ h1, h2, h3 {
   border-bottom: 1px solid rgba(59, 75, 48, .18);
 }
 
-/* kill any overlays/patterns that could hide the image */
-.hero,
-.hero::before,
-.hero::after {
-  background-image: none !important;
-  content: none !important;
-}
-
+/* Hero Styles */
 .hero {
+  height: 520px;
+  background: url('/images/hero.jpg') center right/cover no-repeat;
   position: relative;
-  min-height: 520px;
 }
 
 .hero-inner {
@@ -112,33 +101,26 @@ h1, h2, h3 {
   height: 100%;
 }
 
-.hero-logo {
+.hero-lockup {
   position: absolute;
-  top: 18px;
-  left: 22px;
-  height: 92px;
+  left: 20px;
+  bottom: 24px;
+  color: var(--olive);
+  display: grid;
+  gap: 8px;
 }
 
 .hero-title {
-  position: absolute;
-  left: 22px;
-  bottom: 28px;
-  margin: 0;
-  color: #3b4b30;
-  line-height: 1.06;
+  font-family: Parslay;
+  font-size: 40px;
+  line-height: 1.05;
+  color: var(--olive);
+  letter-spacing: .04em;
 }
 
-/* SWAP FONTS exactly as requested */
-.hero-title .line-1 {
-  font-family: 'Billmake', sans-serif;
-  font-size: 38px;
-  letter-spacing: .02em;
-}
-
-.hero-title .line-2 {
-  font-family: 'Parslay', serif;
-  font-size: 38px;
-  letter-spacing: .06em;
+.hero-title span {
+  font-family: Billmake;
+  letter-spacing: .22em;
 }
 
 .sprout {
@@ -150,22 +132,18 @@ h1, h2, h3 {
   margin-bottom: 6px;
 }
 
-@media (max-width: 768px) {
+@media(max-width: 768px) {
   .hero {
-    min-height: 400px;
+    height: 400px;
   }
-  .hero-logo {
-    height: 72px;
-  }
-  .hero-title .line-1,
-  .hero-title .line-2 {
-    font-size: 30px;
+  .hero-title {
+    font-size: 32px;
   }
 }
 
 /* Allergens Legend */
 .allergens-legend {
-  background: var(--comfort);
+  background: #ece6db;
   padding: 22px 0;
   text-align: center;
   box-shadow: var(--shadow);
@@ -207,38 +185,28 @@ h1, h2, h3 {
 
 /* Menu Tabs */
 .menu-tabs {
-  display: block;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 8px 0;
+  display: flex;
+  gap: 12px;
   margin: 18px auto 8px;
-  scrollbar-width: thin;
 }
 
 .menu-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 10px;
   padding: 8px 16px;
   border-radius: 999px;
   border: 2px solid transparent;
+  background: var(--sage);
+  color: var(--green);
   font-weight: 700;
   cursor: pointer;
 }
 
 .menu-tab[data-cat="Breakfast"] {
-  background: var(--olive);
+  background: var(--green);
   color: #fff;
 }
 
 .menu-tab[data-cat="Appetizers"] {
   background: var(--coral);
-  color: #fff;
-}
-
-.menu-tab[data-cat="Main Course"] {
-  background: var(--taupe);
   color: #fff;
 }
 
@@ -249,7 +217,7 @@ h1, h2, h3 {
 
 .menu-tab.is-inactive {
   background: #fff;
-  border-color: #9aa39d;
+  border-color: var(--muted);
   color: var(--ink);
 }
 
@@ -264,7 +232,7 @@ h1, h2, h3 {
   display: grid;
   grid-template-columns: 112px 1fr 90px;
   gap: 16px;
-  background: #fff;
+  background: var(--card);
   border-radius: var(--radius);
   padding: 14px;
   box-shadow: var(--shadow);
@@ -278,17 +246,15 @@ h1, h2, h3 {
 }
 
 .menu-meta h3 {
-  font-family: Billmake, sans-serif;
+  margin: 0 0 6px;
   font-size: 18px;
   color: var(--olive);
-  margin: 0 0 6px;
 }
 
 .menu-meta p {
-  font-family: Billmake, sans-serif;
+  margin: 0;
   color: #7b847e;
   font-size: 13px;
-  margin: 0;
 }
 
 .menu-price {
@@ -320,17 +286,4 @@ h1, h2, h3 {
     width: 88px;
     height: 72px;
   }
-  
-  .head-wrap,
-  .hdr {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-}
-
-/* Ensure no site-wide pattern/overlay blocks the hero image */
-body,
-.site-header,
-.hero {
-  background-image: none !important;
 }
