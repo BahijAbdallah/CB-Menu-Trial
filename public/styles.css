@@ -220,7 +220,7 @@ h1, h2, h3 {
 /* CARD */
 .menu-card{
   display:grid;
-  grid-template-columns:176px 1fr auto;  /* image | text | price/icons */
+  grid-template-columns:220px 1fr auto;  /* image | text | price/icons */
   align-items:stretch;
   gap:24px; padding:22px;
   background:var(--comfort,#ECE6DB);
@@ -230,7 +230,7 @@ h1, h2, h3 {
 
 /* IMAGE — same height as card (fills the left column only) */
 .menu-thumb{
-  width:176px; height:100%;
+  width:220px; height:100%;
   object-fit:cover; border-radius:14px; display:block;
 }
 
@@ -321,8 +321,8 @@ h1, h2, h3 {
 
 /* MOBILE keeps list layout */
 @media (max-width:768px){
-  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
-  .menu-thumb{ width:120px; }
+  .menu-card{ grid-template-columns:140px 1fr auto; gap:16px; padding:16px; min-height:120px; }
+  .menu-thumb{ width:140px; }
   .menu-title{ font-size:24px; margin-bottom:6px; }
   .menu-price{ font-size:22px; }
   .menu-alls img{ width:26px; height:26px; }
