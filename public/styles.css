@@ -1,0 +1,260 @@
+@font-face {
+  font-family: 'Parslay';
+  src: url('/fonts/Parslay.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Billmake';
+  src: url('/fonts/Billmake-Regular.otf') format('opentype');
+  font-display: swap;
+}
+
+:root {
+  --bg-cream: #F6F1E9;
+  --paper: #ECE6DB;
+  --ink: #26332D;
+  --green: #2E4A3A;
+  --sage: #E3E6DE;
+  --coral: #E67657;
+  --orange: #E9A15B;
+  --muted: #9BA5A0;
+  --card: #EFEAE0;
+  --radius: 14px;
+  --shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+
+html, body {
+  background: var(--bg-cream);
+  color: var(--ink);
+  font-family: 'Billmake', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.55;
+}
+
+h1, h2, h3 {
+  font-family: 'Parslay', serif;
+  letter-spacing: .2px;
+  color: var(--green);
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+}
+
+/* Header Styles */
+.site-header {
+  background: transparent;
+}
+
+.head-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.brand-top {
+  font-size: 24px;
+}
+
+.brand-bot {
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.pill-select {
+  appearance: none;
+  border: 2px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.pill-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(46, 74, 58, .15);
+}
+
+.halal-badge {
+  margin-left: 12px;
+  border: 2px solid var(--green);
+  color: var(--green);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: #fff;
+}
+
+.hero {
+  height: 320px;
+  border-radius: 0;
+  background: url('/images/hero.jpg') center right/cover no-repeat;
+  box-shadow: var(--shadow);
+}
+
+/* Allergens Legend */
+.allergens-legend {
+  background: var(--paper);
+  padding: 22px 0;
+  text-align: center;
+}
+
+.legend-row {
+  display: flex;
+  gap: 26px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.legend-row li {
+  display: grid;
+  justify-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legend-row .chip {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--green);
+  display: grid;
+  place-items: center;
+}
+
+.legend-row img, 
+.legend-row svg {
+  width: 22px;
+  height: 22px;
+  filter: invert(1);
+}
+
+.legend-row span {
+  margin-top: 6px;
+}
+
+/* Menu Tabs */
+.menu-tabs {
+  display: flex;
+  gap: 12px;
+  margin: 18px auto 8px;
+}
+
+.menu-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background: var(--sage);
+  color: var(--green);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-tab[data-cat="Breakfast"] {
+  background: var(--green);
+  color: #fff;
+}
+
+.menu-tab[data-cat="Appetizers"] {
+  background: var(--coral);
+  color: #fff;
+}
+
+.menu-tab[data-cat="Plat Du Jour"] {
+  background: var(--orange);
+  color: #fff;
+}
+
+.menu-tab.is-inactive {
+  background: #fff;
+  border-color: var(--muted);
+  color: var(--ink);
+}
+
+/* Menu List Cards */
+.menu-list {
+  display: grid;
+  gap: 16px;
+}
+
+.menu-card {
+  display: grid;
+  grid-template-columns: 112px 1fr 80px;
+  gap: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.menu-thumb {
+  width: 112px;
+  height: 84px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.menu-meta h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.menu-meta p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.menu-price {
+  justify-self: end;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.menu-alls {
+  grid-column: 3;
+  align-self: end;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.menu-alls img,
+.menu-alls svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .menu-card {
+    grid-template-columns: 80px 1fr auto;
+  }
+  
+  .menu-thumb {
+    width: 80px;
+    height: 60px;
+  }
+  
+  .container {
+    padding: 16px;
+  }
+  
+  .brand-top {
+    font-size: 20px;
+  }
+  
+  .brand-bot {
+    font-size: 14px;
+  }
+}
