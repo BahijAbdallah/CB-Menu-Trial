@@ -324,7 +324,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 section, header, footer, .hero { overflow-x: clip; }
 
 /* === Allergens: slightly larger text + icons, keep current layout === */
-.allergens-legend h3{ font-size:18px; }          /* was ~16px */
+.allergens-legend h3{ font-size:18px; font-family: 'Billmake', sans-serif; }          /* was ~16px */
 .allergens-legend p{  font-size:13px; }
 .legend-row img{ width:52px !important; height:52px !important; }  /* was ~44px */
 .legend-row span{ font-size:13px; }
