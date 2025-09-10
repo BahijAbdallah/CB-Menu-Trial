@@ -402,3 +402,18 @@ section, header, footer, .hero { overflow-x: clip; }
 .page-note{ font-family:'Billmake',sans-serif; font-size:15px; color:#6d756f; margin:0 0 18px; }
 .page-list{ margin:0 0 18px 18px; color:var(--olive,#3b4b30); font-family:'Billmake',sans-serif; }
 @media (max-width:768px){ .page{ padding:28px 0; } .page-title{ font-size:28px; } .page-note{ font-size:14px; } }
+
+/* ==== Transparent header (no fill, no blur, no shadow) ==== */
+.site-header,
+.site-header::before,
+.site-header::after,
+header[role="banner"]{
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+}
+
+/* keep header clickable over the hero */
+.site-header{ z-index: 30; }
