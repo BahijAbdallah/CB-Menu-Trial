@@ -297,7 +297,13 @@ h1, h2, h3 {
 }
 
 /* ====== PRODUCT CARD ICONS ====== */
-.menu-alls img,
+.menu-alls img { 
+  width:32px; 
+  height:32px; 
+  object-fit:contain; 
+  filter:none !important; 
+}
+
 .admin-allergens img { 
   width:22px; 
   height:22px; 
