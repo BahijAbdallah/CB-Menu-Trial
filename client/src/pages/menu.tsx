@@ -101,14 +101,12 @@ export default function MenuPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" aria-label="Hero">
         <div className="hero-inner container">
-          <div className="hero-lockup">
-            <h1 className="hero-title">
-              <span className="line-1">{t('brand.menuTitle', 'The Menu')}</span><br/>
-              <span className="line-2">{t('brand.subtitle', 'OF BEYROUTH')}</span>
-            </h1>
-          </div>
+          <h1 className="hero-title">
+            <span className="line-1">The Menu</span><br />
+            <span className="line-2">OF BEYROUTH</span>
+          </h1>
         </div>
       </section>
       
