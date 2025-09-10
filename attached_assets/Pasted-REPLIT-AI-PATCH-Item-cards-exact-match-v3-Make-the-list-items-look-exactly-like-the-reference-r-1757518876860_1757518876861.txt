@@ -1,0 +1,112 @@
+REPLIT AI — PATCH (Item cards exact match v3)
+Make the list items look exactly like the reference (right image): bigger allergen icons, price font same as title/description, and the left image fills the card height.
+
+1) Replace the card markup used in the loop
+
+(Keep the same data fields; only classes change to v3.)
+
+<li className="menu-card v3">
+  <img className="menu-thumb v3" src={item.image} alt={item.name} />
+
+  <div className="menu-meta v3">
+    <h3 className="menu-title v3">{item.name}</h3>
+    <p className="menu-desc v3">{item.description}</p>
+  </div>
+
+  <div className="menu-price v3">{item.priceFormatted ?? `${item.price}$`}</div>
+
+  <div className="menu-alls v3">
+    {(item.allergens ?? []).map((slug: any) => {
+      const a = ALLERGENS_MAP[slug];
+      return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
+    })}
+  </div>
+</li>
+
+2) Drop these styles into public/styles.css
+/* ===== LIST SPACING ===== */
+.menu-list{ display:grid; gap:24px; }
+
+/* ===== CARD LAYOUT ===== */
+.menu-card.v3{
+  display:grid;
+  grid-template-columns: 176px 1fr auto;   /* image | text | price/icons */
+  align-items: stretch;                    /* make image column stretch full height */
+  gap:24px;
+  padding:22px;
+  background: var(--comfort, #ECE6DB);
+  border-radius:14px;
+  box-shadow: 0 2px 0 rgba(0,0,0,.03);
+  min-height:152px;                        /* ensures good height for image */
+}
+
+/* LEFT IMAGE — fill card height */
+.menu-thumb.v3{
+  width:176px;
+  height:100%;                             /* <-- matches container height */
+  object-fit:cover;
+  border-radius:14px;                       /* same rounding as mockup */
+  display:block;
+}
+
+/* TEXT AREA */
+.menu-meta.v3{ align-self:center; }
+.menu-title.v3{
+  font-family:'Billmake', sans-serif;      /* same as description */
+  font-weight:700;
+  font-size:32px;
+  line-height:1.15;
+  color: var(--olive,#3b4b30);
+  margin:0 0 10px;
+}
+.menu-desc.v3{
+  font-family:'Billmake', sans-serif;
+  font-size:13px;
+  line-height:1.5;
+  color:#6d756f;
+  margin:0;
+}
+
+/* PRICE — SAME FONT AS TITLE/DESC */
+.menu-price.v3{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:start;
+  font-family:'Billmake', sans-serif;      /* match title/description */
+  font-weight:700;
+  font-size:28px;
+  color: var(--olive,#3b4b30);
+}
+
+/* ALLERGENS — bigger, bottom-right */
+.menu-alls.v3{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:end;        /* bottom-right corner */
+  display:flex; gap:12px;
+  margin-top:auto;
+}
+.menu-alls.v3 img{
+  width:32px; height:32px;                 /* bigger icons */
+  object-fit:contain;
+  filter:none !important; background:transparent !important;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width:768px){
+  .menu-card.v3{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
+  .menu-thumb.v3{ width:120px; }
+  .menu-title.v3{ font-size:24px; margin-bottom:6px; }
+  .menu-price.v3{ font-size:22px; }
+  .menu-alls.v3 img{ width:26px; height:26px; }
+}
+
+3) Clean up any old conflicting rules
+
+Remove/override previous .menu-card, .menu-thumb, .menu-price, and .menu-alls rules (the .v3 classes above will win; delete older !importants if any).
+
+Result:
+
+Left image fills the card height with rounded corners.
+
+Title, description, and price all use Billmake.
+
+Allergen icons are clearly bigger (32px) and aligned bottom-right, exactly like the reference.
