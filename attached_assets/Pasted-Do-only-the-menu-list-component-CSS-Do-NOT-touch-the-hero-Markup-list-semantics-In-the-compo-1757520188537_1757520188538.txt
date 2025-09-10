@@ -1,0 +1,101 @@
+Do only the menu list component + CSS. Do NOT touch the hero.
+
+Markup (list semantics)
+
+In the component that renders the menu, ensure this structure (no extra wrappers per item):
+
+<ul id="menuList" className="menu-list" role="list">
+  {items.map(item => (
+    <li key={item.id} className="menu-card">
+      <img className="menu-thumb" src={item.image} alt={item.name} />
+      <div className="menu-meta">
+        <h3 className="menu-title">{item.name}</h3>
+        <p className="menu-desc">{item.description}</p>
+      </div>
+      <div className="menu-price">{item.priceFormatted ?? `${item.price} $`}</div>
+      <div className="menu-alls">
+        {(item.allergens ?? []).map(slug => {
+          const a = ALLERGENS_MAP[slug];
+          return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
+        })}
+      </div>
+    </li>
+  ))}
+</ul>
+
+
+Remove any <section> or <div> loops that aren’t inside a <ul>.
+
+Do not render cards outside the <ul>.
+
+List + card CSS (single column list) – add/replace in public/styles.css
+
+/* LIST stays a single column stack */
+.menu-list{
+  list-style:none; margin:0; padding:0;
+  display:grid; grid-auto-flow:row; gap:24px;   /* 1 column */
+  max-width:1100px; margin-inline:auto;
+}
+
+/* CARD */
+.menu-card{
+  display:grid;
+  grid-template-columns:176px 1fr auto;  /* image | text | price/icons */
+  align-items:stretch;
+  gap:24px; padding:22px;
+  background:var(--comfort,#ECE6DB);
+  border-radius:14px; box-shadow:0 2px 0 rgba(0,0,0,.03);
+  min-height:152px;
+}
+
+/* IMAGE — same height as card (fills the left column only) */
+.menu-thumb{
+  width:176px; height:100%;
+  object-fit:cover; border-radius:14px; display:block;
+}
+
+/* TEXT */
+.menu-meta{ align-self:center; }
+.menu-title{ font-family:'Billmake',sans-serif; font-weight:700; font-size:32px; line-height:1.15; color:var(--olive,#3b4b30); margin:0 0 10px; }
+.menu-desc{  font-family:'Billmake',sans-serif; font-size:13px; line-height:1.5; color:#6d756f; margin:0; }
+
+/* PRICE — same font as title/desc */
+.menu-price{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:start;
+  font-family:'Billmake',sans-serif; font-weight:700; font-size:28px; color:var(--olive,#3b4b30);
+}
+
+/* ALLERGENS — bigger, bottom-right */
+.menu-alls{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:end; margin-top:auto;
+  display:flex; gap:12px;
+}
+.menu-alls img{ width:32px; height:32px; object-fit:contain; filter:none!important; background:transparent!important; }
+
+/* MOBILE keeps list layout */
+@media (max-width:768px){
+  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
+  .menu-thumb{ width:120px; }
+  .menu-title{ font-size:24px; margin-bottom:6px; }
+  .menu-price{ font-size:22px; }
+  .menu-alls img{ width:26px; height:26px; }
+}
+
+
+Kill anything that breaks the list
+
+Remove/override rules that set .menu-list { display:flex; flex-wrap:wrap } or multi-column grids.
+
+Remove any global img { width:100% } that might override .menu-thumb. If present, scope it: main img{} and put .menu-thumb{ width:176px !important; }.
+
+Acceptance
+
+Items render as a vertical list of cards (one per row).
+
+Left image is fixed width and fills the card height.
+
+Price uses Billmake like title/description.
+
+Allergen PNGs are 32px and sit bottom-right.
