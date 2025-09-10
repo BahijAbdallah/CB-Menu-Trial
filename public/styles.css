@@ -210,28 +210,32 @@ h1, h2, h3 {
   color: var(--ink);
 }
 
-/* LIST stays a single column stack */
-.menu-list{
+/* Keep the list as a single column of cards */
+.menu-list{ 
   list-style:none; margin:0; padding:0;
-  display:grid; grid-auto-flow:row; gap:24px;   /* 1 column */
+  display:grid; grid-auto-flow:row; gap:24px;
   max-width:1100px; margin-inline:auto;
 }
 
-/* CARD */
+/* Card layout (image | text | price) */
 .menu-card{
   display:grid;
-  grid-template-columns:220px 1fr auto;  /* image | text | price/icons */
-  align-items:stretch;
-  gap:24px; padding:22px;
+  grid-template-columns:176px 1fr auto;   /* first col matches thumbnail width */
+  align-items:center;                      /* center elements vertically */
+  gap:24px;
+  padding:22px;
   background:var(--comfort,#ECE6DB);
-  border-radius:14px; box-shadow:0 2px 0 rgba(0,0,0,.03);
-  min-height:152px;
+  border-radius:14px;
+  box-shadow:0 2px 0 rgba(0,0,0,.03);
 }
 
-/* IMAGE — same height as card (fills the left column only) */
+/* 🔧 Thumbnail EXACT look like the mockup */
 .menu-thumb{
-  width:220px; height:100%;
-  object-fit:cover; border-radius:14px; display:block;
+  width:176px !important;
+  height:132px !important;                 /* fixed, NOT 100% of card */
+  object-fit:cover !important;
+  border-radius:14px !important;           /* soft rounded corners */
+  display:block;
 }
 
 /* TEXT */
@@ -319,10 +323,10 @@ h1, h2, h3 {
 .allergen-chip input{ display:none; }
 .allergen-chip.is-on{ background:var(--cream); }
 
-/* MOBILE keeps list layout */
+/* Responsiveness: smaller thumb on mobile */
 @media (max-width:768px){
-  .menu-card{ grid-template-columns:140px 1fr auto; gap:16px; padding:16px; min-height:120px; }
-  .menu-thumb{ width:140px; }
+  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; }
+  .menu-thumb{ width:120px !important; height:92px !important; border-radius:12px !important; }
   .menu-title{ font-size:24px; margin-bottom:6px; }
   .menu-price{ font-size:22px; }
   .menu-alls img{ width:26px; height:26px; }
