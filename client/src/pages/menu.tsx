@@ -13,7 +13,7 @@ function AllergensLegend() {
   const { t } = useTranslation();
 
   return (
-    <section className="allergens-legend">
+    <section className="allergens-legend pt-[50px] pb-[50px]">
       <div className="container">
         <h4>{t("allergens.title", "ALLERGENS")}</h4>
         <p>
