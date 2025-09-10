@@ -10,29 +10,25 @@
   font-display: swap;
 }
 
-:root {
-  --cream: #f0eee7;
-  --taupe: #cabeac;
-  --soft-yellow: #efa25f;
-  --amber: #efc785;
-  --coral: #e46f60;
-  --olive:#3b4b30;   /* cycle #1 */
-  --orange:#efa25f;  /* cycle #4 */
+/* ===== Brand palette (from your PDF) ===== */
+:root{
+  --cream:#f0eee7;
+  --taupe:#cabeac;       /* Main Course + cycle color 3 */
+  --soft-yellow:#efa25f; /* cycle color 4 */
+  --amber:#efc785;
+  --coral:#e46f60;       /* Appetizers + cycle color 2 */
+  --olive:#3b4b30;       /* Breakfast + cycle color 1 */
+  --ink:#26332D;
   --comfort:#ECE6DB; /* card bg like mockup */
 
   --bg: var(--cream);
-  --ink: #26332D;
   --card: #EFEAE0;
   --radius: 14px;
   --shadow: 0 8px 24px rgba(0,0,0,.06);
 }
 
-html, body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: Billmake, system-ui, sans-serif;
-  line-height: 1.6;
-}
+html,body{background:var(--cream);color:var(--ink);font-family: Billmake, system-ui, sans-serif;line-height: 1.6;}
+img{max-width:100%;height:auto}
 
 h1, h2, h3 {
   font-family: Parslay, serif;
@@ -40,11 +36,8 @@ h1, h2, h3 {
   letter-spacing: .2px;
 }
 
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
+/* ===== Global responsive container ===== */
+.container{max-width:1100px;margin-inline:auto;padding-inline:16px}
 
 /* HEADER OVER HERO (no blur, no background) */
 .site-header{
@@ -173,42 +166,42 @@ h1, h2, h3 {
   margin-top: 6px;
 }
 
-/* Centered grid of pills */
+/* ===== CATEGORY BAR (centered) ===== */
 .menu-tabs{
-  max-width:1100px;
+  width:100%;
   margin:14px auto 8px;
   padding:0 8px;
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
   gap:12px;
-  justify-content:center;   /* center the whole group */
+  justify-content:center;     /* center the group */
   align-items:center;
 }
 
-/* Pill base */
+/* Pills (filled) */
 .menu-tab{
   padding:10px 18px;
   border-radius:999px;
   border:2px solid transparent;
   font-weight:700;
-  cursor:pointer;
   text-align:center;
   white-space:nowrap;
+  cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
 }
 
-/* Brand variants */
+/* Variants using brand colors */
 .menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
 .menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
 .menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
-.menu-tab.variant-orange{ background:var(--orange); color:#fff; }
+.menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
 
-/* Active keeps its color, just add a soft ring/elevation */
+/* Active keeps its own color; add subtle ring */
 .menu-tab.is-active{
   box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06);
 }
 
-/* Mobile: exactly 3 per row */
+/* Mobile: EXACTLY 3 per row */
 @media (max-width:768px){
   .menu-tabs{
     grid-template-columns: repeat(3, 1fr);
@@ -217,8 +210,9 @@ h1, h2, h3 {
   .menu-tab{ width:100%; }
 }
 
-/* Kill old outline/scroll styles */
-.menu-tabs::-webkit-scrollbar{ display:none; }
+/* Remove any old outline/scroll styles that conflict */
+.menu-tabs::-webkit-scrollbar{display:none}
+.menu-tab--outline, .menu-tab.outline, .tabs-outline { all:unset !important; }
 
 /* List stays a single stacked column */
 .menu-list{ 
