@@ -8,6 +8,8 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS } from "@/constants/allergens";
 
+import islam from "@assets/islam.png";
+
 // Allergens Legend Component
 function AllergensLegend() {
   const { t } = useTranslation();
@@ -147,13 +149,12 @@ export default function MenuPage() {
 
             {/* Halal Certification with mosque icon */}
             <Link href="/halal" className="pill halal-btn" aria-label="Halal Certification">
-              <img className="icon" src="/icons/mosque.svg" alt="" />
+              <img className="icon" src={islam} alt="" />
               <span>Halal Certification</span>
             </Link>
           </div>
         </div>
       </header>
-
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-inner container">
@@ -169,10 +170,8 @@ export default function MenuPage() {
           </div>
         </div>
       </section>
-
       {/* Allergens Legend */}
       <AllergensLegend />
-
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
         <nav
