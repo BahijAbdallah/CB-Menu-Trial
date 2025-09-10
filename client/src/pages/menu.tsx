@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -38,6 +38,17 @@ function AllergensLegend() {
 export default function MenuPage() {
   const { t, i18n } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("");
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClickAway = (e: MouseEvent) => {
+      if (!langRef.current) return;
+      if (!langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("click", onClickAway);
+    return () => document.removeEventListener("click", onClickAway);
+  }, []);
 
   // Scroll detection for header border
   useEffect(() => {
@@ -98,10 +109,43 @@ export default function MenuPage() {
           </a>
 
           <div className="header-actions">
-            <button className="pill lang-trigger" aria-haspopup="menu" aria-expanded="false">
-              {i18n.language?.toUpperCase() || 'EN'}
-            </button>
+            {/* Language */}
+            <div className="lang" ref={langRef}>
+              <button
+                className="pill lang-trigger"
+                aria-haspopup="menu"
+                aria-expanded={langOpen}
+                onClick={() => setLangOpen(v => !v)}
+              >
+                {i18n.language?.toUpperCase() || 'EN'}
+              </button>
 
+              <div className={`lang-menu ${langOpen ? "is-open" : ""}`} role="menu">
+                <button 
+                  role="menuitem" 
+                  onClick={() => { i18n.changeLanguage('en'); setLangOpen(false); }} 
+                  className={i18n.language === 'en' ? 'is-active' : ''}
+                >
+                  EN
+                </button>
+                <button 
+                  role="menuitem" 
+                  onClick={() => { i18n.changeLanguage('fr'); setLangOpen(false); }}
+                  className={i18n.language === 'fr' ? 'is-active' : ''}
+                >
+                  FR
+                </button>
+                <button 
+                  role="menuitem" 
+                  onClick={() => { i18n.changeLanguage('ar'); setLangOpen(false); }}
+                  className={i18n.language === 'ar' ? 'is-active' : ''}
+                >
+                  AR
+                </button>
+              </div>
+            </div>
+
+            {/* Halal Certification with moon+star icon */}
             <a className="pill halal-btn" href="/halal" aria-label="Halal Certification">
               <img className="icon" src="/icons/halal-moon-star.svg" alt="" />
               <span>Halal Certification</span>

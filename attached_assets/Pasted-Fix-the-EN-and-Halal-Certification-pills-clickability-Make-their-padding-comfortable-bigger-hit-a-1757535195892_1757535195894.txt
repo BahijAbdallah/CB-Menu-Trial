@@ -1,0 +1,130 @@
+Fix the EN and Halal Certification pills clickability.
+
+Make their padding comfortable (bigger hit area, icon aligned).
+
+Keep header transparent over the hero and non-sticky.
+
+Make the language dropdown open/close reliably and sit under the EN pill.
+
+1) CSS — padding, alignment, z-index, dropdown
+
+Add to public/styles.css (at the end):
+
+/* --- Header overlay stays transparent & clickable --- */
+.site-header{ position:absolute; top:16px; left:0; right:0; z-index:30; background:transparent !important; }
+.header-inner{ max-width:1100px; margin:0 auto; padding:0 16px; display:flex; align-items:center; justify-content:space-between; }
+.header-actions{ display:flex; align-items:center; gap:12px; }
+
+/* --- Pill buttons: hit area + icon alignment --- */
+.pill{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:10px 20px;                      /* << more breathing room */
+  border-radius:999px; border:2px solid var(--olive,#3b4b30);
+  background:transparent; color:var(--olive,#3b4b30);
+  font-weight:700; line-height:1; transition:.18s ease;
+}
+.pill .icon{ width:18px; height:18px; display:inline-block; }
+
+/* Specific tweaks (optional if you want a tiny difference) */
+.lang-trigger{ padding:10px 16px; }       /* EN */
+.halal-btn{ padding:10px 20px; }          /* Halal button */
+
+/* Hover / active (mobile tap) */
+@media (hover:hover){
+  .pill:hover{ background:var(--olive,#3b4b30); color:#fff; border-color:var(--olive,#3b4b30); }
+}
+@media (max-width:768px){
+  .pill:hover,.pill:active{ background:var(--olive,#3b4b30); color:#fff; border-color:var(--olive,#3b4b30); }
+}
+
+/* --- Language dropdown: themed + positioned under EN --- */
+.lang{ position:relative; }               /* wrapper around EN + menu */
+.lang-menu{
+  position:absolute; top:calc(100% + 8px); right:0;
+  display:none;                           /* toggled by .is-open */
+  min-width:180px; padding:8px;
+  background:var(--cream,#f0eee7);
+  border:1px solid rgba(59,75,48,.25);
+  border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.10);
+  z-index:40;
+}
+.lang-menu.is-open{ display:block; }
+
+.lang-menu [role="menuitem"], .lang-menu button{
+  width:100%; display:flex; align-items:center; justify-content:center;
+  padding:10px 12px; border-radius:999px;
+  background:transparent; border:0; color:var(--olive,#3b4b30);
+  font-weight:700; transition:.18s;
+}
+.lang-menu [role="menuitem"]:hover, .lang-menu button:hover{
+  background:var(--olive,#3b4b30); color:#fff;
+}
+.lang-menu [aria-current="true"], .lang-menu .is-active{
+  background:var(--taupe,#cabeac); color:var(--olive,#3b4b30);
+}
+
+/* Ensure nothing in the hero blocks clicks */
+.hero{ position:relative; z-index:1; }
+
+2) Swap Halal icon + reliable language dropdown (React/TSX)
+
+In Header.tsx/tsx (or wherever the header is), use this structure:
+
+import { useState, useEffect, useRef } from "react";
+
+export default function Header(){
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClickAway = (e: MouseEvent) => {
+      if (!langRef.current) return;
+      if (!langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("click", onClickAway);
+    return () => document.removeEventListener("click", onClickAway);
+  }, []);
+
+  return (
+    <header className="site-header">
+      <div className="header-inner">
+        <a className="brand" href="/">
+          <img src="/Logo d.png" alt="Chez Beyrouth" />
+        </a>
+
+        <div className="header-actions">
+          {/* Language */}
+          <div className="lang" ref={langRef}>
+            <button
+              className="pill lang-trigger"
+              aria-haspopup="menu"
+              aria-expanded={langOpen}
+              onClick={() => setLangOpen(v => !v)}
+            >
+              EN
+            </button>
+
+            <div className={`lang-menu ${langOpen ? "is-open" : ""}`} role="menu">
+              <button role="menuitem" onClick={()=>{/* switch to EN */}} className="is-active">EN</button>
+              <button role="menuitem" onClick={()=>{/* switch to FR */}}>FR</button>
+              <button role="menuitem" onClick={()=>{/* switch to AR */}}>AR</button>
+            </div>
+          </div>
+
+          {/* Halal Certification with moon+star icon */}
+          <a className="pill halal-btn" href="/halal" aria-label="Halal Certification">
+            <img className="icon" src="/icons/halal-moon-star.svg" alt="" />
+            <span>Halal Certification</span>
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+
+If you already have the dropdown logic, just wrap the EN button + menu in a .lang div and ensure the menu gets the .is-open class when toggled.
+
+3) (If needed) smaller icon file
+
+Place the icon at public/icons/halal-moon-star.svg (from our previous step). If you already added it, no change needed.
