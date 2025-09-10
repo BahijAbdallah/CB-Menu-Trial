@@ -1,3 +1,7 @@
+/* -------- 0) Resets to stop "weird" mobile shifts -------- */
+* { box-sizing: border-box; }
+html, body { width: 100%; overflow-x: hidden; }
+
 @font-face {
   font-family: Parslay;
   src: url(/fonts/Parslay.ttf) format('truetype');
@@ -39,13 +43,17 @@ h1, h2, h3 {
 /* ===== Global responsive container ===== */
 .container{max-width:1100px;margin-inline:auto;padding-inline:16px}
 
-/* HEADER OVER HERO (no blur, no background) */
+/* -------- 1) Header: NOT sticky -------- */
 .site-header{
-  position: fixed; inset: 0 0 auto 0; height: 92px; z-index: 100;
+  position: static !important;
   background: transparent !important;
-  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-  border: 0; box-shadow: none;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  z-index: 5;
 }
+/* remove any offsets added for a fixed header */
+body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
+
 .hdr{display:flex; align-items:center; justify-content:space-between; padding:10px 22px;}
 .brand img{height: 96px; display:block;}          /* bigger logo on desktop */
 
@@ -64,7 +72,6 @@ h1, h2, h3 {
 .halal-chip img{width:18px; height:18px; display:block;}
 
 @media (max-width: 992px){
-  .site-header{height: 82px;}
   .brand img{height: 76px;}
 }
 @media (max-width: 640px){
@@ -166,25 +173,23 @@ h1, h2, h3 {
   margin-top: 6px;
 }
 
-/* ===== CATEGORY BAR ===== */
-/* Base: mobile FIRST = 3 per row grid */
+/* -------- 2) Category pills -------- */
+/* Mobile-first: EXACTLY 3 per row */
 .menu-tabs{
   width:100%;
   margin:14px auto 8px;
   padding:0 8px;
   display:grid;
-  grid-template-columns: repeat(3, 1fr);   /* 3/row on phones */
+  grid-template-columns: repeat(3, 1fr);
   gap:10px;
   max-width:1100px;
 }
-
-/* Pills */
-.menu-tab{
+.menu-tab{ 
+  width:100%; text-align:center;
   padding:10px 18px;
   border-radius:999px;
   border:2px solid transparent;
   font-weight:700;
-  text-align:center;
   white-space:nowrap;
   cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
@@ -195,8 +200,8 @@ h1, h2, h3 {
 .menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
 .menu-tab.is-active{ box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06); }
 
-/* Desktop/tablet: switch to a single horizontal scroller */
-@media (min-width: 769px){
+/* Desktop/tablet: smooth horizontal scroller */
+@media (min-width:769px){
   .menu-tabs{
     display:flex;
     gap:12px;
@@ -207,34 +212,36 @@ h1, h2, h3 {
     scroll-snap-type:x proximity;
     justify-content:flex-start;
     padding:8px 24px;
-    /* subtle edge fade */
+    /* soft edge fade so pills feel native */
     -webkit-mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
             mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
   }
-  .menu-tab{ scroll-snap-align:start; }
+  .menu-tab{ scroll-snap-align:start; width:auto; }
   .menu-tabs::-webkit-scrollbar{ height:6px; }
   .menu-tabs::-webkit-scrollbar-thumb{ background:#ddd; border-radius:999px; }
 }
 
-/* ===== ITEM LIST RESPONSIVE ===== */
-.menu-list{ list-style:none; margin:0; padding:0; display:grid; grid-auto-flow:row; gap:24px; max-width:1100px; margin-inline:auto; padding-inline:16px; }
+/* -------- 3) Item cards: responsive and stable -------- */
+.menu-list{
+  list-style:none; margin:0; padding:0;
+  display:grid; grid-auto-flow:row; gap:24px;
+  max-width:1100px; margin-inline:auto; padding-inline:16px;
+}
 .menu-card{
   display:grid;
   grid-template-columns:176px 1fr auto;
   align-items:stretch;
-  gap:24px;
-  padding:22px;
-  background:var(--comfort);
-  border-radius:14px;
-  box-shadow:0 2px 0 rgba(0,0,0,.03);
+  gap:24px; padding:22px;
+  background:var(--comfort, #ECE6DB);
+  border-radius:14px; box-shadow:0 2px 0 rgba(0,0,0,.03);
   min-height:152px;
 }
 .thumb-wrap{ position:relative; align-self:stretch; width:176px; border-radius:14px; overflow:hidden; }
 .menu-thumb{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 .menu-meta{ align-self:center; min-width:0; }
-.menu-title{ font-family:'Billmake',sans-serif; font-weight:700; font-size:32px; line-height:1.15; color:var(--olive); margin:0 0 10px; }
+.menu-title{ font-family:'Billmake',sans-serif; font-weight:700; font-size:32px; line-height:1.15; margin:0 0 10px; color:var(--olive,#3b4b30); overflow-wrap:anywhere; }
 .menu-desc{  font-family:'Billmake',sans-serif; font-size:13px; line-height:1.5; color:#6d756f; margin:0; }
-.menu-price{ grid-column:3; grid-row:1; justify-self:end; align-self:start; font-family:'Billmake',sans-serif; font-weight:700; font-size:28px; color:var(--olive); }
+.menu-price{ grid-column:3; grid-row:1; justify-self:end; align-self:start; font-family:'Billmake',sans-serif; font-weight:700; font-size:28px; color:var(--olive,#3b4b30); }
 
 
 /* nuke all old circle styles */
@@ -292,15 +299,16 @@ h1, h2, h3 {
 .allergen-chip input{ display:none; }
 .allergen-chip.is-on{ background:var(--cream); }
 
-/* Breakpoints so nothing breaks */
-@media (max-width: 1024px){
-  .menu-card{ grid-template-columns:150px 1fr auto; }
-  .thumb-wrap{ width:150px; }
+/* Mobile tighten: nothing breaks, clean wrap */
+@media (max-width:768px){
+  .menu-list{ padding-inline:12px; gap:16px; }
+  .menu-card{ grid-template-columns:110px 1fr auto; gap:14px; padding:14px; min-height:110px; }
+  .thumb-wrap{ width:110px; border-radius:12px; }
+  .menu-title{ font-size:20px; margin-bottom:6px; }
+  .menu-desc{ font-size:12px; }
+  .menu-price{ font-size:18px; }
+  .menu-alls img{ width:22px; height:22px; }
 }
-@media (max-width: 768px){
-  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
-  .thumb-wrap{ width:120px; border-radius:12px; }
-  .menu-title{ font-size:24px; margin-bottom:6px; }
-  .menu-price{ font-size:22px; }
-  .menu-alls img{ width:26px; height:26px; }
-}
+
+/* Optional: prevent accidental horizontal scroll anywhere */
+section, header, footer, .hero { overflow-x: clip; }
