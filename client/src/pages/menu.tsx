@@ -118,29 +118,31 @@ export default function MenuPage() {
 
 
 
-      {/* Menu Categories Navigation */}
-      <nav className="menu-tabs container" id="menuTabs">
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => setActiveCategory(category.slug)}
-            className={`menu-tab ${activeCategory !== category.slug ? 'is-inactive' : ''}`}
-            data-cat={category.name}
-          >
-            {t(`categories.${category.slug}`, category.name)}
-          </button>
-        ))}
-      </nav>
+      {/* Menu Categories Navigation and Items Display - White Background */}
+      <div style={{ background: 'white' }}>
+        <nav className="menu-tabs container" id="menuTabs">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category.slug)}
+              className={`menu-tab ${activeCategory !== category.slug ? 'is-inactive' : ''}`}
+              data-cat={category.name}
+            >
+              {t(`categories.${category.slug}`, category.name)}
+            </button>
+          ))}
+        </nav>
 
-      {/* Menu Items Display */}
-      <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
-        {activeCategoryData && (
-          <MenuCategory 
-            category={activeCategoryData} 
-            items={categoryItems}
-          />
-        )}
-      </section>
+        {/* Menu Items Display */}
+        <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
+          {activeCategoryData && (
+            <MenuCategory 
+              category={activeCategoryData} 
+              items={categoryItems}
+            />
+          )}
+        </section>
+      </div>
     </div>
   );
 }
