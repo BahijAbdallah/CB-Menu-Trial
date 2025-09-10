@@ -1,0 +1,114 @@
+Edit public/styles.css and add/replace:
+
+/* ===== Brand palette (from your PDF) ===== */
+:root{
+  --cream:#f0eee7;
+  --taupe:#cabeac;       /* Main Course + cycle color 3 */
+  --soft-yellow:#efa25f; /* cycle color 4 */
+  --amber:#efc785;
+  --coral:#e46f60;       /* Appetizers + cycle color 2 */
+  --olive:#3b4b30;       /* Breakfast + cycle color 1 */
+  --ink:#26332D;
+}
+
+/* ===== Global responsive container ===== */
+.container{max-width:1100px;margin-inline:auto;padding-inline:16px}
+
+/* ===== CATEGORY BAR (centered) ===== */
+.menu-tabs{
+  width:100%;
+  margin:14px auto 8px;
+  padding:0 8px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+  gap:12px;
+  justify-content:center;     /* center the group */
+  align-items:center;
+}
+
+/* Pills (filled) */
+.menu-tab{
+  padding:10px 18px;
+  border-radius:999px;
+  border:2px solid transparent;
+  font-weight:700;
+  text-align:center;
+  white-space:nowrap;
+  cursor:pointer;
+  box-shadow:0 1px 0 rgba(0,0,0,.05);
+}
+
+/* Variants using brand colors */
+.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
+.menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
+.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
+.menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
+
+/* Active keeps its own color; add subtle ring */
+.menu-tab.is-active{
+  box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06);
+}
+
+/* Mobile: EXACTLY 3 per row */
+@media (max-width:768px){
+  .menu-tabs{
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+  }
+  .menu-tab{ width:100%; }
+}
+
+/* Remove any old outline/scroll styles that conflict */
+.menu-tabs::-webkit-scrollbar{display:none}
+.menu-tab--outline, .menu-tab.outline, .tabs-outline { all:unset !important; }
+
+
+In the component that renders the categories (JS/TS):
+
+const COLOR_CYCLE = ['olive','coral','taupe','yellow'] as const; // repeats
+const COLOR_BY_SLUG: Record<string, typeof COLOR_CYCLE[number]> = {
+  'breakfast items':'olive',
+  'salads':'coral',
+  'hot appetizers':'taupe',
+  'cold appetizers':'yellow',
+  'main course':'taupe',              // stays taupe when active
+  'sandwiches & burgers':'olive',
+  'plat du jour':'yellow',
+  'desserts':'coral',
+};
+const norm = (s:string)=>s.toLowerCase().trim();
+
+<nav className="menu-tabs">
+  {categories.map((cat,i)=>{
+    const tone = COLOR_BY_SLUG[norm(cat)] ?? COLOR_CYCLE[i % COLOR_CYCLE.length];
+    const isActive = norm(cat) === norm(activeCategory);
+    return (
+      <button
+        key={cat}
+        className={`menu-tab variant-${tone} ${isActive ? 'is-active' : ''}`}
+        onClick={()=>setActiveCategory(cat)}
+      >
+        {cat}
+      </button>
+    );
+  })}
+</nav>
+
+
+(Optional) ensure the page shell is responsive:
+
+html,body{background:var(--cream);color:var(--ink)}
+img{max-width:100%;height:auto}
+
+
+Result:
+
+Pills are filled and centered, using brand colors: olive → coral → taupe → soft-yellow (repeat).
+
+Active pill keeps its own color (e.g., Main Course = taupe).
+
+On mobile, the pills wrap to 3 per row exactly.
+
+Global container and images ensure the page is responsive.
+
+Color refs: light cream #f0eee7, taupe #cabeac, soft yellow #efa25f, warm amber #efc785, deep red/coral #e46f60, dark olive #3b4b30
