@@ -15,7 +15,7 @@ function AllergensLegend() {
   return (
     <section className="allergens-legend">
       <div className="container">
-        <h3>{t('allergens.title', 'ALLERGENS')}</h3>
+        <h3 style={font-family: 'Billmake', sans-serif;}>{t('allergens.title', 'ALLERGENS')}</h3>
         <p>{t('allergens.description', 'Please ask our staff for guidance on allergens and cross-contamination.')}</p>
         <ul className="legend-row">
           {ALLERGENS.map(a => (
