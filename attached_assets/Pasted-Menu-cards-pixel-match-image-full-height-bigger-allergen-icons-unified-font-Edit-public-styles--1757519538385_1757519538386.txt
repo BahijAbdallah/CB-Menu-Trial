@@ -1,0 +1,94 @@
+Menu cards pixel-match (image full-height, bigger allergen icons, unified font)
+
+Edit public/styles.css and replace/append these rules (they override old ones):
+
+/* Colors */
+:root{
+  --olive:#3b4b30;
+  --comfort:#ECE6DB; /* card bg like mockup */
+}
+
+/* LIST */
+.menu-list{ display:grid; gap:24px; }
+
+/* CARD */
+.menu-card{
+  display:grid !important;
+  grid-template-columns: 176px 1fr auto !important;  /* image | text | price/icons */
+  align-items: stretch !important;                   /* make image fill card height */
+  gap:24px !important;
+  padding:22px !important;
+  background:var(--comfort) !important;
+  border-radius:14px !important;
+  box-shadow:0 2px 0 rgba(0,0,0,.03) !important;
+  min-height:152px !important;
+}
+
+/* LEFT IMAGE — fill container height with same rounding */
+.menu-thumb{
+  width:176px !important;
+  height:100% !important;
+  object-fit:cover !important;
+  border-radius:14px !important;
+  display:block;
+}
+
+/* TEXT */
+.menu-meta{ align-self:center !important; }
+.menu-meta h3,
+.menu-title{
+  font-family:'Billmake', sans-serif !important;    /* same as description */
+  font-weight:700 !important;
+  font-size:32px !important;
+  line-height:1.15 !important;
+  color:var(--olive) !important;
+  margin:0 0 10px !important;
+}
+.menu-meta p,
+.menu-desc{
+  font-family:'Billmake', sans-serif !important;
+  font-size:13px !important;
+  line-height:1.5 !important;
+  color:#6d756f !important;
+  margin:0 !important;
+}
+
+/* PRICE — same font as title/description and aligned top-right */
+.menu-price{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:start;
+  font-family:'Billmake', sans-serif !important;
+  font-weight:700 !important;
+  font-size:28px !important;
+  color:var(--olive) !important;
+}
+
+/* ALLERGENS — bigger, bottom-right, use PNGs as-is */
+.menu-alls{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:end;       /* bottom-right */
+  display:flex; gap:12px; margin-top:auto;
+}
+.menu-alls img{
+  width:32px !important; height:32px !important;
+  object-fit:contain !important;
+  filter:none !important; background:transparent !important;
+}
+
+/* MOBILE */
+@media (max-width:768px){
+  .menu-card{ grid-template-columns:120px 1fr auto !important; gap:16px !important; padding:16px !important; min-height:120px !important; }
+  .menu-thumb{ width:120px !important; }
+  .menu-meta h3{ font-size:24px !important; margin-bottom:6px !important; }
+  .menu-price{ font-size:22px !important; }
+  .menu-alls img{ width:26px !important; height:26px !important; }
+}
+
+
+Notes
+
+This keeps your current content/data; only layout/visuals change.
+
+If you previously had green “chip” backgrounds on allergen icons, leave them removed (we render PNGs clean).
+
+If you want a white card later, just set --comfort:#fff.
