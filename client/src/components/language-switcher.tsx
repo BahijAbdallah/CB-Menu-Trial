@@ -19,8 +19,8 @@ export function LanguageSwitcher() {
 
   return (
     <select
-      id="lang"
-      className="pill-select"
+      className="pill"
+      aria-label="Language"
       value={i18n.language}
       onChange={changeLanguage}
     >
