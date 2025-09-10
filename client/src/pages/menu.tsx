@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -37,6 +37,20 @@ function AllergensLegend() {
 export default function MenuPage() {
   const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("");
+
+  // Scroll detection for header border
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 4) {
+        document.body.classList.add('scrolled');
+      } else {
+        document.body.classList.remove('scrolled');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -79,25 +93,33 @@ export default function MenuPage() {
       ></div>
       {/* Header */}
       <header className="site-header">
-        <div className="container head-wrap">
-          <div className="brand">
-            <span className="logo-mark"></span>
-            <span className="brand-lines">
-              <span className="brand-top">{t('brand.menuTitle', 'The Menu')}</span>
-              <span className="brand-bot">{t('brand.subtitle', 'OF BEYROUTH')}</span>
-            </span>
-          </div>
-          <div className="head-actions">
+        <div className="container hdr">
+          <a className="brand" href="/">
+            <img src="/images/logo.png" alt="Chez Beyrouth" />
+          </a>
+          <div className="hdr-actions">
             <LanguageSwitcher />
-            <Link href="/halal-certificates" className="halal-badge">
-              {t('nav.halal', 'Halal')}
+            <Link href="/halal-certificates">
+              <button className="pill pill-outline" aria-label="Halal certified">
+                {t('nav.halal', 'Halal')}
+              </button>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="hero"></section>
+      <section className="hero">
+        <div className="hero-inner container">
+          <div className="hero-lockup">
+            <div className="sprout"></div>
+            <h1 className="hero-title">
+              <span>{t('brand.menuTitle', 'The Menu')}</span><br/>
+              {t('brand.subtitle', 'OF BEYROUTH')}
+            </h1>
+          </div>
+        </div>
+      </section>
       
       {/* Allergens Legend */}
       <AllergensLegend />
