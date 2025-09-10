@@ -1,0 +1,119 @@
+Make the category nav a smooth horizontal scroller on desktop (like your left image), keep the filled brand pills, and keep 3 per row on mobile. Also tighten the item list responsiveness so cards never break.
+
+1) CSS (add/replace in public/styles.css)
+/* Brand palette (already added earlier; kept here for clarity) */
+:root{
+  --olive:#3b4b30;   /* pill tone 1 */
+  --coral:#e46f60;   /* pill tone 2 */
+  --taupe:#cabeac;   /* pill tone 3 (Main Course active) */
+  --orange:#efa25f;  /* pill tone 4 */
+  --comfort:#ECE6DB;
+}
+
+/* ===== CATEGORY BAR ===== */
+/* Base: mobile FIRST = 3 per row grid */
+.menu-tabs{
+  width:100%;
+  margin:14px auto 8px;
+  padding:0 8px;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);   /* 3/row on phones */
+  gap:10px;
+  max-width:1100px;
+}
+
+/* Pills */
+.menu-tab{
+  padding:10px 18px;
+  border-radius:999px;
+  border:2px solid transparent;
+  font-weight:700;
+  text-align:center;
+  white-space:nowrap;
+  cursor:pointer;
+  box-shadow:0 1px 0 rgba(0,0,0,.05);
+}
+.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
+.menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
+.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
+.menu-tab.variant-orange{ background:var(--orange); color:#fff; }
+.menu-tab.is-active{ box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06); }
+
+/* Desktop/tablet: switch to a single horizontal scroller */
+@media (min-width: 769px){
+  .menu-tabs{
+    display:flex;
+    gap:12px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    justify-content:flex-start;
+    padding:8px 24px;
+    /* subtle edge fade */
+    -webkit-mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
+            mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
+  }
+  .menu-tab{ scroll-snap-align:start; }
+  .menu-tabs::-webkit-scrollbar{ height:6px; }
+  .menu-tabs::-webkit-scrollbar-thumb{ background:#ddd; border-radius:999px; }
+}
+
+/* ===== ITEM LIST RESPONSIVE ===== */
+.menu-list{ list-style:none; margin:0; padding:0; display:grid; grid-auto-flow:row; gap:24px; max-width:1100px; margin-inline:auto; padding-inline:16px; }
+.menu-card{
+  display:grid;
+  grid-template-columns:176px 1fr auto;
+  align-items:stretch;
+  gap:24px;
+  padding:22px;
+  background:var(--comfort);
+  border-radius:14px;
+  box-shadow:0 2px 0 rgba(0,0,0,.03);
+  min-height:152px;
+}
+.thumb-wrap{ position:relative; align-self:stretch; width:176px; border-radius:14px; overflow:hidden; }
+.menu-thumb{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.menu-meta{ align-self:center; min-width:0; }
+.menu-title{ font-family:'Billmake',sans-serif; font-weight:700; font-size:32px; line-height:1.15; color:var(--olive); margin:0 0 10px; }
+.menu-desc{  font-family:'Billmake',sans-serif; font-size:13px; line-height:1.5; color:#6d756f; margin:0; }
+.menu-price{ grid-column:3; grid-row:1; justify-self:end; align-self:start; font-family:'Billmake',sans-serif; font-weight:700; font-size:28px; color:var(--olive); }
+.menu-alls{ grid-column:3; grid-row:1; justify-self:end; align-self:end; display:flex; gap:12px; margin-top:auto; }
+.menu-alls img{ width:32px; height:32px; object-fit:contain; }
+
+/* Breakpoints so nothing breaks */
+@media (max-width: 1024px){
+  .menu-card{ grid-template-columns:150px 1fr auto; }
+  .thumb-wrap{ width:150px; }
+}
+@media (max-width: 768px){
+  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
+  .thumb-wrap{ width:120px; border-radius:12px; }
+  .menu-title{ font-size:24px; margin-bottom:6px; }
+  .menu-price{ font-size:22px; }
+  .menu-alls img{ width:26px; height:26px; }
+}
+
+2) TSX (optional smooth wheel scroll on desktop)
+
+In the component where you render the nav:
+
+const onWheelScrollX = (e: React.WheelEvent<HTMLDivElement>) => {
+  if (e.deltaY === 0) return;
+  e.currentTarget.scrollLeft += e.deltaY;
+  e.preventDefault();
+};
+
+<nav className="menu-tabs" onWheel={onWheelScrollX}>
+  {categories.map((cat,i)=>{ /* …existing button map with variant classes… */ })}
+</nav>
+
+
+What you’ll get
+
+Desktop/tablet: a single horizontal-scroll row of filled brand-colored pills (olive, coral, taupe, orange), with soft edge fade and track; mouse wheel scrolls sideways.
+
+Mobile: pills wrap to exactly 3 per row.
+
+Item list: cards stay clean and responsive; thumbnail fills card height, text wraps gracefully, price and allergen icons stay aligned.
