@@ -264,57 +264,56 @@ h1, h2, h3 {
   height: 18px;
 }
 
-/* Allergen Styles */
-.allergen-icon{ 
-  width:18px; 
-  height:18px; 
-}
-
-.admin-allergens{ 
-  display:flex; 
-  flex-wrap:wrap; 
-  gap:10px; 
-}
-
-.allergen-chip{
-  display:inline-flex; 
-  align-items:center; 
-  gap:8px;
-  padding:8px 12px; 
-  border-radius:999px; 
-  border:2px solid var(--olive);
-  background:#fff; 
-  color:var(--olive); 
-  cursor:pointer;
-}
-
-.allergen-chip input{ 
-  display:none; 
-}
-
-.allergen-chip img{ 
-  width:18px; 
-  height:18px; 
-}
-
-.allergen-chip.is-on{ 
-  background:var(--cream); 
-}
-
+/* ====== ALLERGENS LEGEND ====== */
+/* Remove the extra green chip background and any filters */
 .legend-row .chip{
-  width:42px; 
-  height:42px; 
-  border-radius:999px; 
-  background:var(--olive);
-  display:grid; 
-  place-items:center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;     /* keep round hit-area but no bg */
+  background: transparent !important;
+  display: grid;
+  place-items: center;
+  padding: 0;               /* no inner padding */
 }
 
-.legend-row .chip img{ 
-  width:22px; 
-  height:22px; 
-  filter:invert(1) brightness(10); 
+.legend-row .chip img{
+  width: 42px;
+  height: 42px;
+  display: block;
+  object-fit: contain;
+  /* kill any inherited color/filters */
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background: transparent !important;
+  border: 0;
 }
+
+/* Label below icon */
+.legend-row li{ display: grid; justify-items: center; gap: 6px; }
+.legend-row span{ font-size: 12px; color: #8b8f8d; }
+
+/* ====== PRODUCT CARD ICONS ====== */
+.menu-alls img{
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter: none !important;
+  background: transparent !important;
+  display: block;
+}
+
+/* ====== ADMIN ALLERGEN PICKER ====== */
+.admin-allergens{ display:flex; flex-wrap:wrap; gap:10px; }
+.allergen-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px; border:2px solid var(--olive);
+  background:#fff; color:var(--olive); cursor:pointer;
+}
+.allergen-chip img{
+  width: 20px; height: 20px; object-fit: contain; filter:none !important;
+}
+.allergen-chip input{ display:none; }
+.allergen-chip.is-on{ background:var(--cream); }
 
 /* Mobile Responsive */
 @media (max-width: 640px) {
