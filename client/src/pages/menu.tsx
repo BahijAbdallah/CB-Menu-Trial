@@ -2,25 +2,33 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Clock } from "lucide-react";
 
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
-import clockTowerImage from "@/assets/chez_1750587966495.png";
+import { ALLERGENS } from "@shared/allergens";
 
-// Halal Crescent and Star Icon Component
-function HalalIcon({ className }: { className?: string }) {
+// Allergens Legend Component
+function AllergensLegend() {
+  const { t } = useTranslation();
+  
   return (
-    <svg 
-      viewBox="0 0 24 24" 
-      fill="currentColor" 
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M9.5 2C5.35 2 2 5.35 2 9.5c0 4.15 3.35 7.5 7.5 7.5 1.85 0 3.55-.7 4.86-1.8-.5.1-1.02.15-1.56.15-3.86 0-7-3.14-7-7s3.14-7 7-7c.54 0 1.06.05 1.56.15C13.05 2.7 11.35 2 9.5 2z"/>
-      <polygon points="18,5 19.5,8.5 23,8.5 20.25,10.5 21.75,14 18,11.5 14.25,14 15.75,10.5 13,8.5 16.5,8.5"/>
-    </svg>
+    <section className="allergens-legend">
+      <div className="container">
+        <h3>{t('allergens.title', 'ALLERGENS')}</h3>
+        <p>{t('allergens.description', 'Please ask our staff for guidance on allergens and cross-contamination.')}</p>
+        <ul className="legend-row" id="legendRow">
+          {ALLERGENS.map((allergen) => (
+            <li key={allergen.slug}>
+              <div className="chip">
+                <img src={allergen.icon} alt={allergen.label} aria-label={allergen.label} />
+              </div>
+              <span>{allergen.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -70,83 +78,29 @@ export default function MenuPage() {
         }}
       ></div>
       {/* Header */}
-      <header className="bg-white shadow-lg border-b-4 border-brand-coral relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <img 
-                src="/logo.png" 
-                alt="Chez Beyrouth Logo" 
-                className="h-12 sm:h-16 w-auto object-contain"
-              />
-            </div>
-            
-            <nav className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-              <LanguageSwitcher />
-              <Link
-                href="/halal-certificates"
-                className="inline-flex items-center px-2 sm:px-3 lg:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors duration-200 font-medium text-xs sm:text-sm border border-green-200 whitespace-nowrap"
-              >
-                <HalalIcon className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1 lg:mr-2 flex-shrink-0" />
-                <span className="hidden sm:inline">{t('nav.halalCertificates')}</span>
-              </Link>
-
-            </nav>
+      <header className="site-header">
+        <div className="container head-wrap">
+          <div className="brand">
+            <span className="logo-mark"></span>
+            <span className="brand-lines">
+              <span className="brand-top">{t('brand.menuTitle', 'The Menu')}</span>
+              <span className="brand-bot">{t('brand.subtitle', 'OF BEYROUTH')}</span>
+            </span>
+          </div>
+          <div className="head-actions">
+            <LanguageSwitcher />
+            <Link href="/halal-certificates" className="halal-badge">
+              {t('nav.halal', 'Halal')}
+            </Link>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-96 lg:h-96 bg-gradient-to-br from-brand-green via-brand-green to-brand-dark-green overflow-hidden z-10">
-        {/* Layered background patterns */}
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-coral/30 via-transparent to-brand-coral/20"></div>
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-bl from-brand-cream/10 to-transparent"></div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-10 right-10 w-32 h-32 bg-brand-coral/20 rounded-full blur-xl"></div>
-        <div className="absolute bottom-20 left-20 w-24 h-24 bg-brand-cream/20 rounded-full blur-lg"></div>
-        <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-brand-coral/15 rounded-full blur-md"></div>
-        
-        <div className="relative flex items-center h-full z-10">
-          <div className="container mx-auto px-4 sm:px-6">
-            <div className="flex flex-col lg:flex-row items-center justify-between max-w-6xl mx-auto gap-8 lg:gap-12">
-              {/* Content Rectangle */}
-              <div className="w-full max-w-xl bg-brand-cream backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border-2 border-brand-coral/30 relative">
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-coral rounded-full"></div>
-                <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-brand-green rounded-full"></div>
-                
-                <h2 className="font-parslay text-3xl sm:text-4xl lg:text-5xl font-bold text-title-coral mb-3 text-center lg:text-left">
-                  {t('hero.title')}
-                </h2>
-                <p className="text-base sm:text-lg text-brand-green leading-relaxed mb-5 text-center lg:text-left">
-                  {t('hero.subtitle')}
-                </p>
-                <div className="flex items-center justify-center lg:justify-start space-x-3 bg-brand-coral/20 rounded-full px-3 py-2 w-fit mx-auto lg:mx-0 border border-brand-coral/40">
-                  <Clock className="h-4 w-4 text-brand-coral" />
-                  <span className="text-brand-green font-semibold text-xs sm:text-sm">{t('hero.openHours')}</span>
-                </div>
-              </div>
-              
-              {/* Clock Tower Image */}
-              <div className="flex-shrink-0 w-full lg:w-auto flex justify-center">
-                <img 
-                  src={clockTowerImage}
-                  alt="A Place To Feel - Architectural Clock Tower" 
-                  className="h-64 sm:h-72 md:h-80 lg:h-80 w-auto opacity-90 filter drop-shadow-2xl object-contain max-w-full"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Enhanced decorative pattern overlay */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-15">
-          <div className="w-full h-full bg-gradient-to-tl from-brand-coral via-brand-coral/50 to-transparent rounded-full transform translate-x-32 translate-y-32"></div>
-        </div>
-        <div className="absolute top-0 left-0 w-64 h-64 opacity-10">
-          <div className="w-full h-full bg-gradient-to-br from-brand-cream to-transparent rounded-full transform -translate-x-20 -translate-y-20"></div>
-        </div>
-      </section>
+      <section className="hero"></section>
+      
+      {/* Allergens Legend */}
+      <AllergensLegend />
 
 
 
