@@ -111,16 +111,16 @@ h1, h2, h3 {
 }
 
 .hero-title {
-  font-family: Parslay;
+  font-family: Billmake;
   font-size: 40px;
   line-height: 1.05;
   color: var(--olive);
-  letter-spacing: .04em;
+  letter-spacing: .22em;
 }
 
 .hero-title span {
-  font-family: Billmake;
-  letter-spacing: .22em;
+  font-family: Parslay;
+  letter-spacing: .04em;
 }
 
 .sprout {
