@@ -129,16 +129,34 @@ export default function MenuPage() {
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: 'white' }}>
         <nav className="menu-tabs container" id="menuTabs">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setActiveCategory(category.slug)}
-              className={`menu-tab ${activeCategory !== category.slug ? 'is-inactive' : ''}`}
-              data-cat={category.name}
-            >
-              {t(`categories.${category.slug}`, category.name)}
-            </button>
-          ))}
+          {categories.map((category, i) => {
+            const COLOR_CYCLE = ['olive','coral','taupe','orange'] as const;
+            
+            // explicit mapping; others fall back to cycle
+            const COLOR_BY_SLUG: Record<string, typeof COLOR_CYCLE[number]> = {
+              'breakfast-items':'olive',
+              'salads':'coral',
+              'hot-appetizers':'taupe',
+              'cold-appetizers':'orange',
+              'main-course':'taupe',              // stays taupe when active
+              'sandwiches-burgers':'olive',
+              'plat-du-jour':'orange',
+              'desserts':'coral',
+            };
+            
+            const tone = COLOR_BY_SLUG[category.slug] ?? COLOR_CYCLE[i % COLOR_CYCLE.length];
+            const isActive = activeCategory === category.slug;
+            
+            return (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.slug)}
+                className={`menu-tab variant-${tone} ${isActive ? 'is-active' : ''}`}
+              >
+                {t(`categories.${category.slug}`, category.name)}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Menu Items Display */}

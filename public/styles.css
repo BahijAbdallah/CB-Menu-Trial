@@ -16,7 +16,8 @@
   --soft-yellow: #efa25f;
   --amber: #efc785;
   --coral: #e46f60;
-  --olive:#3b4b30;
+  --olive:#3b4b30;   /* cycle #1 */
+  --orange:#efa25f;  /* cycle #4 */
   --comfort:#ECE6DB; /* card bg like mockup */
 
   --bg: var(--cream);
@@ -172,43 +173,52 @@ h1, h2, h3 {
   margin-top: 6px;
 }
 
-/* Menu Tabs */
-.menu-tabs {
-  display: flex;
-  gap: 12px;
-  margin: 18px auto 8px;
+/* Centered grid of pills */
+.menu-tabs{
+  max-width:1100px;
+  margin:14px auto 8px;
+  padding:0 8px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+  gap:12px;
+  justify-content:center;   /* center the whole group */
+  align-items:center;
 }
 
-.menu-tab {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background: var(--sage);
-  color: var(--green);
-  font-weight: 700;
-  cursor: pointer;
+/* Pill base */
+.menu-tab{
+  padding:10px 18px;
+  border-radius:999px;
+  border:2px solid transparent;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+  white-space:nowrap;
+  box-shadow:0 1px 0 rgba(0,0,0,.05);
 }
 
-.menu-tab[data-cat="Breakfast"] {
-  background: var(--green);
-  color: #fff;
+/* Brand variants */
+.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
+.menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
+.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
+.menu-tab.variant-orange{ background:var(--orange); color:#fff; }
+
+/* Active keeps its color, just add a soft ring/elevation */
+.menu-tab.is-active{
+  box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06);
 }
 
-.menu-tab[data-cat="Appetizers"] {
-  background: var(--coral);
-  color: #fff;
+/* Mobile: exactly 3 per row */
+@media (max-width:768px){
+  .menu-tabs{
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+  }
+  .menu-tab{ width:100%; }
 }
 
-.menu-tab[data-cat="Plat Du Jour"] {
-  background: var(--orange);
-  color: #fff;
-}
-
-.menu-tab.is-inactive {
-  background: #fff;
-  border-color: var(--muted);
-  color: var(--ink);
-}
+/* Kill old outline/scroll styles */
+.menu-tabs::-webkit-scrollbar{ display:none; }
 
 /* List stays a single stacked column */
 .menu-list{ 
