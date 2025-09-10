@@ -16,10 +16,10 @@ function AllergensLegend() {
     <section className="allergens-legend">
       <div className="container">
         <h4>{t("allergens.title", "ALLERGENS")}</h4>
-        <p className="text-[13px]">
+        <p>
           {t(
             "allergens.description",
-            " Please be adviced that our food may contain or come  into contact with common allergens, including:",
+            "Please ask our staff for guidance on allergens and cross-contamination.",
           )}
         </p>
         <ul className="legend-row">
