@@ -101,13 +101,20 @@ export default function MenuPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="hero" aria-label="Hero">
-        {/* Top-left logo inside hero */}
+      <section
+        className="hero"
+        aria-label="Hero"
+        style={{
+          backgroundImage: 'url(/images/hero.jpg)',
+          backgroundPosition: 'right center',
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <img src="/images/logo.png" alt="Chez Beyrouth" className="hero-logo" />
-
-        <div className="hero-inner container">
+        <div className="hero-inner">
           <h1 className="hero-title">
-            <span className="line-1">The Menu</span><br />
+            <span className="line-1">The Menu</span><br/>
             <span className="line-2">OF BEYROUTH</span>
           </h1>
         </div>
