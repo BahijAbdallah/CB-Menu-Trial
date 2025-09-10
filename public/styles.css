@@ -173,26 +173,26 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   margin-top: 6px;
 }
 
-/* ---------- CATEGORY NAV (sizes & true 3/row on phones) ---------- */
+/* ---------- CATEGORY NAV (flexible layout based on content length) ---------- */
 .menu-tabs{
   width:100%;
   margin:14px auto 8px;
   padding:0 8px;
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); /* equal widths */
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
   gap:10px;
   max-width:1100px;
-  justify-items:center;                 /* grid mode (mobile) */
-  align-items:center;
 }
 .menu-tab{
-  display:inline-flex;                  /* center label inside the pill */
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  height:40px;                          /* consistent height */
-  padding:0 16px;                       /* horizontal space */
+  height:40px;
+  padding:0 16px;
   font-size:14px;
-  line-height:1;                        /* avoid vertical drift */
+  line-height:1;
   text-align:center;
   white-space:nowrap;
   border-radius:999px;
@@ -200,6 +200,24 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   font-weight:700;
   cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
+  flex:0 0 auto;                        /* don't grow/shrink, size based on content */
+  min-width:fit-content;
+}
+
+/* Content-based sizing: shorter names can share rows */
+.menu-tab {
+  flex:0 1 auto;                       /* allow shrinking based on content */
+  max-width:calc(50% - 5px);           /* max 2 per row for shorter names */
+  min-width:fit-content;
+}
+
+/* Specific positioning for longer category names */
+.menu-tab:nth-child(1),               /* Breakfast Items */
+.menu-tab:nth-child(3),               /* Hot Appetizers */  
+.menu-tab:nth-child(4),               /* Cold Appetizers */
+.menu-tab:nth-child(6) {              /* Sandwiches & Burgers */
+  flex-basis:100%;                    /* force longer names to take full width */
+  max-width:100%;
 }
 .menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
 .menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
@@ -212,11 +230,13 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   .menu-tab{ font-size:13px; padding:10px 12px; }
 }
 
-/* Desktop scroller: keep pills vertically centered in the row */
+/* Desktop: horizontal scroller with flexible content-based layout */
 @media (min-width:769px){
   .menu-tabs{
     display:flex;
-    align-items:center;                 /* align along cross-axis */
+    flex-wrap:nowrap;                   /* single row on desktop */
+    justify-content:flex-start;
+    align-items:center;
     gap:12px;
     overflow-x:auto;
     overflow-y:hidden;
@@ -225,7 +245,13 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     -webkit-mask:linear-gradient(90deg,rgba(0,0,0,0),#000 24px,#000 calc(100% - 24px),rgba(0,0,0,0));
             mask:linear-gradient(90deg,rgba(0,0,0,0),#000 24px,#000 calc(100% - 24px),rgba(0,0,0,0));
   }
-  .menu-tab{ height:40px; padding:0 18px; scroll-snap-align:start; }
+  .menu-tab{ 
+    height:40px; 
+    padding:0 18px; 
+    scroll-snap-align:start; 
+    flex:0 0 auto;                      /* don't shrink on desktop */
+    max-width:none;                     /* remove mobile constraints */
+  }
   .menu-tabs::-webkit-scrollbar{ height:6px; }
   .menu-tabs::-webkit-scrollbar-thumb{ background:#ddd; border-radius:999px; }
 }
