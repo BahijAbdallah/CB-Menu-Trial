@@ -1,0 +1,105 @@
+PATCH PROMPT — Fix allergen icons (use PNG as-is, no extra chip/filter)
+
+Goal: Show the provided PNG icons exactly (single green circle with cream glyph) in:
+
+Allergens legend
+
+Product cards
+
+Admin selector
+
+1) Make sure the icons are in:
+/public/icons/allergens/
+  milk.png
+  gluten.png
+  fish.png
+  soya.png
+  peanuts.png
+  nuts.png
+
+2) CSS: remove extra circle + filters, size neatly
+
+Edit public/styles.css:
+
+/* ====== ALLERGENS LEGEND ====== */
+/* Remove the extra green chip background and any filters */
+.legend-row .chip{
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;     /* keep round hit-area but no bg */
+  background: transparent !important;
+  display: grid;
+  place-items: center;
+  padding: 0;               /* no inner padding */
+}
+
+.legend-row .chip img{
+  width: 42px;
+  height: 42px;
+  display: block;
+  object-fit: contain;
+  /* kill any inherited color/filters */
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background: transparent !important;
+  border: 0;
+}
+
+/* Label below icon */
+.legend-row li{ display: grid; justify-items: center; gap: 6px; }
+.legend-row span{ font-size: 12px; color: #8b8f8d; }
+
+/* ====== PRODUCT CARD ICONS ====== */
+.menu-alls img{
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter: none !important;
+  background: transparent !important;
+  display: block;
+}
+
+/* ====== ADMIN ALLERGEN PICKER ====== */
+.admin-allergens{ display:flex; flex-wrap:wrap; gap:10px; }
+.allergen-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px; border:2px solid var(--olive);
+  background:#fff; color:var(--olive); cursor:pointer;
+}
+.allergen-chip img{
+  width: 20px; height: 20px; object-fit: contain; filter:none !important;
+}
+.allergen-chip.is-on{ background:var(--comfort); }
+
+3) Legend markup: keep as image only (no SVG/icon font)
+
+(If needed) ensure you render like this:
+
+<li>
+  <span className="chip">
+    <img src="/icons/allergens/milk.png" alt="" aria-hidden="true" />
+  </span>
+  <span>Milk</span>
+</li>
+
+4) Product cards: render the PNGs directly
+import { ALLERGENS_MAP } from '@/constants/allergens';
+
+<div className="menu-alls">
+  {(item.allergens ?? []).map(slug => {
+    const a = ALLERGENS_MAP[slug];
+    return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
+  })}
+</div>
+
+5) Kill any old rules that fight this
+
+Search & remove any of these if present:
+
+.legend-row img, .legend-row svg { filter: invert(...); }
+
+.legend-row .chip { background: var(--olive); }
+
+Any mask, mix-blend-mode, or background-image/pattern applied to legend/menu icons.
+
+Done when: each icon shows once (no double circle), crisp, centered, with the label below; same PNGs appear on product cards and in the admin picker.
