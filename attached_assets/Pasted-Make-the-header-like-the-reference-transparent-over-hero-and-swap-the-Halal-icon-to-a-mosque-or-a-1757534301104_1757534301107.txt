@@ -1,0 +1,79 @@
+Make the header like the reference (transparent over hero), and swap the Halal icon to a mosque or a moon+star. Keep the language switcher + Halal link working.
+
+1) Add the new icon (moon + star).
+
+Create public/icons/halal-moon-star.svg:
+
+(If you prefer a mosque, also create public/icons/halal-mosque.svg and use that path instead.)
+
+2) Replace the star icon in the Halal button
+
+Find the Halal Certification button (text “Halal Certification”). Replace its icon with the new SVG:
+
+<a className="pill halal-btn" href="/halal" aria-label="Halal Certification">
+  <img className="icon" src="/icons/halal-moon-star.svg" alt="" />
+  <span>Halal Certification</span>
+</a>
+
+3) Make the header transparent and sitting on top of the hero (NOT sticky)
+
+In public/styles.css add/replace:
+
+/* Header overlays the hero, transparent, not sticky */
+.hero { position: relative; }  /* ensure the hero wrapper has class="hero" */
+.site-header{
+  position: absolute; top: 16px; left: 0; right: 0;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 0;
+  z-index: 10;
+}
+.header-inner{ max-width:1100px; margin:0 auto; padding:0 16px; display:flex; align-items:center; justify-content:space-between; }
+
+/* Pills (buttons) outlined over the photo */
+.pill{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 16px; border-radius:999px;
+  border:2px solid var(--olive, #3b4b30);
+  background: transparent;                    /* <-- remove white fill */
+  color: var(--olive, #3b4b30);
+  font-weight:700; line-height:1; transition: .18s ease;
+}
+.pill .icon{ width:18px; height:18px; display:inline-block; }
+
+/* Hover / active (mobile tap) */
+@media (hover:hover){
+  .pill:hover{ background: var(--olive, #3b4b30); color:#fff; border-color:var(--olive, #3b4b30); }
+}
+@media (max-width:768px){
+  .pill:hover, .pill:active{ background: var(--olive, #3b4b30); color:#fff; border-color:var(--olive, #3b4b30); }
+}
+
+/* Language dropdown themed to site */
+.lang-menu, .lang-dropdown{
+  position:absolute; right:0; margin-top:8px;
+  background: var(--cream, #f0eee7);
+  border:1px solid rgba(59,75,48,.25);
+  border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.10);
+  padding:8px; min-width:160px; z-index:20;
+}
+.lang-menu [role="menuitem"], .lang-dropdown button{
+  width:100%; display:flex; align-items:center; justify-content:center;
+  padding:10px 12px; border-radius:999px; font-weight:700;
+  color: var(--olive, #3b4b30); background:transparent; border:0; transition:.18s;
+}
+.lang-menu [role="menuitem"]:hover, .lang-dropdown button:hover{
+  background: var(--olive, #3b4b30); color:#fff;
+}
+.lang-menu [aria-current="true"], .lang-dropdown .is-active{
+  background: var(--taupe, #cabeac); color: var(--olive, #3b4b30);
+}
+
+/* Ensure nothing makes the header sticky */
+.site-header{ position:absolute !important; }
+
+
+If your header wrapper isn’t on the hero, add class="hero" to the hero section; keep the header element as is—these styles will place it transparently above the image, like your reference.
+
+That’s it: Halal button shows a moon & star (or mosque), header pills sit over the hero with transparent background, and the language dropdown matches the site’s style.
