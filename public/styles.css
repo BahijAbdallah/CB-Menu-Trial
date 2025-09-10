@@ -44,50 +44,42 @@ h1, h2, h3 {
   padding: 20px;
 }
 
-/* Header Styles */
-.site-header {
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: 72px;
-  z-index: 50;
-  background: transparent;
-  backdrop-filter: saturate(120%) blur(2px);
+/* HEADER OVER HERO (no blur, no background) */
+.site-header{
+  position: fixed; inset: 0 0 auto 0; height: 92px; z-index: 100;
+  background: transparent !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  border: 0; box-shadow: none;
+}
+.hdr{display:flex; align-items:center; justify-content:space-between; padding:10px 22px;}
+.brand img{height: 96px; display:block;}          /* bigger logo on desktop */
+
+.hdr-actions{display:flex; align-items:center; gap:12px;}
+.pill{
+  appearance:none; background:transparent; color:var(--olive);
+  border:2px solid var(--olive); border-radius:999px; padding:8px 14px; font-weight:700; cursor:pointer;
+}
+.pill:focus{outline:none; box-shadow:0 0 0 3px rgba(59,75,48,.18);}
+
+.halal-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:var(--olive);
+  border:2px solid var(--olive); border-radius:999px; padding:8px 14px; font-weight:700;
+}
+.halal-chip img{width:18px; height:18px; display:block;}
+
+@media (max-width: 992px){
+  .site-header{height: 82px;}
+  .brand img{height: 76px;}
+}
+@media (max-width: 640px){
+  .site-header{height: 74px;}
+  .brand img{height: 64px;}
+  .pill, .halal-chip{padding:6px 12px;}
 }
 
-.hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.brand img {
-  height: 34px;
-}
-
-.pill {
-  appearance: none;
-  border: 2px solid var(--olive);
-  background: transparent;
-  color: var(--olive);
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-weight: 700;
-  margin-left: 10px;
-  cursor: pointer;
-}
-
-.pill:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 75, 48, .18);
-}
-
-.pill-outline {
-  background: #fff;
-}
-
-.scrolled .site-header {
-  border-bottom: 1px solid rgba(59, 75, 48, .18);
-}
+/* make sure NOTHING paints under header */
+.site-header::before, .site-header::after{content:none!important; background:none!important;}
 
 /* Hero Styles */
 .hero {

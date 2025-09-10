@@ -35,7 +35,7 @@ function AllergensLegend() {
 
 
 export default function MenuPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("");
 
   // Scroll detection for header border
@@ -85,15 +85,25 @@ export default function MenuPage() {
     <div className="min-h-screen bg-light-cream relative">
       {/* Header */}
       <header className="site-header">
-        <div className="container hdr">
+        <div className="hdr container">
           <a className="brand" href="/">
             <img src="/images/logo.png" alt="Chez Beyrouth" />
           </a>
+
           <div className="hdr-actions">
-            <LanguageSwitcher />
+            <select id="lang-switch" aria-label="Language" className="pill" onChange={(e) => {
+              const lang = e.target.value;
+              i18n.changeLanguage(lang);
+            }}>
+              <option value="en">EN</option>
+              <option value="fr">FR</option>
+              <option value="ar">AR</option>
+            </select>
+
             <Link href="/halal-certificates">
-              <button className="pill pill-outline" aria-label="Halal certified">
-                {t('nav.halal', 'Halal')}
+              <button className="halal-chip" type="button">
+                <img src="/icons/halal.svg" alt="" aria-hidden="true" />
+                <span>Halal Certification</span>
               </button>
             </Link>
           </div>
