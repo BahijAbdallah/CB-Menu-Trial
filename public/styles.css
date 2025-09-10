@@ -392,3 +392,13 @@ section, header, footer, .hero { overflow-x: clip; }
 
 /* Ensure nothing in the hero blocks clicks */
 .hero{ position:relative; z-index:1; }
+
+.page{ padding:48px 0; background:var(--comfort,#ECE6DB); }
+.container{ max-width:1100px; margin:0 auto; padding:0 16px; }
+.page-title{
+  font-family:'Billmake',sans-serif; font-weight:700; font-size:36px;
+  color:var(--olive,#3b4b30); margin:0 0 12px; text-align:left;
+}
+.page-note{ font-family:'Billmake',sans-serif; font-size:15px; color:#6d756f; margin:0 0 18px; }
+.page-list{ margin:0 0 18px 18px; color:var(--olive,#3b4b30); font-family:'Billmake',sans-serif; }
+@media (max-width:768px){ .page{ padding:28px 0; } .page-title{ font-size:28px; } .page-note{ font-size:14px; } }

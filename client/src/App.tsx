@@ -10,6 +10,7 @@ import MenuPage from "@/pages/menu";
 import AdminPage from "@/pages/admin";
 import LoginPage from "@/pages/login";
 import HalalCertificatesPage from "@/pages/halal-certificates";
+import HalalCertification from "@/pages/HalalCertification";
 import ComingSoon from "@/components/coming-soon";
 import { shouldShowComingSoon, getGateConfig, shouldBlockSearchEngines } from "@/lib/gate-utils";
 import './i18n';
@@ -46,6 +47,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={MenuPage} />
+      <Route path="/halal" component={HalalCertification} />
       <Route path="/halal-certificates" component={HalalCertificatesPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/admin" component={AdminPage} />
