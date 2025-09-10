@@ -1,7 +1,16 @@
 {
   "nav": {
     "digitalMenu": "Menu Numérique",
-    "halalCertificates": "Certificats Halal"
+    "halalCertificates": "Certificats Halal",
+    "halal": "Halal"
+  },
+  "brand": {
+    "menuTitle": "Le Menu",
+    "subtitle": "DE BEYROUTH"
+  },
+  "allergens": {
+    "title": "ALLERGÈNES",
+    "description": "Veuillez demander à notre personnel des conseils sur les allergènes et la contamination croisée."
   },
   "hero": {
     "title": "Un Lieu Pour Ressentir",
