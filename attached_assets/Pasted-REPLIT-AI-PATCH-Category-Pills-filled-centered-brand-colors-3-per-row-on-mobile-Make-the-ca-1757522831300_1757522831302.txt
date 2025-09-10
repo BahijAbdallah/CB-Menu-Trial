@@ -1,0 +1,94 @@
+REPLIT AI PATCH — Category Pills (filled, centered, brand colors + 3-per-row on mobile)
+
+Make the category chips match the left design: filled rounded pills, centered; use brand colors with a repeating cycle; keep each tab’s active color (Main Course = taupe). On small screens show exactly 3 per row.
+
+1) CSS (add/replace in public/styles.css)
+:root{
+  --olive:#3b4b30;   /* cycle #1 */
+  --coral:#e46f60;   /* cycle #2 */
+  --taupe:#cabeac;   /* cycle #3 (Main Course active) */
+  --orange:#efa25f;  /* cycle #4 */
+}
+
+/* Centered grid of pills */
+.menu-tabs{
+  max-width:1100px;
+  margin:14px auto 8px;
+  padding:0 8px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+  gap:12px;
+  justify-content:center;   /* center the whole group */
+  align-items:center;
+}
+
+/* Pill base */
+.menu-tab{
+  padding:10px 18px;
+  border-radius:999px;
+  border:2px solid transparent;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+  white-space:nowrap;
+  box-shadow:0 1px 0 rgba(0,0,0,.05);
+}
+
+/* Brand variants */
+.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
+.menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
+.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
+.menu-tab.variant-orange{ background:var(--orange); color:#fff; }
+
+/* Active keeps its color, just add a soft ring/elevation */
+.menu-tab.is-active{
+  box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06);
+}
+
+/* Mobile: exactly 3 per row */
+@media (max-width:768px){
+  .menu-tabs{
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+  }
+  .menu-tab{ width:100%; }
+}
+
+/* Kill old outline/scroll styles */
+.menu-tabs::-webkit-scrollbar{ display:none; }
+
+2) Rendering (where you map categories → buttons)
+const COLOR_CYCLE = ['olive','coral','taupe','orange'] as const;
+
+// explicit mapping; others fall back to cycle
+const COLOR_BY_SLUG: Record<string, typeof COLOR_CYCLE[number]> = {
+  'breakfast items':'olive',
+  'salads':'coral',
+  'hot appetizers':'taupe',
+  'cold appetizers':'orange',
+  'main course':'taupe',              // stays taupe when active
+  'sandwiches & burgers':'olive',
+  'plat du jour':'orange',
+  'desserts':'coral',
+};
+
+const norm = (s:string)=>s.toLowerCase().trim();
+
+<nav className="menu-tabs">
+  {categories.map((cat,i)=>{
+    const tone = COLOR_BY_SLUG[norm(cat)] ?? COLOR_CYCLE[i % COLOR_CYCLE.length];
+    const isActive = norm(cat) === norm(activeCategory);
+    return (
+      <button
+        key={cat}
+        className={`menu-tab variant-${tone} ${isActive ? 'is-active' : ''}`}
+        onClick={()=>setActiveCategory(cat)}
+      >
+        {cat}
+      </button>
+    );
+  })}
+</nav>
+
+
+Done: Pills are centered, use the brand colors (olive/coral/taupe/orange), repeat across categories, the active tab keeps its own color (Main Course = taupe), and on mobile they wrap into 3 per row.
