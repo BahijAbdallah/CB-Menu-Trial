@@ -232,7 +232,7 @@ h1, h2, h3 {
 /* 🔧 Thumbnail EXACT look like the mockup */
 .menu-thumb{
   width:176px !important;
-  height:132px !important;                 /* fixed, NOT 100% of card */
+  height:160px !important;                 /* fixed, NOT 100% of card */
   object-fit:cover !important;
   border-radius:14px !important;           /* soft rounded corners */
   display:block;
@@ -301,7 +301,7 @@ h1, h2, h3 {
   justify-self:end; align-self:end; margin-top:auto;
   display:flex; gap:12px;
 }
-.menu-alls img{ width:32px; height:32px; object-fit:contain; filter:none!important; background:transparent!important; }
+.menu-alls img{ width:42px; height:42px; object-fit:contain; filter:none!important; background:transparent!important; }
 
 .admin-allergens img { 
   width:22px; 
@@ -326,8 +326,8 @@ h1, h2, h3 {
 /* Responsiveness: smaller thumb on mobile */
 @media (max-width:768px){
   .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; }
-  .menu-thumb{ width:120px !important; height:92px !important; border-radius:12px !important; }
+  .menu-thumb{ width:120px !important; height:110px !important; border-radius:12px !important; }
   .menu-title{ font-size:24px; margin-bottom:6px; }
   .menu-price{ font-size:22px; }
-  .menu-alls img{ width:26px; height:26px; }
+  .menu-alls img{ width:32px; height:32px; }
 }
