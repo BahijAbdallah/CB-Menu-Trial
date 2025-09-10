@@ -1,7 +1,16 @@
 {
   "nav": {
-    "digitalMenu": "Digital Menu",
-    "halalCertificates": "Halal Certificates"
+    "digitalMenu": "Digital Menu", 
+    "halalCertificates": "Halal Certificates",
+    "halal": "Halal"
+  },
+  "brand": {
+    "menuTitle": "The Menu",
+    "subtitle": "OF BEYROUTH"
+  },
+  "allergens": {
+    "title": "ALLERGENS",
+    "description": "Please ask our staff for guidance on allergens and cross-contamination."
   },
   "hero": {
     "title": "A Place To Feel",

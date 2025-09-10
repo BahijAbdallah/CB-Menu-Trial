@@ -1,7 +1,16 @@
 {
   "nav": {
     "digitalMenu": "القائمة الرقمية",
-    "halalCertificates": "شهادات الحلال"
+    "halalCertificates": "شهادات الحلال",
+    "halal": "حلال"
+  },
+  "brand": {
+    "menuTitle": "القائمة",
+    "subtitle": "مِن بيروت"
+  },
+  "allergens": {
+    "title": "مسببات الحساسية",
+    "description": "يرجى السؤال من موظفينا حول مسببات الحساسية والتداخل المحتمل."
   },
   "hero": {
     "title": "مكان للشعور",

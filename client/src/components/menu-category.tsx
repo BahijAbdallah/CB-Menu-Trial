@@ -1,6 +1,6 @@
-import MenuItemCard from "./menu-item-card";
 import { useTranslation } from "react-i18next";
 import type { Category, MenuItem } from "@shared/schema";
+import { ALLERGENS, parseAllergens, getAllergensByItem } from "@shared/allergens";
 
 interface MenuCategoryProps {
   category: Category;
@@ -10,28 +10,51 @@ interface MenuCategoryProps {
 export default function MenuCategory({ category, items }: MenuCategoryProps) {
   const { t } = useTranslation();
   
+  const getDefaultImageForItem = (categorySlug: string, index: number) => {
+    return `/assets/menu-item-food.jpg`; // Default placeholder image
+  };
+  
   return (
-    <div>
-      <div className="text-center mb-12">
-        <h3 className="font-parslay text-5xl font-bold text-title-coral mb-4">
-          {t(`categories.${category.slug}`, category.name)}
-        </h3>
-        <p className="text-saddle-brown text-lg max-w-2xl mx-auto">
-          {t('menu.subtitle')}
-        </p>
-      </div>
-      
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {items.map((item, index) => (
-          <MenuItemCard key={item.id} item={item} category={category} index={index} />
-        ))}
-      </div>
+    <section className="container">
+      <ul id="menuList" className="menu-list">
+        {items.map((item, index) => {
+          const allergens = parseAllergens(item.allergens || "[]");
+          const allergenData = getAllergensByItem(allergens);
+          
+          return (
+            <li key={item.id} className="menu-card">
+              <img 
+                src={item.imageUrl || getDefaultImageForItem(category.slug, index)} 
+                alt={item.name}
+                className="menu-thumb"
+              />
+              <div className="menu-meta">
+                <h3>{item.name}</h3>
+                <p>{item.description}</p>
+              </div>
+              <div className="menu-price">
+                ${parseFloat(item.price).toFixed(2)}
+              </div>
+              <div className="menu-alls">
+                {allergenData.map((allergen) => (
+                  <img 
+                    key={allergen.slug}
+                    src={allergen.icon} 
+                    alt={allergen.label}
+                    aria-label={allergen.label}
+                  />
+                ))}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
 
       {items.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-saddle-brown text-lg">{t('common.noItems')}</p>
+          <p className="text-muted">{t('common.noItems')}</p>
         </div>
       )}
-    </div>
+    </section>
   );
 }
