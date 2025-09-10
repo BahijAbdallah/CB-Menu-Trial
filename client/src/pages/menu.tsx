@@ -13,18 +13,17 @@ function AllergensLegend() {
   const { t } = useTranslation();
   
   return (
-    <section className="allergens-legend">
-      <div className="container">
-        <h3>{t('allergens.title', 'ALLERGENS')}</h3>
-        <p>{t('allergens.description', 'Please ask our staff for guidance on allergens and cross-contamination.')}</p>
-        <ul className="legend-row">
-          {ALLERGENS.map(a => (
-            <li key={a.slug}>
-              <img className="allergen-img" src={a.icon} alt={a.label} />
-              <span>{a.label}</span>
-            </li>
-          ))}
-        </ul>
+    <section id="allergens">
+      <h2 className="title">{t('allergens.title', 'ALLERGENS')}</h2>
+      <p className="note">{t('allergens.description', 'Please ask our staff for guidance on allergens and cross-contamination.')}</p>
+
+      <div className="list">
+        {ALLERGENS.map(a => (
+          <div key={a.slug} className="item">
+            <img src={a.icon} alt={a.label} />
+            <span className="label">{a.label}</span>
+          </div>
+        ))}
       </div>
     </section>
   );
