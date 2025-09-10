@@ -209,47 +209,57 @@ h1, h2, h3 {
   color: var(--ink);
 }
 
-/* ===== Card list spacing ===== */
-.menu-list{ display:grid; gap:22px; }
+/* ===== LIST SPACING ===== */
+.menu-list{ display:grid; gap:24px; }
 
-/* ===== Card ===== */
-.menu-card.v2{
+/* ===== CARD LAYOUT ===== */
+.menu-card.v3{
   display:grid;
-  grid-template-columns: 176px 1fr 100px;   /* image | text | price/icons */
-  grid-auto-rows: auto;
-  align-items:center;
-  gap:22px;
+  grid-template-columns: 176px 1fr auto;   /* image | text | price/icons */
+  align-items: stretch;                    /* make image column stretch full height */
+  gap:24px;
   padding:22px;
-  background: var(--cream, #f0eee7);
-  border-radius: 14px;
-  box-shadow: 0 2px 0 rgba(0,0,0,.03);
-}
-
-/* ===== Image ===== */
-.menu-thumb.v2{
-  width:176px; height:132px;
-  object-fit:cover;
+  background: var(--comfort, #ECE6DB);
   border-radius:14px;
+  box-shadow: 0 2px 0 rgba(0,0,0,.03);
+  min-height:152px;                        /* ensures good height for image */
 }
 
-/* ===== Text ===== */
-.menu-meta.v2{ align-self:start; }
-.menu-title.v2{
-  /* If you want the title to match description, switch to Billmake here */
-  font-family: 'Billmake', sans-serif;
-  font-size: 32px; line-height:1.15; margin:0 0 10px; color: var(--olive,#3b4b30);
+/* LEFT IMAGE — fill card height */
+.menu-thumb.v3{
+  width:176px;
+  height:100%;                             /* <-- matches container height */
+  object-fit:cover;
+  border-radius:14px;                       /* same rounding as mockup */
+  display:block;
 }
-.menu-desc.v2{
+
+/* TEXT AREA */
+.menu-meta.v3{ align-self:center; }
+.menu-title.v3{
+  font-family:'Billmake', sans-serif;      /* same as description */
+  font-weight:700;
+  font-size:32px;
+  line-height:1.15;
+  color: var(--olive,#3b4b30);
+  margin:0 0 10px;
+}
+.menu-desc.v3{
   font-family:'Billmake', sans-serif;
-  font-size: 13px; line-height:1.5; color:#6d756f; margin:0;
+  font-size:13px;
+  line-height:1.5;
+  color:#6d756f;
+  margin:0;
 }
 
-/* ===== Price (top-right) ===== */
-.menu-price.v2{
-  grid-column: 3; grid-row: 1;
+/* PRICE — SAME FONT AS TITLE/DESC */
+.menu-price.v3{
+  grid-column:3; grid-row:1;
   justify-self:end; align-self:start;
-  font-family:'Parslay', serif;
-  font-size: 28px; color: var(--olive,#3b4b30);
+  font-family:'Billmake', sans-serif;      /* match title/description */
+  font-weight:700;
+  font-size:28px;
+  color: var(--olive,#3b4b30);
 }
 
 .menu-alls {
@@ -297,14 +307,16 @@ h1, h2, h3 {
   mix-blend-mode: normal !important;
 }
 
-/* ===== Allergens (bottom-right) ===== */
-.menu-alls.v2{
-  grid-column: 3; grid-row: 1 / span 2;
-  justify-self:end; align-self:end;
+/* ALLERGENS — bigger, bottom-right */
+.menu-alls.v3{
+  grid-column:3; grid-row:1;
+  justify-self:end; align-self:end;        /* bottom-right corner */
   display:flex; gap:12px;
+  margin-top:auto;
 }
-.menu-alls.v2 img{
-  width:28px; height:28px; object-fit:contain;
+.menu-alls.v3 img{
+  width:32px; height:32px;                 /* bigger icons */
+  object-fit:contain;
   filter:none !important; background:transparent !important;
 }
 
@@ -328,14 +340,11 @@ h1, h2, h3 {
 .allergen-chip input{ display:none; }
 .allergen-chip.is-on{ background:var(--cream); }
 
-/* ===== Mobile ===== */
-@media (max-width: 768px){
-  .menu-card.v2{
-    grid-template-columns: 120px 1fr auto;
-    gap:16px; padding:16px;
-  }
-  .menu-thumb.v2{ width:120px; height:92px; border-radius:12px; }
-  .menu-title.v2{ font-size:24px; margin-bottom:6px; }
-  .menu-price.v2{ font-size:22px; }
-  .menu-alls.v2 img{ width:24px; height:24px; }
+/* ===== MOBILE ===== */
+@media (max-width:768px){
+  .menu-card.v3{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; min-height:120px; }
+  .menu-thumb.v3{ width:120px; }
+  .menu-title.v3{ font-size:24px; margin-bottom:6px; }
+  .menu-price.v3{ font-size:22px; }
+  .menu-alls.v3 img{ width:26px; height:26px; }
 }

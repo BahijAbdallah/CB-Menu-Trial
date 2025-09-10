@@ -33,17 +33,17 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
           }
           
           return (
-            <li key={item.id} className="menu-card v2">
-              <img className="menu-thumb v2" src={item.imageUrl || getDefaultImageForItem(category.slug, index)} alt={item.name} />
+            <li key={item.id} className="menu-card v3">
+              <img className="menu-thumb v3" src={item.imageUrl || getDefaultImageForItem(category.slug, index)} alt={item.name} />
 
-              <div className="menu-meta v2">
-                <h3 className="menu-title v2">{item.name}</h3>
-                <p className="menu-desc v2">{item.description}</p>
+              <div className="menu-meta v3">
+                <h3 className="menu-title v3">{item.name}</h3>
+                <p className="menu-desc v3">{item.description}</p>
               </div>
 
-              <div className="menu-price v2">${parseFloat(item.price).toFixed(2)}</div>
+              <div className="menu-price v3">${parseFloat(item.price).toFixed(2)}</div>
 
-              <div className="menu-alls v2">
+              <div className="menu-alls v3">
                 {allergens.map((slug: AllergenSlug) => {
                   const a = ALLERGENS_MAP[slug];
                   return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
