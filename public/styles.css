@@ -13,29 +13,27 @@
 :root {
   --cream: #f0eee7;
   --taupe: #cabeac;
-  --soft-yellow: #efa25f;
+  --orange: #efa25f;
   --amber: #efc785;
   --coral: #e46f60;
   --olive: #3b4b30;
-
-  --bg: var(--cream);
+  --comfort: #ece6db;
   --ink: #26332D;
-  --card: #EFEAE0;
+  --card: #ffffff;
   --radius: 14px;
   --shadow: 0 8px 24px rgba(0,0,0,.06);
 }
 
 html, body {
-  background: var(--bg);
+  background: var(--cream);
   color: var(--ink);
   font-family: Billmake, system-ui, sans-serif;
   line-height: 1.6;
 }
 
 h1, h2, h3 {
-  font-family: Parslay, serif;
+  font-family: Billmake, sans-serif;
   color: var(--olive);
-  letter-spacing: .2px;
 }
 
 .container {
@@ -48,10 +46,11 @@ h1, h2, h3 {
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
-  height: 72px;
+  height: 76px;
   z-index: 50;
   background: transparent;
-  backdrop-filter: saturate(120%) blur(2px);
+  backdrop-filter: none;
+  border-bottom: none;
 }
 
 .hdr {
@@ -61,7 +60,7 @@ h1, h2, h3 {
 }
 
 .brand img {
-  height: 34px;
+  height: 48px;
 }
 
 .pill {
@@ -92,7 +91,7 @@ h1, h2, h3 {
 /* Hero Styles */
 .hero {
   height: 520px;
-  background: url('/images/hero.jpg') center right/cover no-repeat;
+  background: url('/images/hero.jpg') center right/cover no-repeat !important;
   position: relative;
 }
 
@@ -103,24 +102,21 @@ h1, h2, h3 {
 
 .hero-lockup {
   position: absolute;
-  left: 20px;
-  bottom: 24px;
+  left: 22px;
+  bottom: 26px;
   color: var(--olive);
-  display: grid;
-  gap: 8px;
 }
 
-.hero-title {
-  font-family: Parslay;
-  font-size: 40px;
-  line-height: 1.05;
-  color: var(--olive);
-  letter-spacing: .04em;
+.hero-title .line-1 {
+  font-family: Billmake, sans-serif;
+  font-size: 38px;
+  letter-spacing: .02em;
 }
 
-.hero-title span {
-  font-family: Billmake;
-  letter-spacing: .22em;
+.hero-title .line-2 {
+  font-family: Parslay, serif;
+  font-size: 38px;
+  letter-spacing: .06em;
 }
 
 .sprout {
@@ -132,18 +128,19 @@ h1, h2, h3 {
   margin-bottom: 6px;
 }
 
-@media(max-width: 768px) {
+@media (max-width: 768px) {
   .hero {
     height: 400px;
   }
-  .hero-title {
-    font-size: 32px;
+  .hero-title .line-1,
+  .hero-title .line-2 {
+    font-size: 30px;
   }
 }
 
 /* Allergens Legend */
 .allergens-legend {
-  background: #ece6db;
+  background: var(--comfort);
   padding: 22px 0;
   text-align: center;
   box-shadow: var(--shadow);
@@ -185,28 +182,38 @@ h1, h2, h3 {
 
 /* Menu Tabs */
 .menu-tabs {
-  display: flex;
-  gap: 12px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 8px 0;
   margin: 18px auto 8px;
+  scrollbar-width: thin;
 }
 
 .menu-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 10px;
   padding: 8px 16px;
   border-radius: 999px;
   border: 2px solid transparent;
-  background: var(--sage);
-  color: var(--green);
   font-weight: 700;
   cursor: pointer;
 }
 
 .menu-tab[data-cat="Breakfast"] {
-  background: var(--green);
+  background: var(--olive);
   color: #fff;
 }
 
 .menu-tab[data-cat="Appetizers"] {
   background: var(--coral);
+  color: #fff;
+}
+
+.menu-tab[data-cat="Main Course"] {
+  background: var(--taupe);
   color: #fff;
 }
 
@@ -217,7 +224,7 @@ h1, h2, h3 {
 
 .menu-tab.is-inactive {
   background: #fff;
-  border-color: var(--muted);
+  border-color: #9aa39d;
   color: var(--ink);
 }
 
@@ -232,7 +239,7 @@ h1, h2, h3 {
   display: grid;
   grid-template-columns: 112px 1fr 90px;
   gap: 16px;
-  background: var(--card);
+  background: #fff;
   border-radius: var(--radius);
   padding: 14px;
   box-shadow: var(--shadow);
@@ -246,15 +253,17 @@ h1, h2, h3 {
 }
 
 .menu-meta h3 {
-  margin: 0 0 6px;
+  font-family: Billmake, sans-serif;
   font-size: 18px;
   color: var(--olive);
+  margin: 0 0 6px;
 }
 
 .menu-meta p {
-  margin: 0;
+  font-family: Billmake, sans-serif;
   color: #7b847e;
   font-size: 13px;
+  margin: 0;
 }
 
 .menu-price {
@@ -286,4 +295,25 @@ h1, h2, h3 {
     width: 88px;
     height: 72px;
   }
+  
+  .head-wrap,
+  .hdr {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* Remove background patterns site-wide */
+body,
+.hero,
+.site-header {
+  background-image: none !important;
+}
+
+body::before,
+.hero::before,
+.pattern,
+[data-bg="pattern"] {
+  content: none !important;
+  background: none !important;
 }
