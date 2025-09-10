@@ -1,0 +1,75 @@
+Do ONLY header + top-right controls. Keep the hero and rest as is.
+
+1) Create icon
+
+Add /public/icons/halal.svg:
+
+2) Replace the header markup (e.g., Header.tsx or where the top bar is rendered)
+<header className="site-header">
+  <div className="hdr container">
+    <a className="brand" href="/">
+      <img src="/images/logo.png" alt="Chez Beyrouth" />
+    </a>
+
+    <div className="hdr-actions">
+      <select id="lang-switch" aria-label="Language" className="pill">
+        <option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option>
+      </select>
+
+      <button className="halal-chip" type="button">
+        <img src="/icons/halal.svg" alt="" aria-hidden="true" />
+        <span>Halal Certification</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+3) Drop in the styles (in public/styles.css) — no blur, transparent, bigger logo
+/* HEADER OVER HERO (no blur, no background) */
+.site-header{
+  position: fixed; inset: 0 0 auto 0; height: 92px; z-index: 100;
+  background: transparent !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  border: 0; box-shadow: none;
+}
+.hdr{display:flex; align-items:center; justify-content:space-between; padding:10px 22px;}
+.brand img{height: 96px; display:block;}          /* bigger logo on desktop */
+
+.hdr-actions{display:flex; align-items:center; gap:12px;}
+.pill{
+  appearance:none; background:transparent; color:var(--olive);
+  border:2px solid var(--olive); border-radius:999px; padding:8px 14px; font-weight:700; cursor:pointer;
+}
+.pill:focus{outline:none; box-shadow:0 0 0 3px rgba(59,75,48,.18);}
+
+.halal-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:var(--olive);
+  border:2px solid var(--olive); border-radius:999px; padding:8px 14px; font-weight:700;
+}
+.halal-chip img{width:18px; height:18px; display:block;}
+
+@media (max-width: 992px){
+  .site-header{height: 82px;}
+  .brand img{height: 76px;}
+}
+@media (max-width: 640px){
+  .site-header{height: 74px;}
+  .brand img{height: 64px;}
+  .pill, .halal-chip{padding:6px 12px;}
+}
+
+/* make sure NOTHING paints under header */
+.site-header::before, .site-header::after{content:none!important; background:none!important;}
+
+4) Ensure hero isn’t covered unexpectedly
+
+If content below jumps under the fixed header anywhere else, give the first section after the header a top margin equal to header height on non-hero pages. Do NOT add any background to the header.
+
+Expected result
+
+Logo is visibly larger (desktop ~96px tall; responsive down).
+
+Header is fully transparent with no blur and sits over the hero.
+
+Language select + Halal Certification chip (with icon) are on the right, matching the hero’s look.
