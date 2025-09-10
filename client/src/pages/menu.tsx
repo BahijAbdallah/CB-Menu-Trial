@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Mosque } from "lucide-react";
 
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -92,33 +91,21 @@ export default function MenuPage() {
   return (
     <div className="min-h-screen bg-light-cream relative">
       {/* Header */}
-      <header className="site-header">
-        <div className="hdr container">
+      <header className="site-header overlay-on-hero">
+        <div className="header-inner">
           <a className="brand" href="/">
             <img src="/images/logo.png" alt="Chez Beyrouth" />
           </a>
 
-          <div className="hdr-actions">
-            <select
-              id="lang-switch"
-              aria-label="Language"
-              className="pill"
-              onChange={(e) => {
-                const lang = e.target.value;
-                i18n.changeLanguage(lang);
-              }}
-            >
-              <option value="en">EN</option>
-              <option value="fr">FR</option>
-              <option value="ar">AR</option>
-            </select>
+          <div className="header-actions">
+            <button className="pill lang-trigger" aria-haspopup="menu" aria-expanded="false">
+              {i18n.language?.toUpperCase() || 'EN'}
+            </button>
 
-            <Link href="/halal-certificates">
-              <button className="halal-chip" type="button">
-                <Mosque className="w-4 h-4" aria-hidden="true" />
-                <span>Halal Certification</span>
-              </button>
-            </Link>
+            <a className="pill halal-btn" href="#halal" aria-label="Halal Certification">
+              <img className="icon" src="/icons/mosque.svg" alt="" />
+              <span>Halal Certification</span>
+            </a>
           </div>
         </div>
       </header>

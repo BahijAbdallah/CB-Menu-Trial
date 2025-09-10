@@ -1,0 +1,128 @@
+Header on hero (non-sticky), halal icon = mosque, mobile hover colors, and themed language dropdown
+
+Apply the changes below. Keep the current layout/spacing; just swap the icon, restyle, and move the header to overlay the hero.
+
+1) Add a mosque icon
+
+Create public/icons/mosque.svg:
+
+2) Update the header markup (overlay on hero, not sticky)
+
+In your header component (often Header.tsx/tsx), change the root to include overlay-on-hero and swap the star icon:
+
+<header className="site-header overlay-on-hero">
+  <div className="header-inner">
+    {/* left */}
+    <a className="brand" href="/">
+      <img src="/Logo d.png" alt="Chez Beyrouth" />
+    </a>
+
+    {/* right */}
+    <div className="header-actions">
+      <button className="pill lang-trigger" aria-haspopup="menu" aria-expanded="false">EN</button>
+
+      <a className="pill halal-btn" href="#halal" aria-label="Halal Certification">
+        <img className="icon" src="/icons/mosque.svg" alt="" />
+        <span>Halal Certification</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+
+If your halal button uses an <svg> inline or an icon component, just replace its star with the <img src="/icons/mosque.svg" …>.
+
+3) Style the header as an overlay (transparent, non-sticky) and theme the dropdown/hover
+
+Add to public/styles.css (at the end):
+
+/* ===== Header on top of hero (not sticky) ===== */
+.hero { position: relative; } /* make sure hero exists with this class; otherwise add on the hero wrapper */
+.site-header.overlay-on-hero{
+  position: absolute; top: 16px; left: 0; right: 0;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important; border: 0;
+  z-index: 10;
+}
+.header-inner{
+  max-width: 1100px; margin: 0 auto; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-actions{ display: flex; gap: 12px; align-items: center; }
+
+/* Pills (same look as site) */
+.pill{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px;
+  border: 2px solid var(--olive, #3b4b30);
+  background: transparent; color: var(--olive, #3b4b30);
+  font-weight: 700; line-height: 1; transition: .18s ease;
+}
+.pill .icon{ width: 18px; height: 18px; display: inline-block; }
+
+/* Mobile "hover": apply on hover and active */
+@media (max-width:768px){
+  .pill:hover, .pill:active{
+    background: var(--olive, #3b4b30); color: #fff; border-color: var(--olive, #3b4b30);
+  }
+}
+
+/* Desktop hover too (nice to have) */
+@media (hover:hover){
+  .pill:hover{
+    background: var(--olive, #3b4b30); color: #fff; border-color: var(--olive, #3b4b30);
+  }
+}
+
+/* Halal button color variant (optional subtle fill) */
+.halal-btn{ border-color: var(--olive, #3b4b30); }
+
+/* ===== Language switcher dropdown themed to site ===== */
+.lang-trigger{ /* uses .pill base */ }
+
+/* Dropdown container (adjust selectors to your component) */
+.lang-menu, .lang-dropdown{
+  position: absolute;
+  margin-top: 8px;
+  right: 0;
+  background: var(--cream, #f0eee7);
+  border: 1px solid rgba(59,75,48,.25);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  padding: 8px;
+  min-width: 160px;
+  z-index: 20;
+}
+.lang-menu [role="menuitem"], .lang-dropdown button{
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 12px; border-radius: 999px; font-weight: 700;
+  color: var(--olive, #3b4b30); background: transparent; border: 0; transition: .18s;
+}
+.lang-menu [role="menuitem"]:hover, .lang-dropdown button:hover{
+  background: var(--olive, #3b4b30); color: #fff;
+}
+.lang-menu [aria-current="true"], .lang-dropdown .is-active{
+  background: var(--taupe, #cabeac); color: var(--olive, #3b4b30);
+}
+
+/* ===== Remove white header bar everywhere ===== */
+.site-header{ background: transparent !important; }
+
+/* Ensure header does NOT stick */
+.site-header, .site-header *{ position: sticky; position: -webkit-sticky; } /* neutralizer base */
+.site-header{ position: static !important; } /* make sure the default header is static when not overlaying */
+
+
+If your language switcher already renders a popover, just add .lang-menu (or swap the class name it uses) to adopt these styles.
+
+4) (Optional) Move existing header above hero without changing JSX structure
+
+If you don’t want to physically move the header component:
+
+Add class="overlay-on-hero" to the header as shown.
+
+Ensure the hero wrapper has class="hero" so the header positions relative to it.
+
+This keeps the same order and spacing of header items, places them over the hero (no blur/white), non-sticky, and swaps the halal star icon → mosque. On mobile, all buttons change color on hover/tap, and the language dropdown matches the site’s round pill aesthetic.
