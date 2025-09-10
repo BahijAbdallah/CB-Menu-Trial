@@ -264,42 +264,45 @@ h1, h2, h3 {
   height: 18px;
 }
 
-/* ====== ALLERGENS LEGEND ====== */
-/* Remove the extra green chip background and any filters */
-.legend-row .chip{
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;     /* keep round hit-area but no bg */
+/* nuke all old circle styles */
+.legend-row .chip,
+.legend-row li::before,
+.legend-row li::after {
   background: transparent !important;
-  display: grid;
-  place-items: center;
-  padding: 0;               /* no inner padding */
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  content: none !important;
 }
 
-.legend-row .chip img{
-  width: 42px;
-  height: 42px;
-  display: block;
+/* layout + image only */
+.legend-row { display:flex; gap:26px; justify-content:center; flex-wrap:wrap; }
+.legend-row li { display:grid; justify-items:center; gap:6px; }
+.legend-row span { font-size:12px; color:#8b8f8d; }
+
+/* your PNGs as-is (no filters) */
+.allergen-img,
+.legend-row img {
+  width: 42px !important;
+  height: 42px !important;
   object-fit: contain;
-  /* kill any inherited color/filters */
+  display: block;
+  background: transparent !important;
   filter: none !important;
   mix-blend-mode: normal !important;
-  background: transparent !important;
-  border: 0;
 }
 
-/* Label below icon */
-.legend-row li{ display: grid; justify-items: center; gap: 6px; }
-.legend-row span{ font-size: 12px; color: #8b8f8d; }
-
 /* ====== PRODUCT CARD ICONS ====== */
-.menu-alls img{
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  filter: none !important;
-  background: transparent !important;
-  display: block;
+.menu-alls img,
+.admin-allergens img { 
+  width:22px; 
+  height:22px; 
+  object-fit:contain; 
+  filter:none !important; 
 }
 
 /* ====== ADMIN ALLERGEN PICKER ====== */
