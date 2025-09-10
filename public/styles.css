@@ -143,6 +143,7 @@ h1, h2, h3 {
 
 /* Allergens Legend */
 .allergens-legend {
+  background: #f0eee7;
   padding: 22px 0;
   text-align: center;
 }
