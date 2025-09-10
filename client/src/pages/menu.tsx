@@ -102,8 +102,8 @@ export default function MenuPage() {
               {i18n.language?.toUpperCase() || 'EN'}
             </button>
 
-            <a className="pill halal-btn" href="#halal" aria-label="Halal Certification">
-              <img className="icon" src="/icons/mosque.svg" alt="" />
+            <a className="pill halal-btn" href="/halal" aria-label="Halal Certification">
+              <img className="icon" src="/icons/halal-moon-star.svg" alt="" />
               <span>Halal Certification</span>
             </a>
           </div>
