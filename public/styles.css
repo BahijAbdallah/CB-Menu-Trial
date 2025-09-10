@@ -59,6 +59,11 @@ h1, h2, h3 {
   justify-content: space-between;
 }
 
+/* hide brand only in header so we show the large logo inside hero */
+.site-header .brand {
+  display: none !important;
+}
+
 .brand img {
   height: 96px;
 }
@@ -88,19 +93,27 @@ h1, h2, h3 {
   border-bottom: 1px solid rgba(59, 75, 48, .18);
 }
 
-/* Hero Styles */
+/* HERO background */
 .hero {
   position: relative;
   height: 520px;
-  background: url('/images/hero.jpg') center right/cover no-repeat !important;
+  background: url('/images/hero.jpg') right center / cover no-repeat !important;
 }
 
 .hero::before,
 .hero::after {
   content: none !important;
-  background: none !important;
 }
 
+/* Top-left logo in hero */
+.hero-logo {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  height: 72px;
+}
+
+/* Title lockup bottom-left */
 .hero-inner {
   position: relative;
   height: 100%;
@@ -111,18 +124,19 @@ h1, h2, h3 {
   left: 22px;
   bottom: 28px;
   margin: 0;
-  color: var(--olive);
-  line-height: 1.05;
+  color: #3b4b30;
+  line-height: 1.06;
 }
 
+/* SWAP FONTS: line-1 Billmake, line-2 Parslay */
 .hero-title .line-1 {
-  font-family: Billmake, sans-serif;
+  font-family: 'Billmake', sans-serif;
   font-size: 38px;
   letter-spacing: .02em;
 }
 
 .hero-title .line-2 {
-  font-family: Parslay, serif;
+  font-family: 'Parslay', serif;
   font-size: 38px;
   letter-spacing: .06em;
 }
@@ -136,6 +150,12 @@ h1, h2, h3 {
   margin-bottom: 6px;
 }
 
+@media (min-width: 992px) {
+  .hero-logo {
+    height: 92px;
+  }
+}
+
 @media (max-width: 768px) {
   .hero {
     height: 400px;
@@ -143,9 +163,6 @@ h1, h2, h3 {
   .hero-title .line-1,
   .hero-title .line-2 {
     font-size: 30px;
-  }
-  .brand img {
-    height: 72px;
   }
 }
 
@@ -314,15 +331,9 @@ h1, h2, h3 {
   }
 }
 
-/* Remove background patterns site-wide */
+/* Ensure no site-wide pattern/overlay blocks the hero image */
 body,
-.site-header {
+.site-header,
+.hero {
   background-image: none !important;
-}
-
-body::before,
-.pattern,
-[data-bg="pattern"] {
-  content: none !important;
-  background: none !important;
 }
