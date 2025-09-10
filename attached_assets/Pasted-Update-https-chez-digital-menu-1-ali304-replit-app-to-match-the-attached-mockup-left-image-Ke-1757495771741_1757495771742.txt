@@ -1,0 +1,232 @@
+Update https://chez-digital-menu-1-ali304.replit.app/
+ to match the attached mockup (left image). Keep current functionality, Halal badge, and language switcher, but restyle everything to the new theme.
+
+0) Assets (create folders; I’ll upload after you scaffold)
+
+/public/fonts/Parslay.ttf
+
+/public/fonts/Billmake-Regular.otf
+
+/public/images/hero.jpg (use the attached hero)
+
+/public/icons/allergens/*.svg (placeholders for: milk, gluten, fish, soya, peanuts, nuts — replaceable later)
+
+1) Global theme + fonts
+
+Add CSS variables and fonts (single global stylesheet, e.g. /public/styles.css):
+
+@font-face{font-family:'Parslay';src:url('/fonts/Parslay.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:'Billmake';src:url('/fonts/Billmake-Regular.otf') format('opentype');font-display:swap;}
+
+:root{
+  --bg-cream:#F6F1E9;
+  --paper:#ECE6DB;
+  --ink:#26332D;
+  --green:#2E4A3A;
+  --sage:#E3E6DE;
+  --coral:#E67657;
+  --orange:#E9A15B;
+  --muted:#9BA5A0;
+  --card:#EFEAE0;
+  --radius:14px;
+  --shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+html,body{background:var(--bg-cream);color:var(--ink);font-family:'Billmake',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.55;}
+h1,h2,h3{font-family:'Parslay',serif;letter-spacing:.2px;color:var(--green);}
+.container{max-width:1100px;margin:auto;padding:24px;}
+
+2) Header
+
+Keep Halal certification (right side). Render as a small round badge with label “Halal Certified”.
+
+Keep language switcher but restyle to an outlined pill.
+
+HTML (header area) and CSS:
+
+<header class="site-header">
+  <div class="container head-wrap">
+    <div class="brand">
+      <span class="logo-mark"></span>
+      <span class="brand-lines">
+        <span class="brand-top">The Menu</span>
+        <span class="brand-bot">OF BEYROUTH</span>
+      </span>
+    </div>
+    <div class="head-actions">
+      <select id="lang" class="pill-select">
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+        <option value="ar">AR</option>
+      </select>
+      <span class="halal-badge">Halal</span>
+    </div>
+  </div>
+</header>
+<section class="hero"></section>
+
+.site-header{background:transparent;}
+.head-wrap{display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;gap:10px;align-items:center}
+.brand-top{font-size:24px}
+.brand-bot{font-size:18px;letter-spacing:2px}
+.pill-select{
+  appearance:none;border:2px solid var(--green);background:transparent;color:var(--green);
+  padding:8px 14px;border-radius:999px;font-weight:600
+}
+.pill-select:focus{outline:none;box-shadow:0 0 0 3px rgba(46,74,58,.15)}
+.halal-badge{
+  margin-left:12px;border:2px solid var(--green);color:var(--green);
+  padding:6px 12px;border-radius:999px;font-weight:700;background:#fff;
+}
+.hero{
+  height:320px;border-radius:0;
+  background:url('/images/hero.jpg') center right/cover no-repeat;
+  box-shadow:var(--shadow)
+}
+
+3) Allergens legend band
+
+Directly under the hero, create a pale strip with title “ALLERGENS” and six icon chips (Milk, Gluten, Fish, Soya, Peanuts, Nuts).
+
+<section class="allergens-legend">
+  <div class="container">
+    <h3>ALLERGENS</h3>
+    <p>Please ask our staff for guidance on allergens and cross-contamination.</p>
+    <ul class="legend-row" id="legendRow">
+      <!-- filled from ALLERGENS constant -->
+    </ul>
+  </div>
+</section>
+
+.allergens-legend{background:var(--paper);padding:22px 0;text-align:center}
+.legend-row{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.legend-row li{display:grid;justify-items:center;font-size:12px;color:var(--muted)}
+.legend-row .chip{width:42px;height:42px;border-radius:999px;background:var(--green);display:grid;place-items:center}
+.legend-row img, .legend-row svg{width:22px;height:22px;filter:invert(1)}
+.legend-row span{margin-top:6px}
+
+4) Category tabs (Breakfast, Appetizers, Main Course, Plat Du Jour)
+
+Pills with the exact colors as in the mockup: active color per category; others neutral.
+
+<nav class="menu-tabs container" id="menuTabs"></nav>
+
+.menu-tabs{display:flex;gap:12px;margin:18px auto 8px}
+.menu-tab{
+  padding:8px 16px;border-radius:999px;border:2px solid transparent;background:var(--sage);
+  color:var(--green);font-weight:700;cursor:pointer
+}
+.menu-tab[data-cat="Breakfast"]{background:var(--green);color:#fff}
+.menu-tab[data-cat="Appetizers"]{background:var(--coral);color:#fff}
+.menu-tab[data-cat="Plat Du Jour"]{background:var(--orange);color:#fff}
+.menu-tab.is-inactive{background:#fff;border-color:var(--muted);color:var(--ink)}
+
+5) Menu list cards
+
+Layout exactly like the mockup: thumbnail left, name + short description, price right, and allergen icons row in the bottom-right of each card.
+
+<section class="container">
+  <ul id="menuList" class="menu-list"></ul>
+</section>
+
+.menu-list{display:grid;gap:16px}
+.menu-card{
+  display:grid;grid-template-columns:112px 1fr 80px;gap:16px;
+  background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);
+}
+.menu-thumb{width:112px;height:84px;border-radius:10px;object-fit:cover}
+.menu-meta h3{margin:0 0 6px;font-size:18px}
+.menu-meta p{margin:0;color:var(--muted);font-size:13px}
+.menu-price{justify-self:end;font-weight:800;color:var(--green)}
+.menu-alls{grid-column:3;align-self:end;display:flex;gap:6px;justify-content:flex-end}
+.menu-alls img,.menu-alls svg{width:18px;height:18px}
+
+
+Render cards from data; show allergen icons next to price.
+
+6) Data model + API
+
+Add allergens per item. Use SQLite (or existing DB). If no DB exists, add data/menu.sqlite.
+
+Table changes
+
+menu_items(id, name, description, price, image, category, allergens_json TEXT DEFAULT '[]')
+
+Server
+
+GET /api/menu?category=... returns items with allergens: string[]
+
+POST /api/menu and PUT /api/menu/:id accept allergens: string[]
+
+Create a constant mapping for icons:
+
+export const ALLERGENS = [
+  {slug:'milk',   label:'Milk',    icon:'/icons/allergens/milk.svg'},
+  {slug:'gluten', label:'Gluten',  icon:'/icons/allergens/gluten.svg'},
+  {slug:'fish',   label:'Fish',    icon:'/icons/allergens/fish.svg'},
+  {slug:'soya',   label:'Soya',    icon:'/icons/allergens/soya.svg'},
+  {slug:'peanuts',label:'Peanuts', icon:'/icons/allergens/peanuts.svg'},
+  {slug:'nuts',   label:'Nuts',    icon:'/icons/allergens/nuts.svg'}
+];
+
+
+Use the same list to populate the legend band and each card.
+
+7) Admin dashboard
+
+Add/extend /admin (protected with the current login if present; otherwise use a simple username/password env vars).
+
+Menu form fields
+
+Name, Description, Price, Image URL/Upload, Category (text or select)
+
+Allergens: multi-select of the six options above (checklist)
+
+Preview of selected allergen icons
+
+Save writes allergens_json array of slugs
+
+Admin list
+
+Show items table with columns: Thumb | Name | Category | Price | Allergens (icons) | Edit | Delete
+
+Filter by category
+
+8) Language switcher + Halal badge styling
+
+Keep existing language behavior.
+
+Style the select as in §2. Ensure outline pill, hover/focus ring, and RTL compatibility.
+
+Halal badge stays visible on header across breakpoints.
+
+9) Accessibility/Responsiveness
+
+Cards stack on mobile (grid-template-columns:80px 1fr auto).
+
+All icons have aria-label with allergen label.
+
+Ensure color contrast passes WCAG AA.
+
+10) JS wiring (front page)
+
+On load, render legend from ALLERGENS.
+
+Render tabs from distinct item categories in data; clicking a tab filters items.
+
+When rendering each item, print allergen icons based on item.allergens.
+
+11) Final checklist
+
+Matches spacing, colors, and pill styles from the mockup.
+
+Hero image shows top-right composition, no cropping of the lemon glass if possible.
+
+Admin can set allergens and they display both on cards and in the legend.
+
+Halal badge + language switcher preserved and restyled.
+
+Fonts loaded from /public/fonts and used: headings with Parslay, body with Billmake.
+
+After you scaffold folders and code, keep placeholders for the allergen SVGs; I’ll upload the final icons and the provided fonts/hero image to the specified paths.
