@@ -110,17 +110,14 @@ h1, h2, h3 {
   gap: 8px;
 }
 
-.hero-title {
-  font-family: Billmake;
-  font-size: 40px;
-  line-height: 1.05;
-  color: var(--olive);
-  letter-spacing: .22em;
+/* HERO title — exact fonts */
+.hero-title .line-1{
+  font-family:'Parslay', serif !important;
+  font-size:38px; letter-spacing:.04em; line-height:1.05;
 }
-
-.hero-title span {
-  font-family: Parslay;
-  letter-spacing: .04em;
+.hero-title .line-2{
+  font-family:'Billmake', sans-serif !important;
+  font-size:38px; letter-spacing:.10em; text-transform:uppercase;
 }
 
 .sprout {
@@ -136,8 +133,8 @@ h1, h2, h3 {
   .hero {
     height: 400px;
   }
-  .hero-title {
-    font-size: 32px;
+  .hero-title .line-1, .hero-title .line-2{ 
+    font-size:30px; 
   }
 }
 

@@ -106,8 +106,8 @@ export default function MenuPage() {
           <div className="hero-lockup">
             <div className="sprout"></div>
             <h1 className="hero-title">
-              <span>{t('brand.menuTitle', 'The Menu')}</span><br/>
-              {t('brand.subtitle', 'OF BEYROUTH')}
+              <span className="line-1">{t('brand.menuTitle', 'The Menu')}</span><br/>
+              <span className="line-2">{t('brand.subtitle', 'OF BEYROUTH')}</span>
             </h1>
           </div>
         </div>
