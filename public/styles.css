@@ -337,56 +337,58 @@ section, header, footer, .hero { overflow-x: clip; }
   .legend-row span{ font-size:12px; }
 }
 
-/* Header overlays the hero, transparent, not sticky */
-.hero { position: relative; }  /* ensure the hero wrapper has class="hero" */
-.site-header{
-  position: absolute; top: 16px; left: 0; right: 0;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-  border: 0;
-  z-index: 10;
-}
+/* --- Header overlay stays transparent & clickable --- */
+.site-header{ position:absolute; top:16px; left:0; right:0; z-index:30; background:transparent !important; }
 .header-inner{ max-width:1100px; margin:0 auto; padding:0 16px; display:flex; align-items:center; justify-content:space-between; }
+.header-actions{ display:flex; align-items:center; gap:12px; }
 
-/* Pills (buttons) outlined over the photo */
+/* --- Pill buttons: hit area + icon alignment --- */
 .pill{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:10px 16px; border-radius:999px;
-  border:2px solid var(--olive, #3b4b30);
-  background: transparent;                    /* <-- remove white fill */
-  color: var(--olive, #3b4b30);
-  font-weight:700; line-height:1; transition: .18s ease;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:10px 20px;                      /* << more breathing room */
+  border-radius:999px; border:2px solid var(--olive,#3b4b30);
+  background:transparent; color:var(--olive,#3b4b30);
+  font-weight:700; line-height:1; transition:.18s ease;
 }
 .pill .icon{ width:18px; height:18px; display:inline-block; }
 
+/* Specific tweaks (optional if you want a tiny difference) */
+.lang-trigger{ padding:10px 16px; }       /* EN */
+.halal-btn{ padding:10px 20px; }          /* Halal button */
+
 /* Hover / active (mobile tap) */
 @media (hover:hover){
-  .pill:hover{ background: var(--olive, #3b4b30); color:#fff; border-color:var(--olive, #3b4b30); }
+  .pill:hover{ background:var(--olive,#3b4b30); color:#fff; border-color:var(--olive,#3b4b30); }
 }
 @media (max-width:768px){
-  .pill:hover, .pill:active{ background: var(--olive, #3b4b30); color:#fff; border-color:var(--olive, #3b4b30); }
+  .pill:hover,.pill:active{ background:var(--olive,#3b4b30); color:#fff; border-color:var(--olive,#3b4b30); }
 }
 
-/* Language dropdown themed to site */
-.lang-menu, .lang-dropdown{
-  position:absolute; right:0; margin-top:8px;
-  background: var(--cream, #f0eee7);
+/* --- Language dropdown: themed + positioned under EN --- */
+.lang{ position:relative; }               /* wrapper around EN + menu */
+.lang-menu{
+  position:absolute; top:calc(100% + 8px); right:0;
+  display:none;                           /* toggled by .is-open */
+  min-width:180px; padding:8px;
+  background:var(--cream,#f0eee7);
   border:1px solid rgba(59,75,48,.25);
   border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.10);
-  padding:8px; min-width:160px; z-index:20;
+  z-index:40;
 }
-.lang-menu [role="menuitem"], .lang-dropdown button{
+.lang-menu.is-open{ display:block; }
+
+.lang-menu [role="menuitem"], .lang-menu button{
   width:100%; display:flex; align-items:center; justify-content:center;
-  padding:10px 12px; border-radius:999px; font-weight:700;
-  color: var(--olive, #3b4b30); background:transparent; border:0; transition:.18s;
+  padding:10px 12px; border-radius:999px;
+  background:transparent; border:0; color:var(--olive,#3b4b30);
+  font-weight:700; transition:.18s;
 }
-.lang-menu [role="menuitem"]:hover, .lang-dropdown button:hover{
-  background: var(--olive, #3b4b30); color:#fff;
+.lang-menu [role="menuitem"]:hover, .lang-menu button:hover{
+  background:var(--olive,#3b4b30); color:#fff;
 }
-.lang-menu [aria-current="true"], .lang-dropdown .is-active{
-  background: var(--taupe, #cabeac); color: var(--olive, #3b4b30);
+.lang-menu [aria-current="true"], .lang-menu .is-active{
+  background:var(--taupe,#cabeac); color:var(--olive,#3b4b30);
 }
 
-/* Ensure nothing makes the header sticky */
-.site-header{ position:absolute !important; }
+/* Ensure nothing in the hero blocks clicks */
+.hero{ position:relative; z-index:1; }
