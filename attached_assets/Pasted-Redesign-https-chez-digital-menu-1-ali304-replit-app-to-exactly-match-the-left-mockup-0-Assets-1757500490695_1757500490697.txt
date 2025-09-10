@@ -1,0 +1,204 @@
+Redesign https://chez-digital-menu-1-ali304.replit.app/ to exactly match the left mockup.
+
+0) Assets (create these paths; I’ll upload files)
+
+/public/fonts/Parslay.ttf (headlines)
+
+/public/fonts/Billmake-Regular.otf (body)
+
+/public/images/hero.jpg (use the uploaded hero)
+
+/public/images/logo.png (use the uploaded logo)
+
+/public/icons/allergens/{milk,gluten,fish,soya,peanuts,nuts}.svg (placeholders ok)
+
+1) Theme tokens (use these across the app)
+
+Create/extend /public/styles.css with CSS variables using the brand palette:
+#f0eee7, #cabeac, #efa25f, #efc785, #e46f60, #3b4b30. 
+
+Color Palette - Chez beyrouth
+
+@font-face{font-family:Parslay;src:url(/fonts/Parslay.ttf) format('truetype');font-display:swap;}
+@font-face{font-family:Billmake;src:url(/fonts/Billmake-Regular.otf) format('opentype');font-display:swap;}
+
+:root{
+  --cream:#f0eee7;
+  --taupe:#cabeac;
+  --soft-yellow:#efa25f;
+  --amber:#efc785;
+  --coral:#e46f60;
+  --olive:#3b4b30;
+
+  --bg:var(--cream);
+  --ink:#26332D;
+  --card:#EFEAE0;
+  --radius:14px;
+  --shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+html,body{background:var(--bg);color:var(--ink);font-family:Billmake,system-ui,sans-serif;line-height:1.6}
+h1,h2,h3{font-family:Parslay,serif;color:var(--olive);letter-spacing:.2px}
+.container{max-width:1100px;margin:auto;padding:20px}
+
+2) HEADER — transparent overlay like the mockup
+
+Remove the white bar. Header must be transparent and sit over the hero.
+
+Stick to the top; add a subtle 1px bottom border only after scroll.
+
+Left: small logo. Right: language pill + Halal pill (keep behavior).
+
+Do not show “The Menu of Beyrouth” in the header—put it inside the hero (next step).
+
+Replace your header markup with:
+
+<header class="site-header">
+  <div class="container hdr">
+    <a class="brand" href="/"><img src="/images/logo.png" alt="Chez Beyrouth" /></a>
+    <div class="hdr-actions">
+      <select id="lang-switch" aria-label="Language" class="pill">
+        <option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option>
+      </select>
+      <button class="pill pill-outline" id="halal-badge" aria-label="Halal certified">Halal</button>
+    </div>
+  </div>
+</header>
+
+.site-header{
+  position:fixed; inset:0 0 auto 0; height:72px; z-index:50;
+  background:transparent; backdrop-filter:saturate(120%) blur(2px);
+}
+.hdr{display:flex;align-items:center;justify-content:space-between}
+.brand img{height:34px}
+.pill{
+  appearance:none; border:2px solid var(--olive); background:transparent; color:var(--olive);
+  padding:8px 14px; border-radius:999px; font-weight:700; margin-left:10px; cursor:pointer;
+}
+.pill:focus{outline:none;box-shadow:0 0 0 3px rgba(59,75,48,.18)}
+.pill-outline{background:#fff}
+.scrolled .site-header{border-bottom:1px solid rgba(59,75,48,.18)}
+
+
+Add a tiny script (or in your existing one) to toggle .scrolled on body after 4px scroll.
+
+3) HERO — full-bleed image + bottom-left title lockup (as the mockup)
+
+Full viewport width, 420–520px height on desktop (400px mobile).
+
+Background image anchored to right so the glass is visible.
+
+Bottom-left text:
+line 1 (small): The Menu (Parslay)
+line 2 (all caps, tracking): OF BEYROUTH (Billmake)
+
+Insert this after the header:
+
+<section class="hero">
+  <div class="hero-inner container">
+    <div class="hero-lockup">
+      <div class="sprout"></div>
+      <h1 class="hero-title"><span>The Menu</span><br/>OF BEYROUTH</h1>
+    </div>
+  </div>
+</section>
+
+.hero{
+  height:520px; background:url('/images/hero.jpg') center right/cover no-repeat; position:relative;
+}
+.hero-inner{position:relative; height:100%;}
+.hero-lockup{position:absolute; left:20px; bottom:24px; color:var(--olive); display:grid; gap:8px}
+.hero-title{font-family:Parslay; font-size:40px; line-height:1.05; color:var(--olive)}
+.hero-title br + span, .hero-title{letter-spacing:.04em}
+.hero-title + *{font-family:Billmake; letter-spacing:.22em}
+.sprout{
+  width:28px;height:28px;border-radius:50%;background:var(--coral);
+  clip-path:ellipse(70% 50% at 50% 50%); margin-bottom:6px;
+}
+@media(max-width:768px){ .hero{height:400px} .hero-title{font-size:32px} }
+
+4) ALLERGENS LEGEND (under hero)
+
+Keep the legend band exactly like the mockup.
+
+<section class="allergens-legend">
+  <div class="container">
+    <h3>ALLERGENS</h3>
+    <p>Please ask our staff for guidance on allergens and cross-contamination.</p>
+    <ul id="legendRow" class="legend-row"></ul>
+  </div>
+</section>
+
+.allergens-legend{background:#ece6db;padding:22px 0;text-align:center;box-shadow:var(--shadow)}
+.legend-row{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.legend-row li{display:grid;justify-items:center;font-size:12px;color:#8b8f8d}
+.legend-row .chip{width:42px;height:42px;border-radius:999px;background:var(--olive);display:grid;place-items:center}
+.legend-row img{width:22px;height:22px;filter:invert(1)}
+.legend-row span{margin-top:6px}
+
+5) MENU CARDS (layout/style)
+
+Make list items look like the mockup (thumb left, details middle, price + allergen icons right).
+
+.menu-list{display:grid;gap:16px;margin-top:18px}
+.menu-card{
+  display:grid;grid-template-columns:112px 1fr 90px;gap:16px;
+  background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);
+}
+.menu-thumb{width:112px;height:84px;border-radius:10px;object-fit:cover}
+.menu-meta h3{margin:0 0 6px;font-size:18px;color:var(--olive)}
+.menu-meta p{margin:0;color:#7b847e;font-size:13px}
+.menu-price{justify-self:end;font-weight:800;color:var(--olive)}
+.menu-alls{grid-column:3;align-self:end;display:flex;gap:6px;justify-content:flex-end}
+.menu-alls img{width:18px;height:18px}
+@media(max-width:640px){ .menu-card{grid-template-columns:88px 1fr auto} .menu-thumb{width:88px;height:72px} }
+
+6) DATA MODEL + API (add allergens per item)
+
+DB: add allergens_json TEXT DEFAULT '[]' to menu_items.
+Server: GET /api/menu?category= returns items including allergens: string[].
+POST /api/menu & PUT /api/menu/:id accept allergens array.
+Allergen map (re-use for legend and cards):
+
+export const ALLERGENS = [
+  {slug:'milk',    label:'Milk',    icon:'/icons/allergens/milk.svg'},
+  {slug:'gluten',  label:'Gluten',  icon:'/icons/allergens/gluten.svg'},
+  {slug:'fish',    label:'Fish',    icon:'/icons/allergens/fish.svg'},
+  {slug:'soya',    label:'Soya',    icon:'/icons/allergens/soya.svg'},
+  {slug:'peanuts', label:'Peanuts', icon:'/icons/allergens/peanuts.svg'},
+  {slug:'nuts',    label:'Nuts',    icon:'/icons/allergens/nuts.svg'},
+];
+
+
+On the front page:
+
+Populate the legend from ALLERGENS.
+
+For each menu item, render the allergen icons inside .menu-alls based on item.allergens.
+
+7) ADMIN DASHBOARD (/admin)
+
+Protect with the current auth (or simple username/password env var).
+
+Create/Edit form fields: Name, Description, Price, Image URL/Upload, Category, Allergens (checkboxes for the 6 options).
+
+Live preview of selected allergen icons.
+
+Items table shows: Thumb | Name | Category | Price | Allergens (icons) | Edit | Delete.
+Saving writes allergens_json (array of slugs).
+
+8) LANGUAGE SWITCHER + HALAL
+
+Keep current functionality; only style them as pills (see .pill styles). Ensure RTL works.
+
+9) ACCEPTANCE
+
+Header is transparent overlay; logo left, pills right; no big white bar.
+
+Hero uses the provided image; “The Menu OF BEYROUTH” lockup sits bottom-left, styled with our fonts.
+
+Colors strictly follow the brand tokens throughout.
+
+Allergens are editable in Admin and displayed on cards + legend.
+
+Implement these changes in the existing codebase (plain HTML/JS/Express or your current stack).
