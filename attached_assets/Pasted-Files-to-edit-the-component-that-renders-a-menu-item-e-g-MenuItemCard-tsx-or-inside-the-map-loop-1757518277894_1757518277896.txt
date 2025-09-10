@@ -1,0 +1,100 @@
+Files to edit: the component that renders a menu item (e.g., MenuItemCard.tsx or inside the map loop in menu.tsx) and public/styles.css.
+
+1) Markup (replace the card markup used in the loop)
+<li className="menu-card v2">
+  <img className="menu-thumb v2" src={item.image} alt={item.name} />
+
+  <div className="menu-meta v2">
+    <h3 className="menu-title v2">{item.name}</h3>
+    <p className="menu-desc v2">{item.description}</p>
+  </div>
+
+  <div className="menu-price v2">{item.priceFormatted ?? `$${item.price}`}</div>
+
+  <div className="menu-alls v2">
+    {(item.allergens ?? []).map((slug: any) => {
+      const a = ALLERGENS_MAP[slug];
+      return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
+    })}
+  </div>
+</li>
+
+2) Styles (add to public/styles.css)
+/* ===== Card list spacing ===== */
+.menu-list{ display:grid; gap:22px; }
+
+/* ===== Card ===== */
+.menu-card.v2{
+  display:grid;
+  grid-template-columns: 176px 1fr 100px;   /* image | text | price/icons */
+  grid-auto-rows: auto;
+  align-items:center;
+  gap:22px;
+  padding:22px;
+  background: var(--comfort, #ECE6DB);
+  border-radius: 14px;
+  box-shadow: 0 2px 0 rgba(0,0,0,.03);
+}
+
+/* ===== Image ===== */
+.menu-thumb.v2{
+  width:176px; height:132px;
+  object-fit:cover;
+  border-radius:14px;
+}
+
+/* ===== Text ===== */
+.menu-meta.v2{ align-self:start; }
+.menu-title.v2{
+  /* If you want the title to match description, switch to Billmake here */
+  font-family: var(--title-font, 'Parslay'), serif;
+  font-size: 32px; line-height:1.15; margin:0 0 10px; color: var(--olive,#3b4b30);
+}
+.menu-desc.v2{
+  font-family:'Billmake', sans-serif;
+  font-size: 13px; line-height:1.5; color:#6d756f; margin:0;
+}
+
+/* ===== Price (top-right) ===== */
+.menu-price.v2{
+  grid-column: 3; grid-row: 1;
+  justify-self:end; align-self:start;
+  font-family:'Parslay', serif;
+  font-size: 28px; color: var(--olive,#3b4b30);
+}
+
+/* ===== Allergens (bottom-right) ===== */
+.menu-alls.v2{
+  grid-column: 3; grid-row: 1 / span 2;
+  justify-self:end; align-self:end;
+  display:flex; gap:12px;
+}
+.menu-alls.v2 img{
+  width:28px; height:28px; object-fit:contain;
+  filter:none !important; background:transparent !important;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px){
+  .menu-card.v2{
+    grid-template-columns: 120px 1fr auto;
+    gap:16px; padding:16px;
+  }
+  .menu-thumb.v2{ width:120px; height:92px; border-radius:12px; }
+  .menu-title.v2{ font-size:24px; margin-bottom:6px; }
+  .menu-price.v2{ font-size:22px; }
+  .menu-alls.v2 img{ width:24px; height:24px; }
+}
+
+/* Optional: if you want title to match description font, set this once: */
+/* :root{ --title-font: 'Billmake'; } */
+
+3) Notes
+
+Keeps your PNG allergen icons as-is (no extra circles/filters).
+
+Matches the cream card, large title, right-aligned price, and bottom-right icons.
+
+Toggle title font easily: set --title-font:'Billmake' (to match description) or remove the variable to use Parslay like the mockup.
+
+Done.
