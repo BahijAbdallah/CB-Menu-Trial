@@ -115,14 +115,10 @@ h1, h2, h3 {
   font-size: 40px;
   line-height: 1.05;
   color: var(--olive);
-}
-
-.hero-title br + span,
-.hero-title {
   letter-spacing: .04em;
 }
 
-.hero-title + * {
+.hero-title span {
   font-family: Billmake;
   letter-spacing: .22em;
 }
