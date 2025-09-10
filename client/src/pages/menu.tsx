@@ -128,7 +128,11 @@ export default function MenuPage() {
 
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: 'white' }}>
-        <nav className="menu-tabs">
+        <nav className="menu-tabs" onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
+          if (e.deltaY === 0) return;
+          e.currentTarget.scrollLeft += e.deltaY;
+          e.preventDefault();
+        }}>
           {categories.map((category, i) => {
             const COLOR_CYCLE = ['olive','coral','taupe','yellow'] as const; // repeats
             const COLOR_BY_SLUG: Record<string, typeof COLOR_CYCLE[number]> = {
