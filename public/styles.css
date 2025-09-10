@@ -210,31 +210,34 @@ h1, h2, h3 {
   color: var(--ink);
 }
 
-/* Keep the list as a single column of cards */
+/* CARD stays a single-column list of rows */
 .menu-list{ 
   list-style:none; margin:0; padding:0;
   display:grid; grid-auto-flow:row; gap:24px;
   max-width:1100px; margin-inline:auto;
 }
 
-/* Card layout (image | text | price) */
+/* Ensure the grid row defines a height the image can stretch to */
 .menu-card{
   display:grid;
-  grid-template-columns:176px 1fr auto;   /* first col matches thumbnail width */
-  align-items:center;                      /* center elements vertically */
+  grid-template-columns: 176px 1fr auto;   /* image | text | price/icons */
+  align-items: stretch;                    /* <-- let column items stretch */
   gap:24px;
   padding:22px;
   background:var(--comfort,#ECE6DB);
   border-radius:14px;
   box-shadow:0 2px 0 rgba(0,0,0,.03);
+  min-height:152px;                        /* gives a target height */
 }
 
-/* 🔧 Thumbnail EXACT look like the mockup */
+/* 🔧 Make the thumbnail fill the card's height and the first column width */
 .menu-thumb{
-  width:176px !important;
-  height:160px !important;                 /* fixed, NOT 100% of card */
-  object-fit:cover !important;
-  border-radius:14px !important;           /* soft rounded corners */
+  grid-column:1;
+  align-self:stretch;                      /* stretch inside the row */
+  width:100% !important;                   /* fill the 176px column */
+  height:100% !important;                  /* match card height */
+  object-fit:cover !important;             /* crop nicely */
+  border-radius:14px !important;           /* rounded corners */
   display:block;
 }
 
@@ -323,10 +326,13 @@ h1, h2, h3 {
 .allergen-chip input{ display:none; }
 .allergen-chip.is-on{ background:var(--cream); }
 
-/* Responsiveness: smaller thumb on mobile */
+/* Responsive — still fills the card's height */
 @media (max-width:768px){
-  .menu-card{ grid-template-columns:120px 1fr auto; gap:16px; padding:16px; }
-  .menu-thumb{ width:120px !important; height:110px !important; border-radius:12px !important; }
+  .menu-card{
+    grid-template-columns:120px 1fr auto;
+    min-height:120px;
+    gap:16px; padding:16px;
+  }
   .menu-title{ font-size:24px; margin-bottom:6px; }
   .menu-price{ font-size:22px; }
   .menu-alls img{ width:32px; height:32px; }
