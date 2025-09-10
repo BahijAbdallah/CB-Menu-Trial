@@ -1,0 +1,65 @@
+Prompt for Replit AI
+
+Restore the /halal page and wire it into the router.
+
+Create page client/src/pages/HalalCertification.tsx (TypeScript React).
+
+import React from "react";
+
+export default function HalalCertification() {
+  return (
+    <main className="page page--halal">
+      <section className="container">
+        <h1 className="page-title">Halal Certification</h1>
+        <p className="page-note">
+          Chez Beyrouth is fully Halal. Our meat and ingredients are sourced from
+          certified suppliers and handled to avoid cross-contamination.
+        </p>
+
+        <ul className="page-list">
+          <li>Certified suppliers with valid documentation</li>
+          <li>Dedicated prep tools & surfaces</li>
+          <li>Ingredient verification and traceability</li>
+        </ul>
+
+        {/* If you have a certificate image/PDF, link it here */}
+        {/* <a className="pill" href="/certificates/halal.pdf" target="_blank" rel="noreferrer">View Certificate (PDF)</a> */}
+      </section>
+    </main>
+  );
+}
+
+
+Add route (choose the file that defines <Routes>; commonly client/src/App.tsx):
+
+Import the page:
+import HalalCertification from "./pages/HalalCertification";
+
+Inside <Routes>, add:
+<Route path="/halal" element={<HalalCertification />} />
+
+Ensure the header link points to the page (header component):
+
+The Halal button should be:
+<a className="pill halal-btn" href="/halal" aria-label="Halal Certification"><img className="icon" src="/icons/halal-moon-star.svg" alt="" /><span>Halal Certification</span></a>
+
+Styles: Append to public/styles.css so the page matches the site look.
+
+.page{ padding:48px 0; background:var(--comfort,#ECE6DB); }
+.container{ max-width:1100px; margin:0 auto; padding:0 16px; }
+.page-title{
+  font-family:'Billmake',sans-serif; font-weight:700; font-size:36px;
+  color:var(--olive,#3b4b30); margin:0 0 12px; text-align:left;
+}
+.page-note{ font-family:'Billmake',sans-serif; font-size:15px; color:#6d756f; margin:0 0 18px; }
+.page-list{ margin:0 0 18px 18px; color:var(--olive,#3b4b30); font-family:'Billmake',sans-serif; }
+@media (max-width:768px){ .page{ padding:28px 0; } .page-title{ font-size:28px; } .page-note{ font-size:14px; } }
+
+
+Hot reload and verify:
+
+/halal loads without 404.
+
+Header “Halal Certification” button opens /halal.
+
+Page uses Billmake & matches site colors.
