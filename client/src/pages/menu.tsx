@@ -17,13 +17,11 @@ function AllergensLegend() {
       <div className="container">
         <h3>{t('allergens.title', 'ALLERGENS')}</h3>
         <p>{t('allergens.description', 'Please ask our staff for guidance on allergens and cross-contamination.')}</p>
-        <ul className="legend-row" id="legendRow">
-          {ALLERGENS.map((allergen) => (
-            <li key={allergen.slug}>
-              <span className="chip">
-                <img src={allergen.icon} alt="" aria-hidden="true" />
-              </span>
-              <span>{allergen.label}</span>
+        <ul className="legend-row">
+          {ALLERGENS.map(a => (
+            <li key={a.slug}>
+              <img className="allergen-img" src={a.icon} alt={a.label} />
+              <span>{a.label}</span>
             </li>
           ))}
         </ul>
