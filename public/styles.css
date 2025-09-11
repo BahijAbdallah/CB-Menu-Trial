@@ -204,10 +204,10 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
 }
-.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
+.menu-tab.variant-olive{  background:#3b4b30;  color:#fff; }
 .menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
-.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
-.menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
+.menu-tab.variant-taupe{  background:#cabeac;  color:var(--olive); }
+.menu-tab.variant-yellow{ background:#efa25f; color:#fff; }
 .menu-tab.is-active{ box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06); }
 
 /* Desktop/tablet: smooth horizontal scroller */
