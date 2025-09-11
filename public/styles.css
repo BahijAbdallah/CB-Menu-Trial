@@ -452,40 +452,38 @@ header[role="banner"]{
   }
 }
 
-/* container: full width + horizontal scroll (show scrollbar) */
+/* FULL-WIDTH viewport with visible horizontal scrollbar */
 #menuCategories{
   width:100%;
-  margin:0 auto;
-  overflow-x:auto !important;
+  padding:10px 16px;
+  overflow-x:auto;          /* show scrollbar */
   overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
-  scrollbar-width:auto;                 /* Firefox: show */
-  scroll-snap-type:x proximity;
-  padding:10px 16px;
+  scrollbar-width:auto;     /* Firefox */
+  display:grid;             /* centers the inner track */
+  justify-items:center;     /* <- center */
 }
 
-/* visible scrollbar styling */
-#menuCategories::-webkit-scrollbar{ height:10px; }   /* show horizontal bar */
+/* WebKit scrollbar styling (visible) */
+#menuCategories::-webkit-scrollbar{ height:10px; }
 #menuCategories::-webkit-scrollbar-track{ background:#eee; }
 #menuCategories::-webkit-scrollbar-thumb{ background:#bbb; border-radius:8px; }
 #menuCategories::-webkit-scrollbar-thumb:hover{ background:#999; }
 
-/* horizontal row */
+/* The horizontal track holding your chips */
 #menuCategories .cat-track{
-  display:flex;
+  display:inline-flex;      /* inline size -> can be centered */
   flex-wrap:nowrap;
-  align-items:center;
   gap:12px;
-  white-space:nowrap;                   /* prevent wrapping */
+  white-space:nowrap;
 }
 
-/* chips stay side-by-side and don't shrink */
+/* Chips don't shrink */
 #menuCategories .cat-track > *{
   flex:0 0 auto;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  scroll-snap-align:start;
 }
 
 /* kill any previous "hide scrollbar" rules */
