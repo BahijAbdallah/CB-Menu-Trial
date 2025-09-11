@@ -114,7 +114,7 @@ export default function MenuPage() {
             {/* Language */}
             <div className="lang" ref={langRef}>
               <button
-                className="pill lang-trigger"
+                className="pill lang-trigger text-[12px]"
                 aria-haspopup="menu"
                 aria-expanded={langOpen}
                 onClick={() => setLangOpen(v => !v)}
