@@ -211,7 +211,7 @@ export default function MenuPage() {
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.slug)}
-                className="menu-tab variant-taupe pl-[0px] pr-[0px]"
+                className="menu-tab variant-taupe pl-[0px] pr-[0px] text-[14px]"
               >
                 {categoryName}
               </button>
