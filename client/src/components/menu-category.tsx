@@ -37,7 +37,7 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
               <div className="thumb-wrap">
                 <img className="menu-thumb" src={item.imageUrl || getDefaultImageForItem(category.slug, index)} alt={item.name} />
                 {item.outOfStock && (
-                  <div className="out-of-stock-badge bg-[#e46f60] font-semibold pt-[5.6px] pb-[5.6px] pl-[7.2px] pr-[7.2px] text-[12px] text-center">
+                  <div className="out-of-stock-badge bg-[#e46f60] font-semibold pt-[5.6px] pb-[5.6px] pl-[7.2px] pr-[7.2px] text-[12px] text-center ml-[77px] mr-[77px] mt-[-3px] mb-[-3px]">
                     {t('menu.outOfStock')}
                   </div>
                 )}
