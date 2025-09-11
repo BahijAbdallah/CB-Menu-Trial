@@ -417,3 +417,29 @@ header[role="banner"]{
 
 /* keep header clickable over the hero */
 .site-header{ z-index: 30; }
+
+/* Mobile-specific styling for halal button */
+@media (max-width: 768px) {
+  .halal-btn {
+    padding: 6px 12px !important;
+    font-size: 10px !important;
+    gap: 6px !important;
+  }
+  
+  .halal-btn .icon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+/* Very small screens - show only icon */
+@media (max-width: 480px) {
+  .halal-btn span {
+    display: none;
+  }
+  
+  .halal-btn {
+    padding: 8px !important;
+    gap: 0 !important;
+  }
+}
