@@ -20,6 +20,7 @@ export const menuItems = pgTable("menu_items", {
   categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url"),
   isAvailable: boolean("is_available").notNull().default(true),
+  outOfStock: boolean("out_of_stock").notNull().default(false),
   order: integer("order").notNull().default(0),
   allergens: text("allergens").default("[]"),
 });
