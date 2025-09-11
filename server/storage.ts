@@ -138,7 +138,9 @@ export class MemStorage implements IStorage {
         ...item, 
         id: this.currentMenuItemId++,
         imageUrl: null,
-        descriptionArabic: null
+        descriptionArabic: null,
+        outOfStock: false,
+        allergens: null
       };
       this.menuItems.set(menuItem.id, menuItem);
     });
@@ -221,7 +223,9 @@ export class MemStorage implements IStorage {
       descriptionArabic: item.descriptionArabic || null,
       imageUrl: item.imageUrl || null,
       order: item.order || 0,
-      isAvailable: item.isAvailable !== undefined ? item.isAvailable : true
+      isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
+      outOfStock: item.outOfStock || false,
+      allergens: item.allergens || null
     };
     this.menuItems.set(id, newItem);
     return newItem;
@@ -253,7 +257,7 @@ export class MemStorage implements IStorage {
   async getHalalCertificates(): Promise<HalalCertificate[]> {
     return Array.from(this.halalCertificates.values())
       .filter(cert => cert.isActive)
-      .sort((a, b) => a.displayOrder - b.displayOrder);
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   }
 
   async getHalalCertificateById(id: number): Promise<HalalCertificate | undefined> {
@@ -265,6 +269,7 @@ export class MemStorage implements IStorage {
     const newCertificate: HalalCertificate = { 
       ...certificate, 
       id,
+      description: certificate.description || null,
       uploadedAt: new Date(),
       isActive: certificate.isActive !== undefined ? certificate.isActive : true,
       displayOrder: certificate.displayOrder || 0
