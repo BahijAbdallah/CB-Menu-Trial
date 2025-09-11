@@ -149,7 +149,7 @@ export default function MenuPage() {
 
             {/* Halal Certification with mosque icon */}
             <Link href="/halal" className="pill halal-btn" aria-label="Halal Certification">
-              <img className="icon" src="/icons/mosque.svg" alt="" />
+              <img className="icon" src={islam} alt="" />
               <span>Halal Certification</span>
             </Link>
           </div>
@@ -159,7 +159,8 @@ export default function MenuPage() {
       <section className="hero">
         <div className="hero-inner container">
           <div className="hero-lockup">
-            <h1 className="hero-title pl-[30px] pr-[30px] mt-[170px] sm:mt-0">
+            <div className="sprout"></div>
+            <h1 className="hero-title pl-[30px] pr-[30px]">
               <span className="line-1">{t("brand.menuTitle", "The Menu")}</span>
               <br />
               <span className="line-2">
@@ -211,7 +212,7 @@ export default function MenuPage() {
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.slug)}
-                className="menu-tab variant-taupe pl-[0px] pr-[0px]"
+                className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
               >
                 {categoryName}
               </button>
