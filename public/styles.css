@@ -443,3 +443,11 @@ header[role="banner"]{
     gap: 0 !important;
   }
 }
+
+/* Mobile-specific styling for hero title */
+@media (max-width: 768px) {
+  .hero-title {
+    margin-left: 203px !important;
+    margin-right: 203px !important;
+  }
+}
