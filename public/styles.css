@@ -362,6 +362,19 @@ section, header, footer, .hero { overflow-x: clip; }
 .lang-trigger{ padding:10px 16px; }       /* EN */
 .halal-btn{ padding:10px 20px; }          /* Halal button */
 
+/* Mobile-first: icon only for halal button */
+@media (max-width:768px){
+  .halal-btn{ padding:10px 12px; }        /* Smaller padding on mobile */
+  .halal-btn .halal-text{ display:none; } /* Hide text on mobile */
+  .halal-btn .icon{ width:16px; height:16px; } /* Smaller icon on mobile */
+}
+
+/* Desktop: show both icon and text */
+@media (min-width:769px){
+  .halal-btn .halal-text{ display:inline; }
+  .halal-btn .icon{ width:18px; height:18px; }
+}
+
 /* Hover / active (mobile tap) */
 @media (hover:hover){
   .pill:hover{ background:var(--olive,#3b4b30); color:#fff; border-color:var(--olive,#3b4b30); }
