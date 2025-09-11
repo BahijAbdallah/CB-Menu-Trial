@@ -174,8 +174,17 @@ export default function MenuPage() {
       <AllergensLegend />
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
-        <nav id="menuCategories" aria-label="Menu categories">
-          <div className="cat-track">
+        <nav 
+          className="cat-scroll" 
+          aria-label="Menu categories"
+          onWheel={(e: React.WheelEvent<HTMLElement>) => {
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+              e.currentTarget.scrollLeft += e.deltaY;
+              e.preventDefault();
+            }
+          }}
+        >
+          <ul className="cat-track">
             {categories.map((category, i) => {
               const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
               const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
@@ -203,16 +212,17 @@ export default function MenuPage() {
                 norm(t(`categories.${activeCategory}`, activeCategory));
 
               return (
-                <button
-                  key={category.id}
-                  onClick={() => setActiveCategory(category.slug)}
-                  className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
-                >
-                  {categoryName}
-                </button>
+                <li key={category.id}>
+                  <button
+                    onClick={() => setActiveCategory(category.slug)}
+                    className="menu-tab variant-olive pl-[18px] pr-[18px]"
+                  >
+                    {categoryName}
+                  </button>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </nav>
 
         {/* Menu Items Display */}

@@ -204,10 +204,10 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
 }
-.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
+.menu-tab.variant-olive{  background:#3b4b30;  color:#fff; }
 .menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
-.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
-.menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
+.menu-tab.variant-taupe{  background:#cabeac;  color:var(--olive); }
+.menu-tab.variant-yellow{ background:#efa25f; color:#fff; }
 .menu-tab.is-active{ box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06); }
 
 /* Desktop/tablet: smooth horizontal scroller */
@@ -452,40 +452,47 @@ header[role="banner"]{
   }
 }
 
-/* FULL-WIDTH viewport with visible horizontal scrollbar */
-#menuCategories{
+/* viewport */
+.cat-scroll{
   width:100%;
-  padding:10px 16px;
-  overflow-x:auto;          /* show scrollbar */
+  margin:0 auto;
+  overflow-x:auto;
   overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
-  scrollbar-width:auto;     /* Firefox */
-  display:grid;             /* centers the inner track */
-  justify-items:center;     /* <- center */
+  scrollbar-width:none;       /* Firefox */
+  scroll-snap-type:x proximity;
 }
+.cat-scroll::-webkit-scrollbar{ display:none; }   /* WebKit */
 
-/* WebKit scrollbar styling (visible) */
-#menuCategories::-webkit-scrollbar{ height:10px; }
-#menuCategories::-webkit-scrollbar-track{ background:#eee; }
-#menuCategories::-webkit-scrollbar-thumb{ background:#bbb; border-radius:8px; }
-#menuCategories::-webkit-scrollbar-thumb:hover{ background:#999; }
-
-/* The horizontal track holding your chips */
-#menuCategories .cat-track{
-  display:inline-flex;      /* inline size -> can be centered */
+/* track: horizontal, centered */
+.cat-track{
+  display:flex;
   flex-wrap:nowrap;
+  justify-content:center;     /* centered when not overflowing */
+  align-items:center;
   gap:12px;
-  white-space:nowrap;
+  padding:10px 16px;
+  margin: 0;  /* Remove default ul margin */
 }
 
-/* Chips don't shrink */
-#menuCategories .cat-track > *{
+/* items don't shrink; snap nicely */
+.cat-track > li{
+  list-style:none;
   flex:0 0 auto;
+  scroll-snap-align:start;
+}
+
+/* ensure chips behave inline (prevents vertical stacking) */
+.cat-track > li > a,
+.cat-track > li > button,
+.cat-track > li > span,
+.cat-track > li > div{
   display:inline-flex;
   align-items:center;
   justify-content:center;
 }
 
-/* kill any previous "hide scrollbar" rules */
-.cat-row, .cat-scroll { scrollbar-width:auto; }
-.cat-row::-webkit-scrollbar, .cat-scroll::-webkit-scrollbar { display:block; height:10px; }
+/* optional: cap row width and keep it centered on large screens */
+@media (min-width: 1024px){
+  .cat-scroll{ max-width:1200px; }
+}
