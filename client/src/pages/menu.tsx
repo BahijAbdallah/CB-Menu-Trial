@@ -159,7 +159,7 @@ export default function MenuPage() {
       <section className="hero">
         <div className="hero-inner container">
           <div className="hero-lockup">
-            <h1 className="hero-title pl-[30px] pr-[30px] mt-[166px] sm:mt-0">
+            <h1 className="hero-title pl-[30px] pr-[30px] mt-[170px] sm:mt-0">
               <span className="line-1">{t("brand.menuTitle", "The Menu")}</span>
               <br />
               <span className="line-2">
