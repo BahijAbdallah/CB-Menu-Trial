@@ -174,50 +174,54 @@ export default function MenuPage() {
       <AllergensLegend />
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
-        <nav
-          className="menu-tabs text-center"
-          onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
-            if (e.deltaY === 0) return;
-            e.currentTarget.scrollLeft += e.deltaY;
-            e.preventDefault();
-          }}
-        >
-          {categories.map((category, i) => {
-            const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
-            const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
-              {
-                "breakfast items": "olive",
-                salads: "coral",
-                "hot appetizers": "taupe",
-                "cold appetizers": "yellow",
-                "main course": "taupe", // stays taupe when active
-                "sandwiches & burgers": "olive",
-                "plat du jour": "yellow",
-                desserts: "coral",
-              };
-            const norm = (s: string) => s.toLowerCase().trim();
+        <nav id="categoryStrip" className="full-bleed" aria-label="Menu categories">
+          <ul 
+            className="cat-row"
+            onWheel={(e: React.WheelEvent<HTMLUListElement>) => {
+              if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                e.currentTarget.scrollLeft += e.deltaY;
+                e.preventDefault();
+              }
+            }}
+          >
+            {categories.map((category, i) => {
+              const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
+              const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
+                {
+                  "breakfast items": "olive",
+                  salads: "coral",
+                  "hot appetizers": "taupe",
+                  "cold appetizers": "yellow",
+                  "main course": "taupe", // stays taupe when active
+                  "sandwiches & burgers": "olive",
+                  "plat du jour": "yellow",
+                  desserts: "coral",
+                };
+              const norm = (s: string) => s.toLowerCase().trim();
 
-            const categoryName = t(
-              `categories.${category.slug}`,
-              category.name,
-            );
-            const tone =
-              COLOR_BY_SLUG[norm(categoryName)] ??
-              COLOR_CYCLE[i % COLOR_CYCLE.length];
-            const isActive =
-              norm(categoryName) ===
-              norm(t(`categories.${activeCategory}`, activeCategory));
+              const categoryName = t(
+                `categories.${category.slug}`,
+                category.name,
+              );
+              const tone =
+                COLOR_BY_SLUG[norm(categoryName)] ??
+                COLOR_CYCLE[i % COLOR_CYCLE.length];
+              const isActive =
+                norm(categoryName) ===
+                norm(t(`categories.${activeCategory}`, activeCategory));
 
-            return (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.slug)}
-                className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
-              >
-                {categoryName}
-              </button>
-            );
-          })}
+              return (
+                <li key={category.id}>
+                  <button
+                    onClick={() => setActiveCategory(category.slug)}
+                    className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
+                  >
+                    {categoryName}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
 
         {/* Menu Items Display */}

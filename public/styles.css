@@ -451,3 +451,47 @@ header[role="banner"]{
     margin-right: 203px !important;
   }
 }
+
+/* Full-width scrollable category strip */
+.full-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* Horizontal scroller row */
+.cat-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  white-space: nowrap;
+  scrollbar-width: none;  /* Firefox: hide scrollbar */
+  margin: 0;  /* Remove default ul margin */
+}
+.cat-row::-webkit-scrollbar { display: none; } /* WebKit: hide scrollbar */
+
+.cat-row > li {
+  flex: 0 0 auto;
+  list-style: none;
+  scroll-snap-align: start;
+}
+
+/* Ensure chips don't stretch */
+.cat-row > li > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optional: keep row inside content width on large screens */
+@media (min-width: 1024px) {
+  #categoryStrip { margin: 0 auto; max-width: 1200px; }
+  .full-bleed { left: auto; right: auto; margin: 0; width: 100%; }
+}

@@ -1,0 +1,99 @@
+Update the “menu categories” chip row (the buttons like Breakfast Items, Salads, Hot Appetizers…) to be a full-width, horizontally scrollable strip on BOTH mobile and desktop, without changing the existing look of each chip.
+
+Do:
+
+Keep current styles/colors/rounded shapes of the chips.
+
+Make the strip span the full page width and allow sideways scrolling.
+
+Hide the scrollbar, enable smooth touch scroll, and allow mouse-wheel vertical scroll to move horizontally on desktop.
+
+No layout changes to other sections.
+
+Implement exactly:
+
+HTML (wrap the existing category chips):
+
+<!-- Find the categories group under ALLERGENS and wrap it like this -->
+<nav id="categoryStrip" class="full-bleed" aria-label="Menu categories">
+  <ul class="cat-row">
+    <!-- Move each existing category button/link inside its own <li>. 
+         Keep their classes/styles as-is. Example: -->
+    <!-- <li><a class="category-chip existing-classes">Breakfast Items</a></li> -->
+    <!-- ...repeat for all chips... -->
+  </ul>
+</nav>
+
+
+CSS (add, don’t remove existing chip styles):
+
+/* full-bleed container so the strip uses the whole viewport width */
+.full-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* horizontal scroller row */
+.cat-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  white-space: nowrap;    /* prevents wrapping on desktop */
+  scrollbar-width: none;  /* Firefox: hide scrollbar */
+}
+.cat-row::-webkit-scrollbar { display: none; } /* WebKit: hide scrollbar */
+
+.cat-row > li {
+  flex: 0 0 auto;
+  list-style: none;
+  scroll-snap-align: start;
+}
+
+/* Ensure chips don’t stretch */
+.cat-row > li > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optional: keep row inside content width on large screens
+   (remove if you truly want edge-to-edge everywhere) */
+@media (min-width: 1024px) {
+  #categoryStrip { margin: 0 auto; max-width: 1200px; }
+  .full-bleed { left: auto; right: auto; margin: 0; width: 100%; }
+}
+
+
+JS (enable wheel-to-scroll horizontally on desktop):
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const row = document.querySelector('.cat-row');
+  if (!row) return;
+
+  // Convert vertical wheel to horizontal scroll on desktop
+  row.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      row.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
+});
+</script>
+
+
+Acceptance:
+
+Chips look the same, but the strip spans full width and scrolls sideways on mobile & desktop.
+
+No vertical scrollbar; touch/trackpad works; mouse wheel scrolls horizontally.
+
+No other page styles are altered.
