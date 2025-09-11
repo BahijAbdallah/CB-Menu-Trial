@@ -36,6 +36,11 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
             <li key={item.id} className="menu-card">
               <div className="thumb-wrap">
                 <img className="menu-thumb" src={item.imageUrl || getDefaultImageForItem(category.slug, index)} alt={item.name} />
+                {item.outOfStock && (
+                  <div className="out-of-stock-badge">
+                    {t('menu.outOfStock')}
+                  </div>
+                )}
               </div>
 
               <div className="menu-meta">

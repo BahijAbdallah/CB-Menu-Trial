@@ -436,3 +436,29 @@ header[role="banner"]{
 
 /* keep header clickable over the hero */
 .site-header{ z-index: 30; }
+
+/* Out of Stock Badge */
+.out-of-stock-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #B91C1C;
+  color: white;
+  font-family: 'Billmake', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  z-index: 20;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .out-of-stock-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    top: 8px;
+    right: 8px;
+  }
+}
