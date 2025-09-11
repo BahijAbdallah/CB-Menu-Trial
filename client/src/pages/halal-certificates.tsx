@@ -61,19 +61,23 @@ export default function HalalCertificatesPage() {
         <div className="container mx-auto px-4 sm:px-6 py-16">
           <div className="flex items-center justify-between mb-8">
             <Link href="/">
-              <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white">
+              <Button
+                variant="outline"
+                className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Menu
               </Button>
             </Link>
           </div>
-          
+
           <div className="text-center">
             <h1 className="font-parslay text-4xl sm:text-5xl lg:text-6xl font-bold text-brand-green mb-4">
               Halal Certificates
             </h1>
             <p className="text-lg text-saddle-brown max-w-2xl mx-auto leading-relaxed">
-              View our official halal certification documents ensuring all our food meets the highest halal standards.
+              View our official halal certification documents ensuring all our
+              food meets the highest halal standards.
             </p>
           </div>
         </div>
@@ -84,7 +88,9 @@ export default function HalalCertificatesPage() {
         {certificates.length === 0 ? (
           <div className="text-center py-16">
             <FileText className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Certificates Available</h3>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              No Certificates Available
+            </h3>
             <p className="text-gray-500">
               Halal certificates will be displayed here once they are uploaded.
             </p>
@@ -92,29 +98,36 @@ export default function HalalCertificatesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {certificates.map((certificate) => (
-              <Card key={certificate.id} className="hover:shadow-lg transition-shadow duration-300 border-2 border-brand-green/20">
+              <Card
+                key={certificate.id}
+                className="hover:shadow-lg transition-shadow duration-300 border-2 border-brand-green/20"
+              >
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between">
                     <CardTitle className="font-parslay text-xl text-brand-green line-clamp-2">
                       {certificate.title}
                     </CardTitle>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 ml-2">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200 ml-2"
+                    >
                       <FileText className="h-3 w-3 mr-1" />
                       PDF
                     </Badge>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-4">
                   {certificate.description && (
                     <p className="text-saddle-brown text-sm leading-relaxed line-clamp-3">
                       {certificate.description}
                     </p>
                   )}
-                  
+
                   <div className="flex items-center text-xs text-gray-500 mb-4">
                     <Calendar className="h-3 w-3 mr-1" />
-                    Uploaded {format(new Date(certificate.uploadedAt), "MMM d, yyyy")}
+                    Uploaded{" "}
+                    {format(new Date(certificate.uploadedAt), "MMM d, yyyy")}
                   </div>
 
                   <a
@@ -141,8 +154,10 @@ export default function HalalCertificatesPage() {
               Certified Halal Quality
             </h2>
             <p className="text-saddle-brown leading-relaxed">
-              All our ingredients and food preparation processes are certified halal by recognized certification authorities. 
-              We maintain the highest standards to ensure our Lebanese cuisine meets your dietary requirements with complete confidence.
+              All our ingredients and food preparation processes are certified
+              halal by recognized certification authorities. We maintain the
+              highest standards to ensure our Lebanese cuisine meets your
+              dietary requirements with complete confidence.
             </p>
           </div>
         </div>
