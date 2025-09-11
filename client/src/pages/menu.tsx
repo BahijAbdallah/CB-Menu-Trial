@@ -148,7 +148,7 @@ export default function MenuPage() {
             </div>
 
             {/* Halal Certification with mosque icon */}
-            <Link href="/halal" className="pill halal-btn" aria-label="Halal Certification">
+            <Link href="/halal" className="pill halal-btn text-[12px]" aria-label="Halal Certification">
               <img className="icon" src={islam} alt="" />
               <span>Halal Certification</span>
             </Link>
