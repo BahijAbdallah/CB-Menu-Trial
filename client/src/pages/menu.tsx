@@ -149,7 +149,7 @@ export default function MenuPage() {
 
             {/* Halal Certification with mosque icon */}
             <Link href="/halal" className="pill halal-btn" aria-label="Halal Certification">
-              <img className="icon" src={islam} alt="" />
+              <img className="icon" src="/icons/mosque.svg" alt="" />
               <span>Halal Certification</span>
             </Link>
           </div>
@@ -159,7 +159,7 @@ export default function MenuPage() {
       <section className="hero">
         <div className="hero-inner container">
           <div className="hero-lockup">
-            <h1 className="hero-title pl-[30px] pr-[30px]">
+            <h1 className="hero-title pl-[30px] pr-[30px] mt-[166px] sm:mt-0">
               <span className="line-1">{t("brand.menuTitle", "The Menu")}</span>
               <br />
               <span className="line-2">
