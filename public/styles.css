@@ -184,18 +184,23 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 }
 
 /* -------- 2) Category pills -------- */
-/* Mobile-first: EXACTLY 3 per row */
+/* Mobile-first: horizontal scroll with side-by-side layout */
 .menu-tabs{
   width:100%;
   margin:14px auto 8px;
-  padding:0 8px;
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
+  padding:0 16px;
+  display:flex;
   gap:10px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  white-space:nowrap;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
   max-width:1100px;
 }
 .menu-tab{ 
-  width:100%; text-align:center;
+  flex:0 0 auto;
+  text-align:center;
   padding:10px 18px;
   border-radius:999px;
   border:2px solid transparent;
@@ -203,6 +208,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   white-space:nowrap;
   cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
+  scroll-snap-align:start;
 }
 .menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
 .menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
