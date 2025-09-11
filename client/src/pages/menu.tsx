@@ -27,7 +27,7 @@ function AllergensLegend() {
         <ul className="legend-row">
           {ALLERGENS.map((a) => (
             <li key={a.slug}>
-              <img className="allergen-img" src={a.icon} alt={a.label} />
+              <img className="allergen-img pt-[0px] pb-[0px] pl-[0px] pr-[0px] ml-[-1px] mr-[-1px]" src={a.icon} alt={a.label} />
               <span>{a.label}</span>
             </li>
           ))}
