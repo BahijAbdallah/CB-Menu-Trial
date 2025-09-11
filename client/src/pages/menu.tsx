@@ -24,7 +24,7 @@ function AllergensLegend() {
             " Please be adviced that our food may contain or come  into contact with common allergens, including:",
           )}
         </p>
-        <ul className="legend-row mt-[8px] mb-[8px] pl-[0px] pr-[0px] ml-[-2px] mr-[-2px]">
+        <ul className="legend-row">
           {ALLERGENS.map((a) => (
             <li key={a.slug}>
               <img className="allergen-img" src={a.icon} alt={a.label} />
@@ -114,7 +114,7 @@ export default function MenuPage() {
             {/* Language */}
             <div className="lang" ref={langRef}>
               <button
-                className="pill lang-trigger text-[12px]"
+                className="pill lang-trigger"
                 aria-haspopup="menu"
                 aria-expanded={langOpen}
                 onClick={() => setLangOpen(v => !v)}
@@ -148,7 +148,7 @@ export default function MenuPage() {
             </div>
 
             {/* Halal Certification with mosque icon */}
-            <Link href="/halal" className="pill halal-btn text-[12px]" aria-label="Halal Certification">
+            <Link href="/halal" className="pill halal-btn" aria-label="Halal Certification">
               <img className="icon" src={islam} alt="" />
               <span>Halal Certification</span>
             </Link>
@@ -174,55 +174,50 @@ export default function MenuPage() {
       <AllergensLegend />
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
-        <nav 
-          className="cat-scroll" 
-          aria-label="Menu categories"
-          onWheel={(e: React.WheelEvent<HTMLElement>) => {
-            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-              e.currentTarget.scrollLeft += e.deltaY;
-              e.preventDefault();
-            }
+        <nav
+          className="menu-tabs"
+          onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
+            if (e.deltaY === 0) return;
+            e.currentTarget.scrollLeft += e.deltaY;
+            e.preventDefault();
           }}
         >
-          <ul className="cat-track">
-            {categories.map((category, i) => {
-              const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
-              const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
-                {
-                  "breakfast items": "olive",
-                  salads: "coral",
-                  "hot appetizers": "taupe",
-                  "cold appetizers": "yellow",
-                  "main course": "taupe", // stays taupe when active
-                  "sandwiches & burgers": "olive",
-                  "plat du jour": "yellow",
-                  desserts: "coral",
-                };
-              const norm = (s: string) => s.toLowerCase().trim();
+          {categories.map((category, i) => {
+            const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
+            const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
+              {
+                "breakfast items": "olive",
+                salads: "coral",
+                "hot appetizers": "taupe",
+                "cold appetizers": "yellow",
+                "main course": "taupe", // stays taupe when active
+                "sandwiches & burgers": "olive",
+                "plat du jour": "yellow",
+                desserts: "coral",
+              };
+            const norm = (s: string) => s.toLowerCase().trim();
 
-              const categoryName = t(
-                `categories.${category.slug}`,
-                category.name,
-              );
-              const tone =
-                COLOR_BY_SLUG[norm(categoryName)] ??
-                COLOR_CYCLE[i % COLOR_CYCLE.length];
-              const isActive =
-                norm(categoryName) ===
-                norm(t(`categories.${activeCategory}`, activeCategory));
+            const categoryName = t(
+              `categories.${category.slug}`,
+              category.name,
+            );
+            const tone =
+              COLOR_BY_SLUG[norm(categoryName)] ??
+              COLOR_CYCLE[i % COLOR_CYCLE.length];
+            const isActive =
+              norm(categoryName) ===
+              norm(t(`categories.${activeCategory}`, activeCategory));
 
-              return (
-                <li key={category.id}>
-                  <button
-                    onClick={() => setActiveCategory(category.slug)}
-                    className="menu-tab variant-olive pl-[18px] pr-[18px]"
-                  >
-                    {categoryName}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+            return (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.slug)}
+                className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
+              >
+                {categoryName}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Menu Items Display */}

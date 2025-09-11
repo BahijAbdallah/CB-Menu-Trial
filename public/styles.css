@@ -196,7 +196,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 }
 .menu-tab{ 
   width:100%; text-align:center;
-  padding:10px 0;
+  padding:10px 18px;
   border-radius:999px;
   border:2px solid transparent;
   font-weight:700;
@@ -204,10 +204,10 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   cursor:pointer;
   box-shadow:0 1px 0 rgba(0,0,0,.05);
 }
-.menu-tab.variant-olive{  background:#3b4b30;  color:#fff; }
+.menu-tab.variant-olive{  background:var(--olive);  color:#fff; }
 .menu-tab.variant-coral{  background:var(--coral);  color:#fff; }
-.menu-tab.variant-taupe{  background:#cabeac;  color:var(--olive); }
-.menu-tab.variant-yellow{ background:#efa25f; color:#fff; }
+.menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
+.menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
 .menu-tab.is-active{ box-shadow:0 0 0 2px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.06); }
 
 /* Desktop/tablet: smooth horizontal scroller */
@@ -417,82 +417,3 @@ header[role="banner"]{
 
 /* keep header clickable over the hero */
 .site-header{ z-index: 30; }
-
-/* Mobile-specific styling for halal button */
-@media (max-width: 768px) {
-  .halal-btn {
-    padding: 6px 12px !important;
-    font-size: 10px !important;
-    gap: 6px !important;
-  }
-  
-  .halal-btn .icon {
-    width: 14px !important;
-    height: 14px !important;
-  }
-}
-
-/* Very small screens - show only icon */
-@media (max-width: 480px) {
-  .halal-btn span {
-    display: none;
-  }
-  
-  .halal-btn {
-    padding: 8px !important;
-    gap: 0 !important;
-  }
-}
-
-/* Mobile-specific styling for hero title */
-@media (max-width: 768px) {
-  .hero-title {
-    margin-left: 203px !important;
-    margin-right: 203px !important;
-  }
-}
-
-/* viewport */
-.cat-scroll{
-  width:100%;
-  margin:0 auto;
-  overflow-x:auto;
-  overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;       /* Firefox */
-  scroll-snap-type:x proximity;
-}
-.cat-scroll::-webkit-scrollbar{ display:none; }   /* WebKit */
-
-/* track: horizontal, centered */
-.cat-track{
-  display:flex;
-  flex-wrap:nowrap;
-  justify-content:center;     /* centered when not overflowing */
-  align-items:center;
-  gap:12px;
-  padding:10px 16px;
-  margin: 0;  /* Remove default ul margin */
-}
-
-/* items don't shrink; snap nicely */
-.cat-track > li{
-  list-style:none;
-  flex:0 0 auto;
-  scroll-snap-align:start;
-}
-
-/* ensure chips behave inline (prevents vertical stacking) */
-.cat-track > li > a,
-.cat-track > li > button,
-.cat-track > li > span,
-.cat-track > li > div{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* optional: cap row width and keep it centered on large screens */
-@media (min-width: 1024px){
-  .cat-scroll{ max-width:1200px; }
-}
