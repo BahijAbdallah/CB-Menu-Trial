@@ -215,7 +215,7 @@ export default function MenuPage() {
                 <li key={category.id}>
                   <button
                     onClick={() => setActiveCategory(category.slug)}
-                    className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
+                    className="menu-tab variant-olive pl-[18px] pr-[18px]"
                   >
                     {categoryName}
                   </button>
