@@ -174,16 +174,17 @@ export default function MenuPage() {
       <AllergensLegend />
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
-        <nav id="categoryStrip" className="full-bleed" aria-label="Menu categories">
-          <ul 
-            className="cat-row"
-            onWheel={(e: React.WheelEvent<HTMLUListElement>) => {
-              if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                e.currentTarget.scrollLeft += e.deltaY;
-                e.preventDefault();
-              }
-            }}
-          >
+        <nav 
+          className="cat-scroll" 
+          aria-label="Menu categories"
+          onWheel={(e: React.WheelEvent<HTMLElement>) => {
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+              e.currentTarget.scrollLeft += e.deltaY;
+              e.preventDefault();
+            }
+          }}
+        >
+          <ul className="cat-track">
             {categories.map((category, i) => {
               const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
               const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =

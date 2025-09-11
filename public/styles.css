@@ -452,46 +452,47 @@ header[role="banner"]{
   }
 }
 
-/* Full-width scrollable category strip */
-.full-bleed {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+/* viewport */
+.cat-scroll{
+  width:100%;
+  margin:0 auto;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;       /* Firefox */
+  scroll-snap-type:x proximity;
 }
+.cat-scroll::-webkit-scrollbar{ display:none; }   /* WebKit */
 
-/* Horizontal scroller row */
-.cat-row {
-  display: flex;
-  gap: 12px;
-  padding: 10px 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-  white-space: nowrap;
-  scrollbar-width: none;  /* Firefox: hide scrollbar */
+/* track: horizontal, centered */
+.cat-track{
+  display:flex;
+  flex-wrap:nowrap;
+  justify-content:center;     /* centered when not overflowing */
+  align-items:center;
+  gap:12px;
+  padding:10px 16px;
   margin: 0;  /* Remove default ul margin */
 }
-.cat-row::-webkit-scrollbar { display: none; } /* WebKit: hide scrollbar */
 
-.cat-row > li {
-  flex: 0 0 auto;
-  list-style: none;
-  scroll-snap-align: start;
+/* items don't shrink; snap nicely */
+.cat-track > li{
+  list-style:none;
+  flex:0 0 auto;
+  scroll-snap-align:start;
 }
 
-/* Ensure chips don't stretch */
-.cat-row > li > * {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* ensure chips behave inline (prevents vertical stacking) */
+.cat-track > li > a,
+.cat-track > li > button,
+.cat-track > li > span,
+.cat-track > li > div{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 
-/* Optional: keep row inside content width on large screens */
-@media (min-width: 1024px) {
-  #categoryStrip { margin: 0 auto; max-width: 1200px; }
-  .full-bleed { left: auto; right: auto; margin: 0; width: 100%; }
+/* optional: cap row width and keep it centered on large screens */
+@media (min-width: 1024px){
+  .cat-scroll{ max-width:1200px; }
 }
