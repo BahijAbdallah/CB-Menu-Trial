@@ -24,7 +24,7 @@ function AllergensLegend() {
             " Please be adviced that our food may contain or come  into contact with common allergens, including:",
           )}
         </p>
-        <ul className="legend-row">
+        <ul className="legend-row mt-[8px] mb-[8px] pl-[0px] pr-[0px] ml-[-2px] mr-[-2px]">
           {ALLERGENS.map((a) => (
             <li key={a.slug}>
               <img className="allergen-img" src={a.icon} alt={a.label} />
