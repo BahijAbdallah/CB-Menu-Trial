@@ -20,13 +20,6 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           alt={item.name}
           className="w-full h-48 object-cover"
         />
-        {!item.isAvailable && (
-          <div className="absolute top-2 right-2 z-10">
-            <span className="out-of-stock-badge">
-              {t('menu.outOfStock')}
-            </span>
-          </div>
-        )}
       </div>
       <div className="p-6">
         <h4 className="font-alethia text-xl font-semibold text-dark-brown mb-2">
@@ -38,9 +31,16 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </p>
         )}
         <div className="flex justify-between items-center">
-          <span className="font-bold text-warm-gold text-[15px]">
-            $ {item.price}
-          </span>
+          <div>
+            <span className="font-bold text-warm-gold text-[15px]">
+              $ {item.price}
+            </span>
+            {item.outOfStock && (
+              <p style={{ color: '#B91C1C', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
+                {t('menu.outOfStock')}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
