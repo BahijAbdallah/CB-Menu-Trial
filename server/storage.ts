@@ -121,6 +121,17 @@ export class MemStorage implements IStorage {
       { name: "Vista Chicken Salad", nameArabic: "سلطة الدجاج فيستا", description: "Grilled chicken breast with mixed greens and special dressing", price: "16.00", categoryId: 2, isAvailable: true, order: 3 },
       { name: "Caesar Salad", nameArabic: "سلطة قيصر", description: "Classic Caesar salad with parmesan and croutons", price: "12.00", categoryId: 2, isAvailable: true, order: 4 },
 
+      // Hot Appetizers
+      { name: "Dynamite Beef", nameArabic: "لحم دينامايت", description: "Spicy beef bites with dynamite sauce", price: "16.00", categoryId: 3, isAvailable: true, order: 1 },
+      { name: "Fries Add Truffle Sauce", nameArabic: "بطاطا مقلية بصلصة الكمأة", description: "Golden fries with truffle sauce", price: "12.00", categoryId: 3, isAvailable: true, order: 2 },
+      { name: "Shrimp Tacos", nameArabic: "تاكو الجمبري", description: "Fresh shrimp tacos with avocado and lime", price: "18.00", categoryId: 3, isAvailable: true, order: 3 },
+
+      // Cold Appetizers  
+      { name: "Hummus with Pita", nameArabic: "حمص بالخبز", description: "Traditional hummus served with fresh pita bread", price: "10.00", categoryId: 4, isAvailable: true, order: 1 },
+      { name: "Tabbouleh Salad", nameArabic: "تبولة", description: "Fresh parsley salad with tomatoes, onions, and bulgur", price: "12.00", categoryId: 4, isAvailable: true, order: 2 },
+      { name: "Mixed Olives", nameArabic: "زيتون مشكل", description: "Assorted Lebanese olives with herbs and olive oil", price: "8.00", categoryId: 4, isAvailable: true, order: 3 },
+      { name: "Labneh with Olive Oil", nameArabic: "لبنة بزيت الزيتون", description: "Creamy labneh drizzled with olive oil and herbs", price: "9.00", categoryId: 4, isAvailable: true, order: 4 },
+
       // Main Course
       { name: "Grilled Salmon", nameArabic: "سلمون مشوي", description: "Fresh Atlantic salmon grilled to perfection with herbs and citrus", price: "28.00", categoryId: 5, isAvailable: true, order: 1 },
       { name: "Chicken Breast", nameArabic: "صدر دجاج", description: "Tender grilled chicken breast with seasonal vegetables", price: "22.00", categoryId: 5, isAvailable: true, order: 2 },
