@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { getDefaultImageForItem } from "@/lib/menu-data";
+import { useState } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 
 interface MenuItemCardProps {
@@ -11,14 +12,26 @@ interface MenuItemCardProps {
 
 export default function MenuItemCard({ item, category, index }: MenuItemCardProps) {
   const { t } = useTranslation();
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 relative">
       <div className="relative overflow-hidden">
+        {!imageLoaded && (
+          <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="text-gray-500 text-sm">Loading...</div>
+          </div>
+        )}
         <img
-          src={item.imageUrl || getDefaultImageForItem(category.slug, index)}
+          src={(item.imageUrl && !imageError) ? item.imageUrl : getDefaultImageForItem(category.slug, index)}
           alt={item.name}
-          className="w-full h-48 object-cover"
+          className={`w-full h-48 object-cover ${!imageLoaded ? 'hidden' : ''}`}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            setImageError(true);
+            setImageLoaded(true);
+          }}
         />
       </div>
       <div className="p-6">

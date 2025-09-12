@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 
@@ -7,12 +8,65 @@ interface MenuCategoryProps {
   items: MenuItem[];
 }
 
-export default function MenuCategory({ category, items }: MenuCategoryProps) {
+interface MenuItemWithImageProps {
+  item: MenuItem;
+  category: Category;
+  index: number;
+  allergens: AllergenSlug[];
+}
+
+function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithImageProps) {
   const { t } = useTranslation();
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   const getDefaultImageForItem = (categorySlug: string, index: number) => {
     return `/assets/menu-item-food.jpg`; // Default placeholder image
   };
+  
+  return (
+    <li className="menu-card">
+      <div className="thumb-wrap">
+        {!imageLoaded && (
+          <div className="menu-thumb bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="text-gray-500 text-xs">Loading...</div>
+          </div>
+        )}
+        <img 
+          className={`menu-thumb ${!imageLoaded ? 'hidden' : ''}`}
+          src={(item.imageUrl && !imageError) ? item.imageUrl : getDefaultImageForItem(category.slug, index)}
+          alt={item.name}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            setImageError(true);
+            setImageLoaded(true);
+          }}
+        />
+      </div>
+      <div className="menu-meta">
+        <h3 className="menu-title">{item.name}</h3>
+        <p className="menu-desc">{item.description}</p>
+      </div>
+      <div className="menu-price">
+        <div>{`${parseFloat(item.price).toFixed(2)} $`}</div>
+        {item.outOfStock && (
+          <p style={{ color: '#B91C1C', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
+            {t('menu.outOfStock')}
+          </p>
+        )}
+      </div>
+      <div className="menu-alls">
+        {allergens.map((slug: AllergenSlug) => {
+          const a = ALLERGENS_MAP[slug];
+          return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
+        })}
+      </div>
+    </li>
+  );
+}
+
+export default function MenuCategory({ category, items }: MenuCategoryProps) {
+  const { t } = useTranslation();
   
   return (
     <section className="container">
@@ -33,29 +87,13 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
           }
           
           return (
-            <li key={item.id} className="menu-card">
-              <div className="thumb-wrap">
-                <img className="menu-thumb" src={item.imageUrl || getDefaultImageForItem(category.slug, index)} alt={item.name} />
-              </div>
-              <div className="menu-meta">
-                <h3 className="menu-title">{item.name}</h3>
-                <p className="menu-desc">{item.description}</p>
-              </div>
-              <div className="menu-price">
-                <div>{`${parseFloat(item.price).toFixed(2)} $`}</div>
-                {item.outOfStock && (
-                  <p style={{ color: '#B91C1C', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
-                    {t('menu.outOfStock')}
-                  </p>
-                )}
-              </div>
-              <div className="menu-alls">
-                {allergens.map((slug: AllergenSlug) => {
-                  const a = ALLERGENS_MAP[slug];
-                  return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
-                })}
-              </div>
-            </li>
+            <MenuItemWithImage 
+              key={item.id} 
+              item={item} 
+              category={category} 
+              index={index} 
+              allergens={allergens}
+            />
           );
         })}
       </ul>
