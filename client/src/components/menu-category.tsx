@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
+import { getDefaultImageForItem } from "@/lib/menu-data";
 
 interface MenuCategoryProps {
   category: Category;
@@ -20,9 +21,6 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  const getDefaultImageForItem = (categorySlug: string, index: number) => {
-    return `/assets/menu-item-food.jpg`; // Default placeholder image
-  };
   
   return (
     <li className="menu-card">
