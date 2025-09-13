@@ -6,6 +6,7 @@ export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   nameArabic: text("name_arabic"),
+  nameFrench: text("name_french"),
   slug: text("slug").notNull().unique(),
   order: integer("order").notNull().default(0),
 });
@@ -14,8 +15,10 @@ export const menuItems = pgTable("menu_items", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   nameArabic: text("name_arabic"),
+  nameFrench: text("name_french"),
   description: text("description"),
   descriptionArabic: text("description_arabic"),
+  descriptionFrench: text("description_french"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url"),
