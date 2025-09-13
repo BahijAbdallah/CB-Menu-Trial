@@ -203,9 +203,7 @@ export default function MenuPage() {
             const tone =
               COLOR_BY_SLUG[norm(categoryName)] ??
               COLOR_CYCLE[i % COLOR_CYCLE.length];
-            const isActive =
-              norm(categoryName) ===
-              norm(t(`categories.${activeCategory}`, activeCategory));
+            const isActive = category.slug === activeCategory;
 
             return (
               <button

@@ -20,8 +20,10 @@ import { ALLERGENS, type AllergenSlug } from "@/constants/allergens";
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   nameArabic: z.string().optional(),
+  nameFrench: z.string().optional(),
   description: z.string().optional(),
   descriptionArabic: z.string().optional(),
+  descriptionFrench: z.string().optional(),
   price: z.string().min(1, "Price is required").regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   categoryId: z.number().min(1, "Category is required"),
   imageUrl: z.string().optional(),
@@ -52,8 +54,10 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
     defaultValues: {
       name: "",
       nameArabic: "",
+      nameFrench: "",
       description: "",
       descriptionArabic: "",
+      descriptionFrench: "",
       price: "",
       categoryId: 0,
       imageUrl: "",
@@ -83,8 +87,10 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       form.reset({
         name: editingItem.name,
         nameArabic: editingItem.nameArabic || "",
+        nameFrench: editingItem.nameFrench || "",
         description: editingItem.description || "",
         descriptionArabic: editingItem.descriptionArabic || "",
+        descriptionFrench: editingItem.descriptionFrench || "",
         price: editingItem.price,
         categoryId: editingItem.categoryId,
         imageUrl: editingItem.imageUrl || "",
@@ -98,8 +104,10 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       form.reset({
         name: "",
         nameArabic: "",
+        nameFrench: "",
         description: "",
         descriptionArabic: "",
+        descriptionFrench: "",
         price: "",
         categoryId: 0,
         imageUrl: "",
@@ -189,8 +197,10 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         ...data,
         price: data.price,
         nameArabic: data.nameArabic || null,
+        nameFrench: data.nameFrench || null,
         description: data.description || null,
         descriptionArabic: data.descriptionArabic || null,
+        descriptionFrench: data.descriptionFrench || null,
         imageUrl: data.imageUrl || null,
         allergens: JSON.stringify(data.allergens),
       };
@@ -273,6 +283,20 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
 
             <FormField
               control={form.control}
+              name="nameFrench"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Item Name (French)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Entrez le nom du plat" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -299,6 +323,24 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                     <Textarea
                       placeholder="أدخل وصف الطبق"
                       className="font-arabic"
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="descriptionFrench"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (French)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Entrez la description du plat"
                       rows={3}
                       {...field}
                     />
