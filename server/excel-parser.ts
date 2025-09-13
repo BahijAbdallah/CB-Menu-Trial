@@ -77,12 +77,17 @@ export function parseExcelFile(filePath: string): ParsedMenuItem[] {
     const data = fs.readFileSync(filePath);
     const workbook = read(data, { type: 'buffer' });
     
-    // Get the "Menu" sheet
+    // Get the "Menu" sheet or use the first sheet as fallback
+    let sheetName = 'Menu';
     if (!workbook.SheetNames.includes('Menu')) {
-      throw new Error('Excel file must contain a sheet named "Menu"');
+      if (workbook.SheetNames.length === 0) {
+        throw new Error('Excel file contains no worksheets');
+      }
+      sheetName = workbook.SheetNames[0];
+      console.log(`Sheet "Menu" not found, using "${sheetName}" instead`);
     }
     
-    const worksheet = workbook.Sheets['Menu'];
+    const worksheet = workbook.Sheets[sheetName];
     
     // Convert to JSON
     const rawData: any[] = utils.sheet_to_json(worksheet, { header: 1 });
@@ -199,10 +204,21 @@ export function getUploadedExcelFile(): string | null {
   }
   
   const files = fs.readdirSync(attachedAssetsDir);
-  const excelFile = files.find(file => 
+  const excelFiles = files.filter(file => 
     file.includes('Menu') && file.includes('WO Cost') && 
     (file.endsWith('.xlsx') || file.endsWith('.xls'))
   );
   
-  return excelFile ? path.join(attachedAssetsDir, excelFile) : null;
+  if (excelFiles.length === 0) {
+    return null;
+  }
+  
+  // Sort by modification time, newest first
+  excelFiles.sort((a, b) => {
+    const statA = fs.statSync(path.join(attachedAssetsDir, a));
+    const statB = fs.statSync(path.join(attachedAssetsDir, b));
+    return statB.mtime.getTime() - statA.mtime.getTime();
+  });
+  
+  return path.join(attachedAssetsDir, excelFiles[0]);
 }
