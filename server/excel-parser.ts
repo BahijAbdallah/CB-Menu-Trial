@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import { read, utils } from 'xlsx';
 import fs from 'fs';
 import path from 'path';
 
@@ -74,7 +74,8 @@ function assignCategory(itemName: string, itemDescription: string, existingCateg
 export function parseExcelFile(filePath: string): ParsedMenuItem[] {
   try {
     // Read the Excel file
-    const workbook = XLSX.readFile(filePath);
+    const data = fs.readFileSync(filePath);
+    const workbook = read(data, { type: 'buffer' });
     
     // Get the "Menu" sheet
     if (!workbook.SheetNames.includes('Menu')) {
@@ -84,7 +85,7 @@ export function parseExcelFile(filePath: string): ParsedMenuItem[] {
     const worksheet = workbook.Sheets['Menu'];
     
     // Convert to JSON
-    const rawData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    const rawData: any[] = utils.sheet_to_json(worksheet, { header: 1 });
     
     if (rawData.length < 2) {
       throw new Error('Excel file must contain at least a header row and one data row');
