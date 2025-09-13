@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
+import { useCurrentLanguage, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
 
 interface MenuCategoryProps {
   category: Category;
@@ -18,8 +19,13 @@ interface MenuItemWithImageProps {
 
 function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithImageProps) {
   const { t } = useTranslation();
+  const currentLanguage = useCurrentLanguage();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // Get translated content with fallback to English
+  const itemName = getTranslatedItemName(item, currentLanguage);
+  const itemDescription = getTranslatedItemDescription(item, currentLanguage);
   
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
@@ -35,7 +41,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
         <img 
           className={`menu-thumb ${!imageLoaded ? 'hidden' : ''}`}
           src={(item.imageUrl && !imageError) ? item.imageUrl : getDefaultImageForItem(category.slug, index)}
-          alt={item.name}
+          alt={itemName}
           loading="lazy"
           width="176"
           height="152"
@@ -47,8 +53,8 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
         />
       </div>
       <div className="menu-meta">
-        <h3 className="menu-title">{item.name}</h3>
-        <p className="menu-desc">{item.description}</p>
+        <h3 className="menu-title">{itemName}</h3>
+        <p className="menu-desc">{itemDescription}</p>
         
         {/* Allergy badges under description */}
         {allergens.length > 0 && (
