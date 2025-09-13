@@ -1,0 +1,79 @@
+“Update the menu frontend to fully render product image, allergy badges, and out-of-stock state, while keeping the previous centered design and adding horizontal scroll on small screens.
+
+Data & mapping
+
+Each item has: id, name, description, price, image (URL or file), allergies (array of strings), category, inStock (boolean).
+
+Use the imported Excel data already in the DB; do not hardcode items.
+
+Frontend changes
+
+Menu list/cards (e.g., MenuPage.tsx / MenuItemCard.tsx)
+
+Show product image (left), using lazy-loading and a neutral placeholder fallback.
+
+Show title, description, price (same typography/spacing as before).
+
+Show allergy badges under description (icons + labels) in a single line that wraps.
+
+If inStock === false:
+
+Overlay a subtle “Out of stock” ribbon/badge on the card image.
+
+Dim the card image slightly.
+
+Hide/disable any “Add”/action buttons.
+
+Layout (match old centered design)
+
+On desktop/tablet: keep the current centered stacked cards with the same max-width, padding, and shadows.
+
+On small screens (<768px): enable horizontal scroll for the item cards inside each category row:
+
+Wrap cards in a container: overflow-x: auto; white-space: nowrap; scroll-snap-type: x mandatory;
+
+Each card: display: inline-block; scroll-snap-align: start;
+
+Show a visible horizontal scrollbar (no custom JS), and support swipe.
+
+Keep card width consistent so the card content is readable (no squashing).
+
+Preserve category chips/filters exactly as before.
+
+Allergy badges
+
+Map strings to icons (use existing icons if present; otherwise simple initials). Examples:
+
+Dairy, Milk, Gluten, Fish, Soy, Peanuts, Nuts, Sesame.
+
+Style: small rounded pills, subtle border, readable text, consistent spacing.
+
+Accessibility & SEO
+
+alt text for images = item name.
+
+Buttons/badges have aria-labels (e.g., “Allergen: Dairy”, “Out of stock”).
+
+Performance
+
+Lazy-load images (loading="lazy"), add width/height attributes to prevent layout shift.
+
+Avoid reflows when toggling stock state.
+
+Acceptance criteria
+
+Images, allergy badges, and out-of-stock ribbon are visible on the main menu page and per-category views.
+
+Desktop layout identical to old centered design.
+
+On small screens, cards scroll horizontally with a visible scrollbar; no design regressions.
+
+No console errors; data comes from the DB populated via the Excel import.
+
+Deliverables
+
+Updated components (list exactly which files changed).
+
+Any new CSS/utility classes.
+
+A short test plan: 1) item with image+allergies in stock, 2) same item set to out-of-stock, 3) mobile viewport horizontal scroll check.”
