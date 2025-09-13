@@ -7,6 +7,7 @@ import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS } from "@/constants/allergens";
+import { useCurrentLanguage, getTranslatedCategoryName } from "@/utils/translation";
 
 import islam from "@assets/islam.png";
 
@@ -39,6 +40,7 @@ function AllergensLegend() {
 
 export default function MenuPage() {
   const { t, i18n } = useTranslation();
+  const currentLanguage = useCurrentLanguage();
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
@@ -197,10 +199,7 @@ export default function MenuPage() {
               };
             const norm = (s: string) => s.toLowerCase().trim();
 
-            const categoryName = t(
-              `categories.${category.slug}`,
-              category.name,
-            );
+            const categoryName = getTranslatedCategoryName(category, currentLanguage);
             const tone =
               COLOR_BY_SLUG[norm(categoryName)] ??
               COLOR_CYCLE[i % COLOR_CYCLE.length];
