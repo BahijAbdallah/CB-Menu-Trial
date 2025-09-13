@@ -175,7 +175,7 @@ export default function MenuPage() {
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
         <nav
-          className="menu-tabs"
+          className="menu-tabs text-center"
           onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
             if (e.deltaY === 0) return;
             e.currentTarget.scrollLeft += e.deltaY;
