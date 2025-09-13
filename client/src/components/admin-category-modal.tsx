@@ -14,6 +14,7 @@ import type { Category, InsertCategory } from "@shared/schema";
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   nameArabic: z.string().optional(),
+  nameFrench: z.string().optional(),
   slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
   order: z.number().min(0, "Order must be a positive number"),
 });
@@ -35,6 +36,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
     defaultValues: {
       name: "",
       nameArabic: "",
+      nameFrench: "",
       slug: "",
       order: 0,
     },
@@ -45,6 +47,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
       form.reset({
         name: editingCategory.name,
         nameArabic: editingCategory.nameArabic || "",
+        nameFrench: editingCategory.nameFrench || "",
         slug: editingCategory.slug,
         order: editingCategory.order,
       });
@@ -52,6 +55,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
       form.reset({
         name: "",
         nameArabic: "",
+        nameFrench: "",
         slug: "",
         order: 0,
       });
@@ -63,6 +67,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
       const payload: InsertCategory = {
         ...data,
         nameArabic: data.nameArabic || null,
+        nameFrench: data.nameFrench || null,
       };
 
       if (editingCategory) {
@@ -148,6 +153,20 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
                     <FormLabel>Category Name (Arabic)</FormLabel>
                     <FormControl>
                       <Input placeholder="أدخل اسم الفئة" className="font-arabic" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="nameFrench"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category Name (French)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Entrez le nom de la catégorie" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
