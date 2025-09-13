@@ -199,6 +199,27 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   scroll-snap-type:x proximity;
   max-width:1100px;
 }
+
+/* Mobile: vertical stacked layout */
+@media (max-width: 768px) {
+  .menu-tabs {
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: visible;
+    white-space: normal;
+    gap: 0;
+    padding: 8px 16px;
+  }
+  
+  .menu-tab {
+    margin: 6px 0;
+    width: auto;
+    flex: none;
+    white-space: normal;
+    max-width: 100%;
+  }
+}
 .menu-tab{ 
   flex:0 0 auto;
   text-align:center;
