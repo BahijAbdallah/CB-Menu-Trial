@@ -437,30 +437,214 @@ header[role="banner"]{
 /* keep header clickable over the hero */
 .site-header{ z-index: 30; }
 
-/* Out of Stock Badge */
-.out-of-stock-badge {
+/* ====== ALLERGEN BADGES (under description) ====== */
+.allergen-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.allergen-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(59, 75, 48, 0.08);
+  border: 1px solid rgba(59, 75, 48, 0.2);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--olive, #3b4b30);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.allergen-badge:hover {
+  background: rgba(59, 75, 48, 0.12);
+  border-color: rgba(59, 75, 48, 0.3);
+}
+
+.allergen-badge img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.allergen-label {
+  font-family: 'Billmake', sans-serif;
+  line-height: 1;
+}
+
+/* ====== OUT OF STOCK OVERLAY & DIMMING ====== */
+.menu-card-out-of-stock {
+  opacity: 0.75;
+}
+
+.out-of-stock-overlay {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 12px;
+  z-index: 10;
+}
+
+.out-of-stock-badge {
   background-color: #e46f60;
   color: white;
   font-family: 'Billmake', sans-serif;
   font-weight: bold;
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  z-index: 10;
+  box-shadow: 0 2px 8px rgba(228, 111, 96, 0.3);
   white-space: nowrap;
   display: block;
 }
 
-/* Responsive adjustments for mobile */
-@media (max-width: 768px) {
-  .out-of-stock-badge {
-    font-size: 11px;
+.menu-thumb-dimmed {
+  filter: brightness(0.7) contrast(0.9);
+}
+
+/* ====== MOBILE HORIZONTAL SCROLL ====== */
+.desktop-menu-list {
+  display: grid;
+}
+
+.mobile-menu-container {
+  display: none;
+}
+
+/* Mobile: horizontal scroll layout */
+@media (max-width: 767px) {
+  .desktop-menu-list {
+    display: none;
+  }
+  
+  .mobile-menu-container {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 12px;
+    /* Show scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 75, 48, 0.3) transparent;
+  }
+  
+  .mobile-menu-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .mobile-menu-container::-webkit-scrollbar-track {
+    background: rgba(59, 75, 48, 0.1);
+    border-radius: 4px;
+  }
+  
+  .mobile-menu-container::-webkit-scrollbar-thumb {
+    background: rgba(59, 75, 48, 0.3);
+    border-radius: 4px;
+  }
+  
+  .mobile-menu-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 75, 48, 0.5);
+  }
+  
+  .mobile-menu-list {
+    display: flex;
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  .mobile-menu-list .menu-card {
+    display: inline-block;
+    white-space: normal;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    width: 280px; /* Consistent card width */
+    vertical-align: top;
+    /* Override grid layout for mobile horizontal cards */
+    grid-template-columns: none;
+    grid-template-rows: auto 1fr auto;
+    padding: 12px;
+    gap: 12px;
+    min-height: auto;
+  }
+  
+  .mobile-menu-list .thumb-wrap {
+    width: 100%;
+    height: 160px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .mobile-menu-list .menu-meta {
+    align-self: stretch;
+  }
+  
+  .mobile-menu-list .menu-title {
+    font-size: 18px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  
+  .mobile-menu-list .menu-desc {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  .mobile-menu-list .menu-price {
+    grid-column: unset;
+    grid-row: unset;
+    justify-self: unset;
+    align-self: unset;
+    text-align: left;
+    margin-top: 8px;
+    font-size: 16px;
+  }
+  
+  .mobile-menu-list .allergen-badges {
+    margin-top: 8px;
+  }
+  
+  .mobile-menu-list .allergen-badge {
+    font-size: 10px;
     padding: 3px 8px;
-    top: 8px;
-    right: 8px;
+  }
+  
+  .mobile-menu-list .allergen-badge img {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .mobile-menu-list .out-of-stock-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+}
+
+/* Responsive adjustments for mobile allergen badges */
+@media (max-width: 768px) {
+  .allergen-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+  
+  .allergen-badge img {
+    width: 14px;
+    height: 14px;
   }
 }
