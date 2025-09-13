@@ -516,7 +516,7 @@ header[role="banner"]{
   filter: brightness(0.7) contrast(0.9);
 }
 
-/* ====== MOBILE HORIZONTAL SCROLL ====== */
+/* ====== MOBILE VERTICAL STACK ====== */
 .desktop-menu-list {
   display: grid;
 }
@@ -525,96 +525,73 @@ header[role="banner"]{
   display: none;
 }
 
-/* Mobile: horizontal scroll layout */
-@media (max-width: 767px) {
+/* Mobile: vertical stacked layout */
+@media (max-width: 768px) {
   .desktop-menu-list {
     display: none;
   }
   
   .mobile-menu-container {
     display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
     padding: 0 12px;
-    /* Show scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(59, 75, 48, 0.3) transparent;
-  }
-  
-  .mobile-menu-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .mobile-menu-container::-webkit-scrollbar-track {
-    background: rgba(59, 75, 48, 0.1);
-    border-radius: 4px;
-  }
-  
-  .mobile-menu-container::-webkit-scrollbar-thumb {
-    background: rgba(59, 75, 48, 0.3);
-    border-radius: 4px;
-  }
-  
-  .mobile-menu-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(59, 75, 48, 0.5);
   }
   
   .mobile-menu-list {
-    display: flex;
-    gap: 16px;
+    display: block;
     padding: 0;
     margin: 0;
     list-style: none;
   }
   
   .mobile-menu-list .menu-card {
-    display: inline-block;
-    white-space: normal;
-    scroll-snap-align: start;
-    flex-shrink: 0;
-    width: 280px; /* Consistent card width */
-    vertical-align: top;
-    /* Override grid layout for mobile horizontal cards */
-    grid-template-columns: none;
-    grid-template-rows: auto 1fr auto;
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
     padding: 12px;
-    gap: 12px;
-    min-height: auto;
+    background: var(--comfort, #ECE6DB);
+    border-radius: 14px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.03);
+    /* Override desktop grid layout for mobile vertical stack */
+    grid-template-columns: none;
+    grid-template-rows: none;
   }
   
   .mobile-menu-list .thumb-wrap {
     width: 100%;
-    height: 160px;
+    height: 200px;
     position: relative;
     border-radius: 12px;
     overflow: hidden;
+    margin-bottom: 12px;
   }
   
   .mobile-menu-list .menu-meta {
-    align-self: stretch;
+    margin-bottom: 12px;
   }
   
   .mobile-menu-list .menu-title {
-    font-size: 18px;
+    font-family: 'Billmake', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
     line-height: 1.2;
-    margin-bottom: 8px;
+    margin: 0 0 8px;
+    color: var(--olive, #3b4b30);
   }
   
   .mobile-menu-list .menu-desc {
-    font-size: 12px;
+    font-family: 'Billmake', sans-serif;
+    font-size: 13px;
     line-height: 1.4;
+    color: #6d756f;
+    margin: 0 0 8px;
   }
   
   .mobile-menu-list .menu-price {
-    grid-column: unset;
-    grid-row: unset;
-    justify-self: unset;
-    align-self: unset;
-    text-align: left;
-    margin-top: 8px;
-    font-size: 16px;
+    font-family: 'Billmake', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--olive, #3b4b30);
+    margin-bottom: 8px;
   }
   
   .mobile-menu-list .allergen-badges {
@@ -629,11 +606,6 @@ header[role="banner"]{
   .mobile-menu-list .allergen-badge img {
     width: 14px;
     height: 14px;
-  }
-  
-  .mobile-menu-list .out-of-stock-badge {
-    font-size: 11px;
-    padding: 4px 10px;
   }
 }
 
