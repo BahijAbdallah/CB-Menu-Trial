@@ -190,6 +190,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   margin:14px auto 8px;
   padding:0 16px;
   display:flex;
+  justify-content:center;
   gap:10px;
   overflow-x:auto;
   overflow-y:hidden;
@@ -226,7 +227,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     white-space:nowrap;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
-    justify-content:flex-start;
+    justify-content:center;
     padding:8px 24px;
     /* soft edge fade so pills feel native */
     -webkit-mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
