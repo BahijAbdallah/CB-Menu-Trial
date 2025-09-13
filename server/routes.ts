@@ -117,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       activeTokens.set(token, user.id);
       (req.session as any).authToken = token;
       
-      console.log('Generated token:', token);
+      // Token generated for user authentication
       console.log('User ID:', user.id);
       
       res.json({ 
@@ -160,14 +160,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '') || (req.session as any)?.authToken;
     
-    console.log('Auth check - Token:', token);
+    // Authentication check performed
     
     if (!token) {
       return res.status(401).json({ message: "Not authenticated" });
     }
     
     const userId = activeTokens.get(token);
-    console.log('Auth check - User ID:', userId);
+    // User ID verification performed
     
     if (!userId) {
       return res.status(401).json({ message: "Not authenticated" });
