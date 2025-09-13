@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
-import { Plus, PrinterCheck, Search, ArrowLeft, LogOut, Utensils, Layers, FileText } from "lucide-react";
+import { Plus, PrinterCheck, Search, ArrowLeft, LogOut, Utensils, Layers, FileText, FileSpreadsheet } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,6 +96,46 @@ export default function AdminPage() {
       });
     },
   });
+
+  const importExcelMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/import-excel", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: "{}",
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || "Failed to import Excel file");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "Success",
+        description: `Successfully imported ${data.itemsImported} menu items from Excel file`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Import Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleImportExcel = () => {
+    if (confirm("This will replace ALL existing menu items with data from the Excel file. Are you sure?")) {
+      importExcelMutation.mutate();
+    }
+  };
 
   const filteredItems = menuItems.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -220,18 +260,29 @@ export default function AdminPage() {
                 {/* Add New Item Button */}
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-semibold text-brand-green">Menu Items Management</h3>
-                  <Button 
-                    onClick={handleAddNew} 
-                    style={{ 
-                      backgroundColor: '#527A53', 
-                      color: '#ffffff',
-                      border: 'none'
-                    }}
-                    className="hover:opacity-90 font-medium px-4 py-2"
-                  >
-                    <Plus className="mr-2 h-4 w-4" style={{ color: '#ffffff' }} />
-                    Add New Item
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={handleImportExcel}
+                      disabled={importExcelMutation.isPending}
+                      variant="outline"
+                      className="border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
+                    >
+                      <FileSpreadsheet className="mr-2 h-4 w-4" />
+                      {importExcelMutation.isPending ? "Importing..." : "Import Excel"}
+                    </Button>
+                    <Button 
+                      onClick={handleAddNew} 
+                      style={{ 
+                        backgroundColor: '#527A53', 
+                        color: '#ffffff',
+                        border: 'none'
+                      }}
+                      className="hover:opacity-90 font-medium px-4 py-2"
+                    >
+                      <Plus className="mr-2 h-4 w-4" style={{ color: '#ffffff' }} />
+                      Add New Item
+                    </Button>
+                  </div>
                 </div>
                 
                 {/* Search and Filters */}
