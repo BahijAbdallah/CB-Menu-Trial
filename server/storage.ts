@@ -37,6 +37,10 @@ export interface IStorage {
   deleteMenuItem(id: number): Promise<boolean>;
   toggleMenuItemAvailability(id: number): Promise<MenuItem | undefined>;
 
+  // Bulk operations
+  clearAllMenuItems(): Promise<void>;
+  clearAllCategories(): Promise<void>;
+
   // Halal certificate methods
   getHalalCertificates(): Promise<HalalCertificate[]>;
   getHalalCertificateById(id: number): Promise<HalalCertificate | undefined>;
@@ -301,6 +305,15 @@ export class MemStorage implements IStorage {
   async deleteHalalCertificate(id: number): Promise<boolean> {
     return this.halalCertificates.delete(id);
   }
+
+  // Bulk operations
+  async clearAllMenuItems(): Promise<void> {
+    this.menuItems.clear();
+  }
+
+  async clearAllCategories(): Promise<void> {
+    this.categories.clear();
+  }
 }
 
 // Database storage implementation
@@ -438,6 +451,15 @@ export class DatabaseStorage implements IStorage {
   async deleteHalalCertificate(id: number): Promise<boolean> {
     const result = await db.delete(halalCertificates).where(eq(halalCertificates.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  // Bulk operations
+  async clearAllMenuItems(): Promise<void> {
+    await db.delete(menuItems);
+  }
+
+  async clearAllCategories(): Promise<void> {
+    await db.delete(categories);
   }
 }
 

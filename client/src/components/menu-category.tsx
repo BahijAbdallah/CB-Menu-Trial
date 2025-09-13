@@ -56,8 +56,12 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
       <div className="menu-alls">
         {allergens.map((slug: AllergenSlug) => {
           const a = ALLERGENS_MAP[slug];
+          if (!a) {
+            console.warn(`Unknown allergen: ${slug}`);
+            return null;
+          }
           return <img key={slug} src={a.icon} alt={a.label} title={a.label} />;
-        })}
+        }).filter(Boolean)}
       </div>
     </li>
   );

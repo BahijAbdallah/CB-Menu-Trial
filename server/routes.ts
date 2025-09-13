@@ -8,6 +8,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import "./types";
+import { importExcelMenu } from "./import-excel";
 
 // Simple token store for demo purposes
 const activeTokens = new Map<string, number>(); // token -> userId
@@ -493,6 +494,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Certificate deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete certificate" });
+    }
+  });
+
+  // Excel import endpoint
+  app.post("/api/import-excel", requireAuth, async (req, res) => {
+    try {
+      console.log('Starting Excel import...');
+      const result = await importExcelMenu();
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.error('Excel import error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        itemsImported: 0
+      });
     }
   });
 
