@@ -25,22 +25,15 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   const isOutOfStock = item.outOfStock;
   
   return (
-    <li className={`menu-card ${isOutOfStock ? 'menu-card-out-of-stock' : ''}`}>
+    <li className="menu-card">
       <div className="thumb-wrap">
-        {/* Out of stock overlay */}
-        {isOutOfStock && (
-          <div className="out-of-stock-overlay" aria-label={t('menu.outOfStock')}>
-            <span className="out-of-stock-badge">{t('menu.outOfStock')}</span>
-          </div>
-        )}
-        
         {!imageLoaded && (
           <div className="menu-thumb bg-gray-200 animate-pulse flex items-center justify-center">
             <div className="text-gray-500 text-xs">Loading...</div>
           </div>
         )}
         <img 
-          className={`menu-thumb ${!imageLoaded ? 'hidden' : ''} ${isOutOfStock ? 'menu-thumb-dimmed' : ''}`}
+          className={`menu-thumb ${!imageLoaded ? 'hidden' : ''}`}
           src={(item.imageUrl && !imageError) ? item.imageUrl : getDefaultImageForItem(category.slug, index)}
           alt={item.name}
           loading="lazy"
@@ -84,6 +77,11 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
       </div>
       <div className="menu-price">
         <div>{`${parseFloat(item.price).toFixed(2)} $`}</div>
+        {isOutOfStock && (
+          <p style={{ color: '#B91C1C', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
+            {t('menu.outOfStock')}
+          </p>
+        )}
       </div>
     </li>
   );
