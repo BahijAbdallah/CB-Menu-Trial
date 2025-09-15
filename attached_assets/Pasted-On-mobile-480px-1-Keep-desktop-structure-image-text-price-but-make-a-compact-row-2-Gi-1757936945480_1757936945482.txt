@@ -1,0 +1,76 @@
+On mobile (≤480px):
+1) Keep desktop structure (image | text | price) but make a compact row.
+2) Give the text column real width and disable letter-by-letter breaks.
+3) Shorten card height by clamping the description to 2–3 lines.
+Apply with !important to override existing styles.
+Drop-in CSS (add at the end of your CSS)
+css
+Copy code
+/* Compact, full-width desktop look on mobile */
+@media (max-width: 480px) {
+  .menu-card {
+    display: grid !important;
+    grid-template-columns: 88px 1fr max-content !important; /* image | text | price */
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    width: calc(100% - 24px) !important;
+    margin: 10px 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Image */
+  .menu-card .media, .menu-card img {
+    width: 88px !important;
+    height: 88px !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+    display: block !important;
+  }
+
+  /* TEXT COLUMN — stop vertical letter wrapping */
+  .menu-card .text {
+    min-width: 0 !important;          /* allow shrinking */
+    overflow: hidden !important;
+  }
+  .menu-card .title {
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    margin: 0 0 4px !important;
+    white-space: normal !important;
+    word-break: normal !important;     /* <-- critical */
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+  }
+  .menu-card .desc {
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;  /* reduce height */
+    overflow: hidden !important;
+  }
+
+  /* PRICE */
+  .menu-card .price {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    align-self: center !important;
+    padding-left: 8px !important;
+  }
+}
+If your class names differ, map them:
+
+.menu-card → outer card wrapper
+
+.media/img → image container/image
+
+.text → middle column
+
+.title → item name
+
+.desc → description
+
+.price → price element
