@@ -316,106 +316,117 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 .allergen-chip input{ display:none; }
 .allergen-chip.is-on{ background:var(--cream); }
 
-/* Mobile: exact desktop structure scaled down for ≤ 480px */
-@media (max-width:480px){
+/* Compact mobile cards */
+@media (max-width: 480px) {
   .menu-list{ 
     max-width:100%;
     padding:0;
-    gap:12px;
+    gap:10px;
   }
-  .menu-card{ 
-    /* Same 3-column grid: min-content auto max-content */
-    display:grid;
-    grid-template-columns:min-content 1fr max-content;
-    align-items:stretch;
-    gap:12px;
-    padding:12px;
-    background:var(--comfort, #ECE6DB);
-    border-radius:14px;
-    box-shadow:0 2px 0 rgba(0,0,0,.03);
-    /* Full width with safe gutters */
-    width:calc(100% - 24px);
-    margin:0 12px;
-    box-sizing:border-box;
-    min-height:96px;
+  
+  .menu-card {
+    display: grid;
+    grid-template-columns: 88px 1fr max-content; /* media | text | price */
+    align-items: center;                          /* centers vertically -> less height */
+    gap: 12px;
+    padding: 12px;
+    width: calc(100% - 24px);
+    margin: 10px 12px;
+    box-sizing: border-box;
+    background: var(--comfort, #ECE6DB);
+    border-radius: 14px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.03);
   }
-  .thumb-wrap{ 
-    /* Fixed visible size 90px square */
-    position:relative;
-    align-self:stretch;
-    width:90px;
-    min-width:90px;
-    border-radius:14px;
-    overflow:hidden;
+
+  /* Image container and image */
+  .thumb-wrap {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
   }
-  .menu-thumb{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
+  
+  .menu-thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
-  .menu-meta{ 
-    /* Text column: flex 1, ellipsis/wrapping preserved */
-    align-self:center;
-    min-width:0;
-    flex:1;
+
+  /* Text block */
+  .menu-meta {
+    min-width: 0; /* allow proper wrapping */
+    align-self: center;
   }
-  .menu-title{ 
-    font-family:'Billmake',sans-serif;
-    font-weight:700;
-    font-size:19px;
-    line-height:1.35;
-    margin:0 0 6px;
-    color:var(--olive,#3b4b30);
-    overflow-wrap:anywhere;
+
+  .menu-title {
+    font-family: 'Billmake', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+    margin: 0 0 4px;
+    color: var(--olive, #3b4b30);
+    white-space: normal;
+    word-break: normal;
+    hyphens: auto;
   }
-  .menu-desc{ 
-    font-family:'Billmake',sans-serif;
-    font-size:12px;
-    line-height:1.35;
-    color:#6d756f;
-    margin:0;
+
+  .menu-desc {
+    font-family: 'Billmake', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: #6d756f;
+    margin: 0;
+    display: -webkit-box;           /* clamp to reduce height */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;          /* show up to 3 lines */
+    overflow: hidden;
   }
-  .menu-price{ 
-    /* Price column: right-aligned, vertically centered, no wrap */
-    grid-column:3;
-    grid-row:1;
-    justify-self:end;
-    align-self:start;
-    font-family:'Billmake',sans-serif;
-    font-weight:700;
-    font-size:17px;
-    color:var(--olive,#3b4b30);
-    white-space:nowrap;
-    min-width:max-content;
+
+  /* Price column */
+  .menu-price {
+    font-family: 'Billmake', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--olive, #3b4b30);
+    white-space: nowrap;
+    align-self: center;
+    padding-left: 8px;
   }
+  
   .menu-alls{ 
-    grid-column:3;
-    grid-row:1;
-    justify-self:end;
-    align-self:end;
-    display:flex;
-    gap:8px;
-    margin-top:auto;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    align-self: end;
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
   }
+  
   .menu-alls img{ 
-    width:20px;
-    height:20px;
-    object-fit:contain;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
   }
+  
   .allergen-badges {
-    gap:6px;
-    margin-top:8px;
+    gap: 4px;
+    margin-top: 6px;
   }
+  
   .allergen-badge {
-    font-size:10px;
-    padding:3px 8px;
+    font-size: 9px;
+    padding: 2px 6px;
   }
+  
   .allergen-badge img {
-    width:14px;
-    height:14px;
+    width: 12px;
+    height: 12px;
   }
 }
 
