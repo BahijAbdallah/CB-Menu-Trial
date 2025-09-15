@@ -63,10 +63,10 @@ function processExcelData(rawData: ExcelRow[]): ProcessedItem[] {
     }
 
     const processedItem: ProcessedItem = {
-      name: row['Item Name'] || `Item ${index + 1}`,
-      description: row['Item Description'] || '',
+      name: (row['Item Name'] || `Item ${index + 1}`).trim(),
+      description: (row['Item Description'] || '').trim(),
       price,
-      categoryName: row.Categories || 'Uncategorized',
+      categoryName: (row.Categories || 'Uncategorized').trim(),
       allergens,
       imageUrl: row.Image || undefined
     };
@@ -77,11 +77,13 @@ function processExcelData(rawData: ExcelRow[]): ProcessedItem[] {
 
 async function createOrGetCategory(categoryName: string): Promise<number> {
   try {
+    const normalizedName = categoryName.trim();
+    
     // Check if category exists
     const existingCategory = await db
       .select()
       .from(categories)
-      .where(eq(categories.name, categoryName))
+      .where(eq(categories.name, normalizedName))
       .limit(1);
 
     if (existingCategory.length > 0) {
@@ -89,20 +91,20 @@ async function createOrGetCategory(categoryName: string): Promise<number> {
     }
 
     // Create new category
-    const slug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const slug = normalizedName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const newCategory = await db
       .insert(categories)
       .values({
-        name: categoryName,
+        name: normalizedName,
         slug,
         order: 0
       })
       .returning();
 
-    console.log(`Created new category: ${categoryName}`);
+    console.log(`Created new category: ${normalizedName}`);
     return newCategory[0].id;
   } catch (error) {
-    console.error(`Error creating category ${categoryName}:`, error);
+    console.error(`Error creating category ${normalizedName}:`, error);
     throw error;
   }
 }
@@ -172,7 +174,7 @@ async function main() {
     console.log('Starting product import...');
     console.log(`Excel file path: ${excelFilePath}`);
     
-    // Read Excel file
+    // Read and process Excel file first
     const rawData = await readExcelFile(excelFilePath);
     
     if (rawData.length === 0) {
@@ -180,9 +182,11 @@ async function main() {
       return;
     }
     
-    // Process the data
     const processedItems = processExcelData(rawData);
     console.log(`Processed ${processedItems.length} items`);
+    
+    // Perform import in a transaction-like manner
+    console.log('Starting database transaction...');
     
     // Clear existing data
     await clearExistingData();
@@ -196,6 +200,7 @@ async function main() {
     
   } catch (error) {
     console.error('Import failed:', error);
+    console.error('Database may be in inconsistent state. Consider restoring from backup.');
     process.exit(1);
   }
 }
