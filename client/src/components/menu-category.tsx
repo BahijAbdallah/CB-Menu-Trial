@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
-import { useCurrentLanguage, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
+import { useLocale, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
 
 interface MenuCategoryProps {
   category: Category;
@@ -19,13 +19,13 @@ interface MenuItemWithImageProps {
 
 function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithImageProps) {
   const { t } = useTranslation();
-  const currentLanguage = useCurrentLanguage();
+  const locale = useLocale();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   
   // Get translated content with fallback to English
-  const itemName = getTranslatedItemName(item, currentLanguage);
-  const itemDescription = getTranslatedItemDescription(item, currentLanguage);
+  const itemName = getTranslatedItemName(item, locale);
+  const itemDescription = getTranslatedItemDescription(item, locale);
   
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
