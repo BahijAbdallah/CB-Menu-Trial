@@ -1,0 +1,92 @@
+On screens ≤ 480px, keep the desktop 3-column layout (image | text | price) but make each card compact in height.
+
+Implement:
+- Card uses a tight grid: 88px 1fr max-content; center-align items.
+- Image fixed ~88px square, object-fit: cover.
+- Reduce paddings and font sizes.
+- Clamp description to 3 lines.
+- Ensure title doesn’t break letter-by-letter; keep normal word wrapping.
+- No changes to tablet/desktop.
+Drop-in CSS (put at the end of your main CSS)
+css
+Copy code
+/* Compact mobile cards */
+@media (max-width: 480px) {
+  .menu-card {
+    display: grid;
+    grid-template-columns: 88px 1fr max-content; /* media | text | price */
+    align-items: center;                          /* centers vertically -> less height */
+    gap: 12px;
+    padding: 12px;
+    width: calc(100% - 24px);
+    margin: 10px 12px;
+    box-sizing: border-box;
+  }
+
+  /* Image */
+  .menu-card .media,
+  .menu-card img {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+  }
+
+  /* Text block */
+  .menu-card .text {
+    min-width: 0; /* allow proper wrapping */
+  }
+
+  .menu-card .title {
+    font-size: 18px;
+    line-height: 1.2;
+    margin: 0 0 4px;
+    white-space: normal;
+    word-break: normal;
+    hyphens: auto;
+  }
+
+  .menu-card .desc {
+    font-size: 12.5px;
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;           /* clamp to reduce height */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;          /* show up to 3 lines */
+    overflow: hidden;
+  }
+
+  /* Price column */
+  .menu-card .price {
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    align-self: center;
+    padding-left: 8px;
+  }
+}
+If your classes differ, map them quickly:
+
+.menu-card → the outer item card wrapper
+
+.media/img → the thumbnail container/image
+
+.text → the middle text column
+
+.title → item name
+
+.desc → description
+
+.price → right price column
+
+This will keep the desktop look but produce short, tidy cards on mobile.
+
+
+
+
+
+
+
+
+Ask ChatGPT
