@@ -1,17 +1,17 @@
 #!/usr/bin/env tsx
 
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx';
 import { db } from '../server/db';
 import { categories, menuItems } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 import path from 'path';
 
 interface ExcelRow {
-  Name: string;
-  Description: string;
-  Price: number | string;
-  Category: string;
-  Allergy: string;
+  'Item Name': string;
+  'Item Description': string;
+  ' Price': number | string;
+  Categories: string;
+  Allergies: string;
   Image?: string;
 }
 
@@ -47,7 +47,7 @@ async function readExcelFile(filePath: string): Promise<ExcelRow[]> {
 function processExcelData(rawData: ExcelRow[]): ProcessedItem[] {
   return rawData.map((row, index) => {
     // Parse allergens from comma/semicolon separated string
-    const allergenString = row.Allergy || '';
+    const allergenString = row.Allergies || '';
     const allergens = allergenString
       .split(/[,;]/)
       .map(a => a.trim())
@@ -55,18 +55,18 @@ function processExcelData(rawData: ExcelRow[]): ProcessedItem[] {
 
     // Ensure price is a string with 2 decimal places
     let price = '0.00';
-    if (typeof row.Price === 'number') {
-      price = row.Price.toFixed(2);
-    } else if (typeof row.Price === 'string') {
-      const parsedPrice = parseFloat(row.Price.replace(/[^0-9.]/g, ''));
+    if (typeof row[' Price'] === 'number') {
+      price = row[' Price'].toFixed(2);
+    } else if (typeof row[' Price'] === 'string') {
+      const parsedPrice = parseFloat(row[' Price'].replace(/[^0-9.]/g, ''));
       price = isNaN(parsedPrice) ? '0.00' : parsedPrice.toFixed(2);
     }
 
     const processedItem: ProcessedItem = {
-      name: row.Name || `Item ${index + 1}`,
-      description: row.Description || '',
+      name: row['Item Name'] || `Item ${index + 1}`,
+      description: row['Item Description'] || '',
       price,
-      categoryName: row.Category || 'Uncategorized',
+      categoryName: row.Categories || 'Uncategorized',
       allergens,
       imageUrl: row.Image || undefined
     };
