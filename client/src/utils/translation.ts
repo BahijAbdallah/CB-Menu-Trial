@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MenuItem, Category } from '@shared/schema';
 
@@ -59,4 +60,34 @@ export function useCurrentLanguage(): SupportedLanguage {
   if (currentLang.startsWith('ar')) return 'ar';
   if (currentLang.startsWith('fr')) return 'fr';
   return 'en'; // Default fallback
+}
+
+/**
+ * Hook that listens to i18next language changes and re-renders components
+ */
+export function useLocale(): SupportedLanguage {
+  const { i18n } = useTranslation();
+  const [locale, setLocale] = useState<SupportedLanguage>(() => {
+    const currentLang = i18n.language;
+    if (currentLang.startsWith('ar')) return 'ar';
+    if (currentLang.startsWith('fr')) return 'fr';
+    return 'en';
+  });
+
+  useEffect(() => {
+    const onChange = (lng: string) => {
+      if (lng.startsWith('ar')) {
+        setLocale('ar');
+      } else if (lng.startsWith('fr')) {
+        setLocale('fr');
+      } else {
+        setLocale('en');
+      }
+    };
+
+    i18n.on('languageChanged', onChange);
+    return () => i18n.off('languageChanged', onChange);
+  }, [i18n]);
+
+  return locale;
 }

@@ -1,0 +1,50 @@
+Fix i18n on menu item CARDS. The language switcher works for the UI, but the item cards (title & description) stay in English. Wire the cards to the current locale and re-render on language change.
+
+Do the following:
+
+1) Source of truth
+- Ensure each item has localized fields:
+  {
+    id,
+    title: { en: "...", ar: "...", fr: "..." },
+    description: { en: "...", ar: "...", fr: "..." },
+    price, image
+  }
+
+2) Locale access
+- Create/use a locale hook that exposes current code ('en' | 'ar' | 'fr') and updates on i18next.changeLanguage:
+  export function useLocale() {
+    const { i18n } = useTranslation();
+    const [locale, setLocale] = useState(i18n.language);
+    useEffect(() => {
+      const onChange = (lng) => setLocale(lng);
+      i18n.on('languageChanged', onChange);
+      return () => i18n.off('languageChanged', onChange);
+    }, [i18n]);
+    return locale;
+  }
+
+3) ItemCard binding
+- In ItemCard, read the locale and render localized fields with fallback:
+  const locale = useLocale();
+  const title = item.title?.[locale] ?? item.title?.en ?? '';
+  const desc  = item.description?.[locale] ?? item.description?.en ?? '';
+  Render <h3 className="title">{title}</h3> and <p className="desc">{desc}</p>.
+- REMOVE any hard-coded English props passed into ItemCard (e.g., titleEn/descEn) and pass the whole item object instead.
+
+4) Re-render guarantees
+- Ensure the list maps with a stable key (item.id) and ItemCard is NOT memoized against locale. If memoized, include [locale] in props or useMemo deps.
+- When language changes, ItemCard must re-render (verify by adding locale in its props or context usage).
+
+5) RTL/LTR
+- When locale === 'ar':
+  - Add dir="rtl" to the page/container.
+  - Keep the compact horizontal layout; only mirror text alignment as needed (text-align: right for titles/descriptions).
+- For 'en' and 'fr' keep dir="ltr".
+
+6) Fallback + safety
+- If a translation is missing, fall back to English.
+- Make sure line-clamp still works for ar/fr (no letter-by-letter wrapping; use word-break: normal; overflow-wrap: break-word).
+
+7) Test
+- Switch between EN/AR/FR and confirm titles/descriptions update instantly without reload. No cache required; use localStorage to persist i18next language as already implemented.
