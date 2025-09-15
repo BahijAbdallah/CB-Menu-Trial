@@ -331,7 +331,8 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     gap: 12px !important;
     padding: 12px !important;
     width: calc(100% - 24px) !important;
-    margin: 0 12px !important;
+    margin: 8px auto !important;        /* centers the card */
+    max-width: 95% !important;           /* optional: prevents touching edges */
     box-sizing: border-box !important;
     background: var(--comfort, #ECE6DB) !important;
     border-radius: 12px !important;
