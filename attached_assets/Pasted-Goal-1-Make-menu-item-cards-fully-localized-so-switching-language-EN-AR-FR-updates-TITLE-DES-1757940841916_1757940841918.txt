@@ -1,0 +1,195 @@
+Goal: 
+1) Make menu item cards fully localized so switching language (EN/AR/FR) updates TITLE + DESCRIPTION immediately (with RTL for Arabic).
+2) Keep desktop/tablet design unchanged.
+3) On mobile (≤480px), cards are compact horizontal rows (image | text | price), centered, with smaller fonts and short height.
+
+Implement EXACTLY:
+
+A) Create hook `src/hooks/useLocale.ts`
+---------------------------------------
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+export function useLocale() {
+  const { i18n } = useTranslation();
+  const [locale, setLocale] = useState(i18n.resolvedLanguage || i18n.language || "en");
+  useEffect(() => {
+    const onChange = (lng: string) => setLocale(lng);
+    i18n.on("languageChanged", onChange);
+    return () => i18n.off("languageChanged", onChange);
+  }, [i18n]);
+  return locale;
+}
+
+B) Create utils `src/utils/i18nMap.ts`
+--------------------------------------
+export type Localized = Partial<Record<"en"|"ar"|"fr", string>>;
+
+export function normalizeLocale(lng: string): "en"|"ar"|"fr" {
+  const L = (lng || "en").toLowerCase();
+  if (L.startsWith("ar")) return "ar";
+  if (L.startsWith("fr")) return "fr";
+  return "en";
+}
+
+export function pick(loc: Localized | undefined, lng: string): string {
+  const L = normalizeLocale(lng);
+  if (!loc) return "";
+  return loc[L] || loc.en || loc.ar || loc.fr || "";
+}
+
+export function dir(lng: string) {
+  return normalizeLocale(lng) === "ar" ? "rtl" : "ltr";
+}
+
+export function align(lng: string) {
+  return normalizeLocale(lng) === "ar" ? "right" : "left";
+}
+
+C) Create items helper `src/utils/items.ts`
+-------------------------------------------
+import type { Localized } from "./i18nMap";
+
+export type Item = {
+  id: string;
+  // Preferred new shape:
+  title?: Localized;
+  description?: Localized;
+  // Legacy fields (still supported):
+  name?: string; name_ar?: string; name_fr?: string;
+  desc?: string; desc_ar?: string; desc_fr?: string;
+  price?: number;
+  image?: string;
+};
+
+export function toLocalizedFields(item: Item): { title: Localized; description: Localized } {
+  return {
+    title: item.title ?? { en: item.name, ar: item.name_ar, fr: item.name_fr },
+    description: item.description ?? { en: item.desc, ar: item.desc_ar, fr: item.desc_fr },
+  };
+}
+
+D) Update ItemCard to use locale + localized fields
+---------------------------------------------------
+File: src/components/ItemCard.tsx  (or wherever ItemCard lives). Replace component content to:
+
+import React from "react";
+import { useLocale } from "../hooks/useLocale";
+import { pick, dir, align } from "../utils/i18nMap";
+import { toLocalizedFields, Item } from "../utils/items";
+
+type Props = { item: Item };
+
+export default function ItemCard({ item }: Props) {
+  const locale = useLocale();
+  const { title, description } = toLocalizedFields(item);
+
+  const name = pick(title, locale);
+  const desc = pick(description, locale);
+
+  return (
+    <article className="menu-card" dir={dir(locale)}>
+      <img className="media" src={item.image} alt={name} />
+      <div className="text" style={{ textAlign: align(locale) }}>
+        <h3 className="title">{name}</h3>
+        <p className="desc">{desc}</p>
+      </div>
+      <div className="price">{item.price?.toFixed(2)} $</div>
+    </article>
+  );
+}
+
+E) Ensure the list re-renders on language change
+------------------------------------------------
+If ItemCard is wrapped in React.memo or the list doesn't pass anything that changes with locale, either:
+- Remove React.memo from ItemCard, OR
+- In the list component, read `const locale = useLocale();` and pass it as a prop to ItemCard (even if unused) to force re-render:
+  {items.map(i => <ItemCard key={i.id} item={i} locale={locale} />)}
+(If you add the prop, accept it in ItemCard’s props but you don’t have to use it.)
+
+F) Center the cards and make compact horizontal layout on mobile
+----------------------------------------------------------------
+Append the following CSS at the END of the main stylesheet (so it overrides earlier rules):
+
+/* Prevent letter-by-letter breaking for all languages */
+.menu-card .title, .menu-card .desc {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Compact horizontal cards on mobile + centered */
+@media (max-width: 480px) {
+  .menu-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: calc(100% - 24px) !important; /* full width with gutters */
+    margin: 8px auto !important;         /* centered */
+    padding: 10px !important;
+    gap: 10px !important;
+    box-sizing: border-box !important;
+  }
+  .menu-card .media, .menu-card img {
+    width: 70px !important;
+    height: 70px !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+  .menu-card .text {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  .menu-card .title {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    margin: 0 0 3px !important;
+    white-space: normal !important;
+  }
+  .menu-card .desc {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important; /* keep height small */
+    overflow: hidden !important;
+  }
+  .menu-card .price {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    margin-left: 8px !important;
+    align-self: center !important;
+  }
+}
+
+G) Language persistence & direction
+-----------------------------------
+- The app already uses i18next. Ensure localStorage language persistence remains enabled.
+- For Arabic only, set RTL automatically. We already set `dir={dir(locale)}` on each card; additionally, set the top-level page/container to RTL when locale === 'ar' (e.g., in App.tsx root container: `<div dir={dir(locale)}>…</div>`).
+
+H) Data shape
+-------------
+- Items must come with either:
+  title/description as { en, ar, fr }, OR legacy fields name/name_ar/name_fr and desc/desc_ar/desc_fr. The helper `toLocalizedFields` supports both. No other code changes are required in data fetching.
+
+I) Acceptance criteria
+----------------------
+- Switching EN/AR/FR updates item TITLE and DESCRIPTION instantly without reload.
+- Arabic flips to RTL and right-aligns text; EN/FR stay LTR.
+- Mobile (≤480px): cards are horizontal, compact, centered, small fonts, description clamped to 2 lines.
+- Desktop/tablet visuals remain unchanged.
+
+Apply all edits and run the app.
+
+
+
+
+
+
+
+Ask ChatGPT
