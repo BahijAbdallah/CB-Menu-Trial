@@ -449,62 +449,6 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 /* Optional: prevent accidental horizontal scroll anywhere */
 section, header, footer, .hero { overflow-x: clip; }
 
-/* Prevent letter-by-letter breaking for all languages */
-.menu-card .title, .menu-card .desc {
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
-}
-
-/* Compact horizontal cards on mobile + centered */
-@media (max-width: 480px) {
-  .menu-card {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: calc(100% - 24px) !important; /* full width with gutters */
-    margin: 8px auto !important;         /* centered */
-    padding: 10px !important;
-    gap: 10px !important;
-    box-sizing: border-box !important;
-  }
-  .menu-card .media, .menu-card img {
-    width: 70px !important;
-    height: 70px !important;
-    object-fit: cover !important;
-    border-radius: 8px !important;
-    flex-shrink: 0 !important;
-    display: block !important;
-  }
-  .menu-card .text {
-    flex: 1 !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-  }
-  .menu-card .title {
-    font-size: 16px !important;
-    line-height: 1.2 !important;
-    margin: 0 0 3px !important;
-    white-space: normal !important;
-  }
-  .menu-card .desc {
-    font-size: 12px !important;
-    line-height: 1.3 !important;
-    margin: 0 !important;
-    display: -webkit-box !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 2 !important; /* keep height small */
-    overflow: hidden !important;
-  }
-  .menu-card .price {
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
-    margin-left: 8px !important;
-    align-self: center !important;
-  }
-}
-
 /* === Allergens: slightly larger text + icons, keep current layout === */
 .allergens-legend h3{ font-size:18px; font-family: 'Billmake', sans-serif; }          /* was ~16px */
 .allergens-legend p{  font-size:13px; }
