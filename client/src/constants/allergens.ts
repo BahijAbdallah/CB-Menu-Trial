@@ -1,8 +1,10 @@
-export type AllergenSlug = 'gluten'|'fish'|'peanuts'|'nuts'|'sesame';
+export type AllergenSlug = 'dairy'|'gluten'|'fish'|'soya'|'peanuts'|'nuts'|'sesame';
 
 export const ALLERGENS: { slug: AllergenSlug; label: string; icon: string }[] = [
+  { slug: 'dairy',   label: 'Dairy',   icon: '/icons/allergens/milk.png' },
   { slug: 'gluten',  label: 'Gluten',  icon: '/icons/allergens/gluten.png' },
   { slug: 'fish',    label: 'Fish',    icon: '/icons/allergens/fish.png' },
+  { slug: 'soya',    label: 'Soya',    icon: '/icons/allergens/soya.png' },
   { slug: 'peanuts', label: 'Peanuts', icon: '/icons/allergens/peanuts.png' },
   { slug: 'nuts',    label: 'Nuts',    icon: '/icons/allergens/nuts.png' },
   { slug: 'sesame',  label: 'Sesame',  icon: '/icons/allergens/sesame.png' },
