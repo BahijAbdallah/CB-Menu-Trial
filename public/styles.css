@@ -425,6 +425,25 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     width: 10px !important;
     height: 10px !important;
   }
+
+  /* RTL support for Arabic */
+  [dir="rtl"] .menu-card .menu-title {
+    text-align: right !important;
+  }
+  
+  [dir="rtl"] .menu-card .menu-desc {
+    text-align: right !important;
+  }
+
+  /* Ensure Arabic text flows properly */
+  [dir="rtl"] .menu-card .menu-meta {
+    direction: rtl !important;
+  }
+  
+  /* Allergen badges alignment for RTL */
+  [dir="rtl"] .allergen-badges {
+    justify-content: flex-end !important;
+  }
 }
 
 /* Optional: prevent accidental horizontal scroll anywhere */
