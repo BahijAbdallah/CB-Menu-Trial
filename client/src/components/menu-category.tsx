@@ -98,8 +98,8 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
   
   return (
     <section className="container">
-      {/* Desktop/tablet: centered stacked cards */}
-      <ul id="menuList" className="menu-list desktop-menu-list" role="list">
+      {/* Responsive menu list: desktop layout scaled down for mobile */}
+      <ul id="menuList" className="menu-list" role="list">
         {items.map((item, index) => {
           // Parse allergens from JSON string or use array directly
           let allergens: AllergenSlug[] = [];
@@ -126,37 +126,6 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
           );
         })}
       </ul>
-      
-      {/* Mobile: horizontal scroll cards */}
-      <div className="mobile-menu-container">
-        <ul className="menu-list mobile-menu-list" role="list">
-          {items.map((item, index) => {
-            // Parse allergens from JSON string or use array directly
-            let allergens: AllergenSlug[] = [];
-            if (item.allergens) {
-              if (typeof item.allergens === 'string') {
-                try {
-                  allergens = JSON.parse(item.allergens);
-                } catch {
-                  allergens = [];
-                }
-              } else {
-                allergens = item.allergens;
-              }
-            }
-            
-            return (
-              <MenuItemWithImage 
-                key={item.id} 
-                item={item} 
-                category={category} 
-                index={index} 
-                allergens={allergens}
-              />
-            );
-          })}
-        </ul>
-      </div>
       
       {items.length === 0 && (
         <div className="text-center py-12">
