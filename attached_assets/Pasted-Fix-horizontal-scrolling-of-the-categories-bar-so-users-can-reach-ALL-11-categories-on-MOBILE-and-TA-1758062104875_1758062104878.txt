@@ -1,0 +1,95 @@
+Fix horizontal scrolling of the categories bar so users can reach ALL 11 categories on MOBILE and TABLET. 
+⚠️ Do NOT change any visuals or HTML structure. CSS + minimal JS only.
+
+Do exactly:
+
+1) TARGET the existing categories container (no new markup):
+- Try in order and pick the first that exists:
+  #categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip
+- Use the found element as const strip.
+
+2) CSS — append (scoped to mobile & tablet ≤1024px):
+@media (max-width:1024px){
+  /* Ensure strip can actually overflow and be scrolled */
+  #categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip{
+    display:flex; flex-wrap:nowrap;
+    gap:.75rem;
+    overflow-x:auto !important; overflow-y:hidden !important;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    max-width:100%;
+    padding-inline:12px;
+    touch-action: pan-x !important;  /* enable horizontal touch swipe */
+    scroll-snap-type: none !important; /* avoid snap traps at edges */
+  }
+  /* children shouldn’t shrink or wrap */
+  #categoryStrip > *, .menu-category-strip > *, .menu-category-tabs > *, 
+  nav .categories > *, .categories-strip > *{
+    flex:0 0 auto; min-width:max-content;
+  }
+}
+
+3) JS — add a small script that runs after the categories render (NO DOM changes):
+(function(){
+  const strip = document.querySelector('#categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip');
+  if(!strip) { console.warn('category strip not found'); return; }
+
+  // 1) Unblock any parent that hides horizontal overflow
+  let p = strip.parentElement;
+  while(p){
+    const cs = getComputedStyle(p);
+    if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
+      p.style.overflowX = 'visible';   // no visual change; just allow child scroll
+    }
+    p = p.parentElement;
+  }
+
+  // 2) Runtime safeties (no visual change)
+  strip.style.overflowX = 'auto';
+  strip.style.whiteSpace = 'nowrap';
+  strip.style.webkitOverflowScrolling = 'touch';
+  strip.style.scrollBehavior = 'smooth';
+
+  // 3) Convert vertical wheel to horizontal (desktop trackpads/mice)
+  strip.addEventListener('wheel', (e)=>{
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+      strip.scrollBy({left: e.deltaY, behavior: 'auto'});
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  // 4) Verify we can reach both ends; if not, relax any sticky/clip ancestors
+  function ensureEndsReachable(){
+    const before = { w: strip.scrollWidth, c: strip.clientWidth };
+    // try full right then full left
+    strip.scrollTo({ left: strip.scrollWidth, behavior: 'auto' });
+    const atEnd = Math.abs(strip.scrollLeft - (strip.scrollWidth - strip.clientWidth)) <= 1;
+    strip.scrollTo({ left: 0, behavior: 'auto' });
+    const atStart = strip.scrollLeft === 0;
+
+    // If either end is blocked, remove clip from nearest sticky ancestor
+    if(!atEnd || !atStart){
+      let a = strip.parentElement;
+      while(a){
+        const cs = getComputedStyle(a);
+        if(cs.position === 'sticky' || cs.overflow === 'hidden' || cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
+          a.style.overflowX = 'visible';
+          a.style.overflow = cs.overflowY === 'hidden' ? 'visible hidden' : 'visible';
+        }
+        a = a.parentElement;
+      }
+    }
+    console.log('categories widths', before, 'scrollLeft', strip.scrollLeft);
+  }
+
+  // 5) Run once and after a frame (in case of fonts/layout)
+  ensureEndsReachable();
+  requestAnimationFrame(ensureEndsReachable);
+})();
+
+4) Tests to confirm (no UI changes, just devtools logs):
+- On mobile & tablet widths (≤1024px), strip.scrollWidth > strip.clientWidth.
+- You can swipe to the VERY first and VERY last pill; both become fully visible.
+- Desktop wheel scroll moves horizontally when hovered on the strip.
+- No changes to colors, fonts, borders, or pill sizes.

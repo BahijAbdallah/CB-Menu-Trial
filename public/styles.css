@@ -892,3 +892,24 @@ header[role="banner"]{
   .menu-item-card,
   .item-card { margin-top: 0 !important; margin-bottom: 0 !important; }
 }
+
+@media (max-width:1024px){
+  /* Ensure strip can actually overflow and be scrolled */
+  #categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip{
+    display:flex; flex-wrap:nowrap;
+    gap:.75rem;
+    overflow-x:auto !important; overflow-y:hidden !important;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    max-width:100%;
+    padding-inline:12px;
+    touch-action: pan-x !important;  /* enable horizontal touch swipe */
+    scroll-snap-type: none !important; /* avoid snap traps at edges */
+  }
+  /* children shouldn't shrink or wrap */
+  #categoryStrip > *, .menu-category-strip > *, .menu-category-tabs > *, 
+  nav .categories > *, .categories-strip > *{
+    flex:0 0 auto; min-width:max-content;
+  }
+}

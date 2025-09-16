@@ -99,100 +99,64 @@ export default function MenuPage() {
     }
   }, [activeCategory]);
 
-  // Category strip scrolling functionality
+  // Category strip scrolling functionality - fixed for mobile & tablet
   useEffect(() => {
     (function(){
-      let scroller = document.getElementById('categoryStrip');
-      if(!scroller){
-        // Try to find the correct container and assign the id
-        const candidates = Array.from(document.querySelectorAll('.category-strip, .menu-categories, .menu-category-tabs, nav, .tabs, .chips'))
-          .filter(el => el.querySelectorAll('button, a').length >= 6);
-        if(candidates[0]) { candidates[0].id = 'categoryStrip'; scroller = candidates[0] as HTMLElement; }
-      }
-      if(!scroller) { console.warn('categoryStrip not found'); return; }
+      const strip = document.querySelector('#categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip');
+      if(!strip) { console.warn('category strip not found'); return; }
 
-      // Unblock parent containers that hide overflow
-      let p = scroller.parentElement;
-      while(p){ 
+      // 1) Unblock any parent that hides horizontal overflow
+      let p = strip.parentElement;
+      while(p){
         const cs = getComputedStyle(p);
-        if(cs.overflowX === 'hidden') p.style.overflowX = 'visible';
+        if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
+          p.style.overflowX = 'visible';   // no visual change; just allow child scroll
+        }
         p = p.parentElement;
       }
 
-      // Ensure required styles at runtime
-      Object.assign(scroller.style, {
-        overflowX: 'auto',
-        whiteSpace: 'nowrap'
-      });
+      // 2) Runtime safeties (no visual change)
+      const stripElement = strip as HTMLElement;
+      stripElement.style.overflowX = 'auto';
+      stripElement.style.whiteSpace = 'nowrap';
+      (stripElement.style as any).webkitOverflowScrolling = 'touch';
+      stripElement.style.scrollBehavior = 'smooth';
 
-      // Insert arrows if missing
-      const wrap = scroller.closest('.category-strip-wrap') || (()=>{
-        const w = document.createElement('div');
-        w.className = 'category-strip-wrap';
-        scroller.parentNode!.insertBefore(w, scroller);
-        w.appendChild(scroller);
-        return w;
-      })();
-
-      let leftBtn = wrap.querySelector('.cat-arrow.left') as HTMLButtonElement;
-      let rightBtn = wrap.querySelector('.cat-arrow.right') as HTMLButtonElement;
-      if(!leftBtn){
-        leftBtn = document.createElement('button') as HTMLButtonElement;
-        leftBtn.className = 'cat-arrow left';
-        leftBtn.type = 'button';
-        leftBtn.setAttribute('aria-label','Scroll left');
-        leftBtn.textContent = '‹';
-        wrap.insertBefore(leftBtn, scroller);
-      }
-      if(!rightBtn){
-        rightBtn = document.createElement('button') as HTMLButtonElement;
-        rightBtn.className = 'cat-arrow right';
-        rightBtn.type = 'button';
-        rightBtn.setAttribute('aria-label','Scroll right');
-        rightBtn.textContent = '›';
-        wrap.appendChild(rightBtn);
-      }
-
-      // Helpers
-      const step = () => Math.max(260, Math.round(scroller!.clientWidth * 0.85));
-      function updateArrows(){
-        const atStart = scroller!.scrollLeft <= 0;
-        const atEnd = scroller!.scrollLeft + scroller!.clientWidth >= scroller!.scrollWidth - 1;
-        leftBtn.disabled = atStart;
-        rightBtn.disabled = atEnd;
-      }
-
-      // Click handlers (include hard-jumps to extremes as fallback)
-      leftBtn.addEventListener('click', ()=>{
-        if(scroller.scrollLeft <= step()) scroller.scrollTo({left: 0, behavior: 'smooth'});
-        else scroller.scrollBy({left: -step(), behavior: 'smooth'});
-      });
-      rightBtn.addEventListener('click', ()=>{
-        const end = scroller.scrollWidth - scroller.clientWidth;
-        if((end - scroller.scrollLeft) <= step()) scroller.scrollTo({left: end, behavior: 'smooth'});
-        else scroller.scrollBy({left: step(), behavior: 'smooth'});
-      });
-
-      // Convert vertical wheel to horizontal scrolling on desktop
-      scroller.addEventListener('wheel', (e)=>{
+      // 3) Convert vertical wheel to horizontal (desktop trackpads/mice)
+      stripElement.addEventListener('wheel', (e)=>{
         if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
-          scroller.scrollBy({left: e.deltaY, behavior:'auto'});
+          stripElement.scrollBy({left: e.deltaY, behavior: 'auto'});
           e.preventDefault();
         }
       }, {passive:false});
 
-      // Center a pill when clicked
-      scroller.querySelectorAll('.category-btn, button, a').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          btn.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
-        });
-      });
+      // 4) Verify we can reach both ends; if not, relax any sticky/clip ancestors
+      function ensureEndsReachable(){
+        const before = { w: stripElement.scrollWidth, c: stripElement.clientWidth };
+        // try full right then full left
+        stripElement.scrollTo({ left: stripElement.scrollWidth, behavior: 'auto' });
+        const atEnd = Math.abs(stripElement.scrollLeft - (stripElement.scrollWidth - stripElement.clientWidth)) <= 1;
+        stripElement.scrollTo({ left: 0, behavior: 'auto' });
+        const atStart = stripElement.scrollLeft === 0;
 
-      // Initialize at the absolute left
-      scroller.scrollTo({left: 0});
-      scroller.addEventListener('scroll', updateArrows);
-      window.addEventListener('resize', updateArrows);
-      updateArrows();
+        // If either end is blocked, remove clip from nearest sticky ancestor
+        if(!atEnd || !atStart){
+          let a = stripElement.parentElement;
+          while(a){
+            const cs = getComputedStyle(a);
+            if(cs.position === 'sticky' || cs.overflow === 'hidden' || cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
+              a.style.overflowX = 'visible';
+              a.style.overflow = cs.overflowY === 'hidden' ? 'visible hidden' : 'visible';
+            }
+            a = a.parentElement;
+          }
+        }
+        console.log('categories widths', before, 'scrollLeft', stripElement.scrollLeft);
+      }
+
+      // 5) Run once and after a frame (in case of fonts/layout)
+      ensureEndsReachable();
+      requestAnimationFrame(ensureEndsReachable);
     })();
   }, [categories]);
 
