@@ -9,7 +9,6 @@ export const ALLERGENS: Allergen[] = [
   { slug: 'gluten', label: 'Gluten', icon: '/icons/allergens/gluten.svg' },
   { slug: 'fish', label: 'Fish', icon: '/icons/allergens/fish.svg' },
   { slug: 'soya', label: 'Soya', icon: '/icons/allergens/soya.svg' },
-  { slug: 'peanuts', label: 'Peanuts', icon: '/icons/allergens/peanuts.svg' },
   { slug: 'nuts', label: 'Nuts', icon: '/icons/allergens/nuts.svg' },
 ];
 
