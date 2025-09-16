@@ -184,7 +184,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
   };
 
   const handleRemoveImage = () => {
-    form.setValue('imageUrl', '');
+    form.setValue('imageUrl', 'CLEAR_IMAGE'); // Flag to indicate explicit clearing
     setImagePreview('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -193,7 +193,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
 
   const saveMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const payload: InsertMenuItem = {
+      const payload: any = {
         ...data,
         price: data.price,
         nameArabic: data.nameArabic || null,
@@ -201,9 +201,23 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         description: data.description || null,
         descriptionArabic: data.descriptionArabic || null,
         descriptionFrench: data.descriptionFrench || null,
-        imageUrl: data.imageUrl || null,
         allergens: JSON.stringify(data.allergens),
       };
+
+      // Handle imageUrl properly - only include when changed
+      if (data.imageUrl === 'CLEAR_IMAGE') {
+        // User explicitly wants to remove the image
+        payload.imageUrl = null;
+        console.log('Clearing image for item');
+      } else if (data.imageUrl && data.imageUrl.trim() !== '' && data.imageUrl !== 'CLEAR_IMAGE') {
+        // User provided a new image URL
+        payload.imageUrl = data.imageUrl;
+        console.log('Setting new image for item');
+      } else if (!editingItem) {
+        // Creating a new item with no image
+        payload.imageUrl = null;
+      }
+      // If editing and no imageUrl change, don't include it in payload (preserve existing)
 
       if (editingItem) {
         return apiRequest("PUT", `/api/menu-items/${editingItem.id}`, payload);

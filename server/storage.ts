@@ -102,6 +102,7 @@ export class MemStorage implements IStorage {
         ...cat, 
         id: this.currentCategoryId++,
         nameArabic: cat.nameArabic || null,
+        nameFrench: null,
         order: cat.order || 0
       };
       this.categories.set(category.id, category);
@@ -152,8 +153,10 @@ export class MemStorage implements IStorage {
       const menuItem: MenuItem = { 
         ...item, 
         id: this.currentMenuItemId++,
+        nameFrench: null,
         imageUrl: null,
         descriptionArabic: null,
+        descriptionFrench: null,
         outOfStock: false,
         allergens: null
       };
@@ -194,6 +197,7 @@ export class MemStorage implements IStorage {
       ...category, 
       id,
       nameArabic: category.nameArabic || null,
+      nameFrench: category.nameFrench || null,
       order: category.order || 0
     };
     this.categories.set(id, newCategory);
@@ -234,8 +238,10 @@ export class MemStorage implements IStorage {
       ...item, 
       id,
       nameArabic: item.nameArabic || null,
+      nameFrench: item.nameFrench || null,
       description: item.description || null,
       descriptionArabic: item.descriptionArabic || null,
+      descriptionFrench: item.descriptionFrench || null,
       imageUrl: item.imageUrl || null,
       order: item.order || 0,
       isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
@@ -250,9 +256,15 @@ export class MemStorage implements IStorage {
     const existing = this.menuItems.get(id);
     if (!existing) return undefined;
     
-    const updated = { ...existing, ...item };
-    this.menuItems.set(id, updated);
-    return updated;
+    // Preserve imageUrl only when undefined or empty string (null = explicit clear)
+    const updatedItem = { ...existing, ...item };
+    if (item.imageUrl === undefined || item.imageUrl === '') {
+      updatedItem.imageUrl = existing.imageUrl; // Preserve existing image
+    }
+    // null = explicit clear, so allow it to overwrite
+    
+    this.menuItems.set(id, updatedItem);
+    return updatedItem;
   }
 
   async deleteMenuItem(id: number): Promise<boolean> {
@@ -393,9 +405,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMenuItem(id: number, item: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    // Get existing item to preserve imageUrl if needed
+    const [existing] = await db.select().from(menuItems).where(eq(menuItems.id, id));
+    if (!existing) return undefined;
+
+    // Preserve imageUrl only when undefined or empty string (null = explicit clear)
+    const updateData = { ...item };
+    if (item.imageUrl === undefined || item.imageUrl === '') {
+      updateData.imageUrl = existing.imageUrl; // Preserve existing image
+    }
+    // null = explicit clear, so allow it to overwrite
+
     const [updated] = await db
       .update(menuItems)
-      .set(item)
+      .set(updateData)
       .where(eq(menuItems.id, id))
       .returning();
     return updated || undefined;
