@@ -772,18 +772,24 @@ header[role="banner"]{
   }
 }
 
-/* ====== CATEGORY STRIP SCROLLING NAVIGATION (TASK 1) ====== */
-.category-strip-wrap{position:relative;max-width:100%}
-#categoryStrip{
-  display:flex;flex-wrap:nowrap;gap:.75rem;
-  overflow-x:auto!important;overflow-y:hidden;
-  white-space:nowrap;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;
-  scroll-snap-type:x proximity;scroll-padding-inline:0;
-  padding-inline:12px;
+/* ====== CATEGORY STRIP SCROLLING NAVIGATION ====== */
+.category-strip-wrap{position:relative; max-width:100%}
+.category-strip{
+  display:flex; flex-wrap:nowrap; gap:.75rem;
+  overflow-x:auto !important; overflow-y:hidden;
+  -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  white-space:nowrap; max-width:100%; padding:0 12px;
+  scroll-snap-type:x proximity; scroll-padding-inline:12px;
 }
-#categoryStrip *{flex:0 0 auto}
-.cat-arrow{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:10;cursor:pointer}
+.category-strip *{flex:0 0 auto}
+.category-strip::-webkit-scrollbar{height:8px}
+.cat-arrow{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:34px; height:34px; border:none; border-radius:999px;
+  background:rgba(255,255,255,.9); box-shadow:0 2px 8px rgba(0,0,0,.15);
+  z-index:9999; cursor:pointer; line-height:34px; text-align:center;
+}
 .cat-arrow.left{left:4px}
 .cat-arrow.right{right:4px}
-.cat-arrow[disabled]{opacity:.35;pointer-events:none}
+.cat-arrow[disabled]{opacity:.35; pointer-events:none}
 .category-btn{scroll-snap-align:center}
