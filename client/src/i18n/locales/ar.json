@@ -21,7 +21,9 @@
     "title": "القائمة",
     "subtitle": "اكتشف مأكولاتنا اللبنانية الأصيلة المحضرة بحب وتقليد",
     "available": "متوفر",
-    "outOfStock": "غير متوفر"
+    "outOfStock": "غير متوفر",
+    "viewMore": "عرض المزيد",
+    "viewLess": "عرض أقل"
   },
   "categories": {
     "breakfast-items": "أطباق الفطور",

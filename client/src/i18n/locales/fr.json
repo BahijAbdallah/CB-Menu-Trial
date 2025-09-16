@@ -21,7 +21,9 @@
     "title": "Menu",
     "subtitle": "Découvrez notre cuisine libanaise authentique préparée avec passion et tradition",
     "available": "Disponible",
-    "outOfStock": "Rupture de Stock"
+    "outOfStock": "Rupture de Stock",
+    "viewMore": "Voir Plus",
+    "viewLess": "Voir Moins"
   },
   "categories": {
     "breakfast-items": "Petits Déjeuners",

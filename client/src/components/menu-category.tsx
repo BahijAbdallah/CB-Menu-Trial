@@ -1,9 +1,68 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 import { useLocale, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
+
+interface ExpandableDescriptionProps {
+  text: string;
+  maxLines?: number;
+}
+
+function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProps) {
+  const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [needsTruncation, setNeedsTruncation] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  
+  useEffect(() => {
+    if (textRef.current) {
+      // Temporarily remove line clamp to measure full height
+      const element = textRef.current;
+      element.style.webkitLineClamp = 'unset';
+      element.style.display = 'block';
+      const fullHeight = element.scrollHeight;
+      
+      // Set to 2 lines and measure clamped height
+      element.style.webkitLineClamp = maxLines.toString();
+      element.style.display = '-webkit-box';
+      const clampedHeight = element.scrollHeight;
+      
+      // If full height is greater than clamped height, we need truncation
+      setNeedsTruncation(fullHeight > clampedHeight);
+      
+      // Reset to appropriate state
+      if (!needsTruncation || isExpanded) {
+        element.style.webkitLineClamp = 'unset';
+        element.style.display = 'block';
+      }
+    }
+  }, [text, maxLines, isExpanded, needsTruncation]);
+  
+  if (!needsTruncation) {
+    return <p ref={textRef} className="menu-desc">{text}</p>;
+  }
+  
+  return (
+    <div className="expandable-description">
+      <p 
+        ref={textRef}
+        className={`menu-desc ${!isExpanded ? 'line-clamped' : 'expanded'}`}
+      >
+        {text}
+      </p>
+      <button
+        className="view-more-toggle"
+        onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        data-testid={`toggle-description-${isExpanded ? 'less' : 'more'}`}
+      >
+        {isExpanded ? t('menu.viewLess', 'View Less') : t('menu.viewMore', 'View More')}
+      </button>
+    </div>
+  );
+}
 
 interface MenuCategoryProps {
   category: Category;
@@ -54,7 +113,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
       </div>
       <div className="menu-meta">
         <h3 className="menu-title">{itemName}</h3>
-        <p className="menu-desc">{itemDescription}</p>
+        <ExpandableDescription text={itemDescription} />
         
         {/* Allergy badges under description */}
         {allergens.length > 0 && (
