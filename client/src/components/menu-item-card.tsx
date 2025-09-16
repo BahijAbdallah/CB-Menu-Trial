@@ -34,7 +34,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
   const [imageLoaded, setImageLoaded] = useState(false);
   
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 relative">
+    <div className="menu-item-card bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 relative">
       <div className="relative overflow-hidden">
         {!imageLoaded && (
           <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
@@ -57,7 +57,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           {item.name}
         </h4>
         {item.description && (
-          <p className="text-saddle-brown text-sm mb-4 line-clamp-2">
+          <p className="desc text-saddle-brown text-sm mb-4">
             {item.description}
           </p>
         )}
