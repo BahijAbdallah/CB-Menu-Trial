@@ -864,3 +864,31 @@ header[role="banner"]{
 .menu-item-card.expanded, .item-card.expanded{
   /* allow natural expansion without affecting others */
 }
+
+/* iPad / tablet-only vertical spacing for cards */
+@media (min-width: 820px) and (max-width: 1024px) {
+  /* Apply gap at the list level so card internals remain untouched */
+  #menuList.menu-list {
+    display: flex;              /* keep single column */
+    flex-direction: column;
+    row-gap: 16px;              /* <-- adjust to 12/20 if needed */
+  }
+
+  /* Normalize any existing margins so spacing is controlled by row-gap */
+  #menuList.menu-list > li,
+  #menuList.menu-list > li .menu-item-card,
+  .menu-item-card,
+  .item-card {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Optional: when iPad is in landscape but narrower (old iPads 768px) */
+@media (min-width: 768px) and (max-width: 819.98px) {
+  #menuList.menu-list { row-gap: 16px; }
+  #menuList.menu-list > li,
+  #menuList.menu-list > li .menu-item-card,
+  .menu-item-card,
+  .item-card { margin-top: 0 !important; margin-bottom: 0 !important; }
+}
