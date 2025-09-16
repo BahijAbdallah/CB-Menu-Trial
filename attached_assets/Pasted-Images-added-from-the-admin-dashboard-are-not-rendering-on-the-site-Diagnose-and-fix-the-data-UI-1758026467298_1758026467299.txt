@@ -1,0 +1,44 @@
+Images added from the admin dashboard are not rendering on the site. 
+Diagnose and fix the data → UI pipeline so product images display without changing the design.
+
+Do the following:
+
+1) Data fetch:
+   - Find the products fetcher (e.g., getProducts/getMenu/loadProducts).
+   - Ensure it SELECTs/returns image fields from the admin source (WordPress/WooCommerce: images[].src, image.src; 
+     other CMS: imageUrl or media.url).
+   - Map to a single normalized key on the FE: product.imageUrl = record.imageUrl || record.image?.src || record.images?.[0]?.src.
+
+2) UI binding:
+   - In product card/menu item component, use:
+     const src = product.imageUrl || product.images?.[0]?.src;
+     If src exists, render the image; otherwise show the existing placeholder.
+   - Remove any guards that hide the <img> when description/title is empty.
+
+3) Next.js/Images config (if using next/image):
+   - Update next.config.js to allow external domains:
+     images: { remotePatterns: [{ protocol: 'https', hostname: '**' }] }
+     // or list exact hosts (e.g., cdn.site.com, wp-content domain, Cloudflare R2/Supabase).
+   - Rebuild after editing this file.
+
+4) URL correctness & access:
+   - Coerce all image URLs to absolute HTTPS (no //relative or http).
+   - Ensure the storage/CMS links are public (no auth token required) and CORS is allowed.
+
+5) Caching/revalidation:
+   - If using ISR or a build-time JSON, add a manual revalidate after admin edits:
+     await res.revalidate?.('/'); await res.revalidate?.('/menu');
+   - Purge CDN/Cloudflare cache for /_next/image and the image paths.
+
+6) Lazy-load/observer:
+   - Make sure IntersectionObserver doesn’t keep images hidden on desktop:
+     rootMargin: '200px', threshold: 0.01.
+   - Do NOT set style="visibility:hidden" before load; instead use decoding="async" and loading="lazy".
+
+7) Regression guard:
+   - In any CSV/JSON importer, NEVER overwrite images with []/null when only category/price changes.
+
+Acceptance:
+- Images added in admin show immediately after a fetch + revalidate.
+- No console 404/blocked-mixed-content/CORS errors.
+- Product cards render the image using product.imageUrl (or images[0].src) with the existing design unchanged.

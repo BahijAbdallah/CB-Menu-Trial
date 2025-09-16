@@ -126,8 +126,9 @@ async function clearExistingData(): Promise<void> {
   }
 }
 
-async function importMenuItems(items: ProcessedItem[]): Promise<void> {
+async function importMenuItems(items: ProcessedItem[], existingImageMap: Map<string, string>): Promise<void> {
   console.log(`Importing ${items.length} menu items...`);
+  console.log(`Using preserved images for ${existingImageMap.size} items`);
   
   // Group items by category to create categories first
   const categoryNames = [...new Set(items.map(item => item.categoryName))];
@@ -139,12 +140,22 @@ async function importMenuItems(items: ProcessedItem[]): Promise<void> {
     categoryMap.set(categoryName, categoryId);
   }
   
-  // Create menu items
+  // Create menu items with image preservation
   for (const item of items) {
     const categoryId = categoryMap.get(item.categoryName);
     if (!categoryId) {
       console.error(`Category not found for item: ${item.name}`);
       continue;
+    }
+    
+    // Preserve existing image if no new image provided
+    let finalImageUrl = item.imageUrl || null;
+    if (!finalImageUrl) {
+      const existingImage = existingImageMap.get(item.name.toLowerCase().trim());
+      if (existingImage) {
+        finalImageUrl = existingImage;
+        console.log(`Preserved image for: ${item.name}`);
+      }
     }
     
     try {
@@ -153,14 +164,14 @@ async function importMenuItems(items: ProcessedItem[]): Promise<void> {
         description: item.description,
         price: item.price,
         categoryId,
-        imageUrl: item.imageUrl || null,
+        imageUrl: finalImageUrl,
         allergens: JSON.stringify(item.allergens),
         isAvailable: true,
         outOfStock: false,
         order: 0
       });
       
-      console.log(`Imported: ${item.name} (${item.categoryName})`);
+      console.log(`Imported: ${item.name} (${item.categoryName})${finalImageUrl ? ' [with image]' : ''}`);
     } catch (error) {
       console.error(`Error importing item ${item.name}:`, error);
     }
@@ -188,11 +199,24 @@ async function main() {
     // Perform import in a transaction-like manner
     console.log('Starting database transaction...');
     
+    // Snapshot existing images BEFORE clearing
+    console.log('Snapshotting existing images...');
+    const existingItems = await db.select().from(menuItems);
+    const existingImageMap = new Map<string, string>();
+    
+    existingItems.forEach(item => {
+      if (item.imageUrl) {
+        existingImageMap.set(item.name.toLowerCase().trim(), item.imageUrl);
+      }
+    });
+    
+    console.log(`Found ${existingImageMap.size} existing items with images to preserve`);
+    
     // Clear existing data
     await clearExistingData();
     
-    // Import new data
-    await importMenuItems(processedItems);
+    // Import new data with preserved images
+    await importMenuItems(processedItems, existingImageMap);
     
     console.log('Import completed successfully!');
     console.log(`Total items imported: ${processedItems.length}`);
