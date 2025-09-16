@@ -99,6 +99,70 @@ export default function MenuPage() {
     }
   }, [activeCategory]);
 
+  // Category strip scrolling functionality
+  useEffect(() => {
+    const scroller = document.getElementById('categoryStrip');
+    if (!scroller) return;
+
+    const leftBtn = document.querySelector('.cat-arrow.left') as HTMLButtonElement;
+    const rightBtn = document.querySelector('.cat-arrow.right') as HTMLButtonElement;
+    if (!leftBtn || !rightBtn) return;
+
+    const step = () => Math.max(240, Math.round(scroller!.clientWidth * 0.8));
+
+    function updateArrows() {
+      const atStart = scroller!.scrollLeft <= 0;
+      const atEnd = scroller!.scrollLeft + scroller!.clientWidth >= scroller!.scrollWidth - 1;
+      leftBtn.disabled = atStart;
+      rightBtn.disabled = atEnd;
+    }
+
+    const scrollLeft = () => scroller.scrollBy({ left: -step(), behavior: 'smooth' });
+    const scrollRight = () => scroller.scrollBy({ left: step(), behavior: 'smooth' });
+
+    leftBtn.addEventListener('click', scrollLeft);
+    rightBtn.addEventListener('click', scrollRight);
+    scroller.addEventListener('scroll', updateArrows);
+    window.addEventListener('resize', updateArrows);
+
+    // Convert vertical wheel to horizontal scroll (desktop mice)
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        scroller.scrollBy({ left: e.deltaY, behavior: 'auto' });
+        e.preventDefault();
+      }
+    };
+    scroller.addEventListener('wheel', handleWheel, { passive: false });
+
+    // When a category is clicked/activated, center it
+    scroller.querySelectorAll('.category-btn').forEach((btn) => {
+      const handleClick = () => {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      };
+      btn.addEventListener('click', handleClick);
+    });
+
+    // Make sure no parent container clips the strip
+    let p = scroller.parentElement;
+    while (p) {
+      if (getComputedStyle(p).overflowX === 'hidden') p.style.overflowX = 'visible';
+      p = p.parentElement;
+    }
+
+    // Initialize
+    scroller.scrollLeft = 0;
+    updateArrows();
+
+    // Cleanup
+    return () => {
+      leftBtn.removeEventListener('click', scrollLeft);
+      rightBtn.removeEventListener('click', scrollRight);
+      scroller.removeEventListener('scroll', updateArrows);
+      window.removeEventListener('resize', updateArrows);
+      scroller.removeEventListener('wheel', handleWheel);
+    };
+  }, [categories]);
+
   const activeCategoryData = categories.find(
     (cat) => cat.slug === activeCategory,
   );
@@ -190,47 +254,47 @@ export default function MenuPage() {
       <AllergensLegend />
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
-        <nav
-          className="menu-tabs text-center"
-          onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
-            if (e.deltaY === 0) return;
-            e.currentTarget.scrollLeft += e.deltaY;
-            e.preventDefault();
-          }}
-        >
-          {categories.map((category, i) => {
-            const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
-            const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
-              {
-                "breakfast items": "olive",
-                salads: "coral",
-                "hot appetizers": "taupe",
-                "cold appetizers": "yellow",
-                "main course": "taupe", // stays taupe when active
-                "sandwiches & burgers": "olive",
-                "plat du jour": "yellow",
-                desserts: "coral",
-              };
-            const norm = (s: string) => s.toLowerCase().trim();
+        <div className="category-strip-wrap">
+          <button className="cat-arrow left" aria-label="Scroll left" type="button">‹</button>
+          <nav
+            id="categoryStrip"
+            className="category-strip menu-tabs text-center"
+          >
+            {categories.map((category, i) => {
+              const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
+              const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
+                {
+                  "breakfast items": "olive",
+                  salads: "coral",
+                  "hot appetizers": "taupe",
+                  "cold appetizers": "yellow",
+                  "main course": "taupe", // stays taupe when active
+                  "sandwiches & burgers": "olive",
+                  "plat du jour": "yellow",
+                  desserts: "coral",
+                };
+              const norm = (s: string) => s.toLowerCase().trim();
 
-            const categoryName = getTranslatedCategoryName(category, locale);
-            const tone =
-              COLOR_BY_SLUG[norm(categoryName)] ??
-              COLOR_CYCLE[i % COLOR_CYCLE.length];
-            const isActive = category.slug === activeCategory;
+              const categoryName = getTranslatedCategoryName(category, locale);
+              const tone =
+                COLOR_BY_SLUG[norm(categoryName)] ??
+                COLOR_CYCLE[i % COLOR_CYCLE.length];
+              const isActive = category.slug === activeCategory;
 
-            return (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.slug)}
-                className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
-                data-category={category.slug}
-              >
-                {categoryName}
-              </button>
-            );
-          })}
-        </nav>
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setActiveCategory(category.slug)}
+                  className={`menu-tab variant-${tone} category-btn ${isActive ? "is-active" : ""}`}
+                  data-category={category.slug}
+                >
+                  {categoryName}
+                </button>
+              );
+            })}
+          </nav>
+          <button className="cat-arrow right" aria-label="Scroll right" type="button">›</button>
+        </div>
 
         {/* Menu Items Display */}
         <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
