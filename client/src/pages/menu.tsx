@@ -354,7 +354,6 @@ export default function MenuPage() {
       {/* Menu Categories Navigation and Items Display - White Background */}
       <div style={{ background: "white" }}>
         <div className="category-strip-wrap">
-          <button className="cat-arrow left" aria-label="Scroll left" type="button">‹</button>
           <nav
             id="categoryStrip"
             className="category-strip menu-tabs text-center"
@@ -392,7 +391,6 @@ export default function MenuPage() {
               );
             })}
           </nav>
-          <button className="cat-arrow right" aria-label="Scroll right" type="button">›</button>
         </div>
 
         {/* Menu Items Display */}
