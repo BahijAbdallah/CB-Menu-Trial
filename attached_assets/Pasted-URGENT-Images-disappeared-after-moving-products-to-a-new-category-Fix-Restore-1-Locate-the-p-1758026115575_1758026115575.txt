@@ -1,0 +1,40 @@
+URGENT: Images disappeared after moving products to a new category.
+
+Fix + Restore:
+
+1) Locate the product data source (e.g., data/products.json, /src/data/products.ts, DB, or CMS adapter).
+   - Fields typically: { id/sku, slug, title, description, price, categoryIds, images[] | imageUrl }.
+
+2) Make the importer/migration that moved items to "Soft Drinks" **category-only**:
+   - Update ONLY the category field(s).
+   - Do NOT touch images[], image, or media fields.
+   - Remove any default image assignment or clearing (e.g., setting [] or null).
+
+3) Add a preservation layer:
+   - Before writing updated records, read the current dataset as oldProducts.
+   - For each updated product (matched by stable key: id → fallback sku → fallback slug/name):
+        if (!newProduct.images || newProduct.images.length === 0) {
+            newProduct.images = oldProducts[key].images;
+        }
+        if (!newProduct.image && oldProducts[key].image) {
+            newProduct.image = oldProducts[key].image;
+        }
+   - Never overwrite a non-empty images[]/image with placeholders.
+
+4) One-time backfill script to restore missing images now:
+   - Load previous commit’s product data (git) or current /public/assets images directory.
+   - For each product with empty images:
+        - Try match by id/sku/slug and copy images from oldProducts.
+        - If still empty but a file exists at /public/images/{slug}.jpg or .png, set that as images[0].
+   - Print a summary of restored items.
+
+5) Prevent future regressions:
+   - In the CSV/JSON import path, ensure mapping keeps images as-is unless a new image is explicitly provided.
+   - Add a unit check: if a product previously had images and the incoming update would clear them, abort with an error.
+
+6) Run the backfill, then rebuild. Do not change layout or design.
+
+Acceptance:
+- All products regain their previous images.
+- Moving to “Soft Drinks” no longer clears images.
+- Subsequent imports keep existing images unless a new one is intentionally set.
