@@ -5,8 +5,8 @@ export const ALLERGENS: { slug: AllergenSlug; label: string; icon: string }[] = 
   { slug: 'egg',     label: 'Egg',     icon: '/icons/allergens/egg.png' },
   { slug: 'gluten',  label: 'Gluten',  icon: '/icons/allergens/gluten.png' },
   { slug: 'fish',    label: 'Fish',    icon: '/icons/allergens/fish.png' },
-  { slug: 'soya',    label: 'Soya',    icon: '/icons/allergens/soya.png' },
   { slug: 'nuts',    label: 'Nuts',    icon: '/icons/allergens/nuts.png' },
+  { slug: 'soya',    label: 'Soya',    icon: '/icons/allergens/soya.png' },
   { slug: 'sesame',  label: 'Sesame',  icon: '/icons/allergens/sesame.png' },
 ];
 
