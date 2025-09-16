@@ -1,0 +1,64 @@
+Problem: Images added in the admin dashboard are not appearing on the menu; a blue "?" placeholder is shown.
+
+Goal: Make product images render correctly without changing the card layout/design.
+
+Do all of the following:
+
+1) Data mapping
+   - Find the products fetcher (WooCommerce REST v3 or WP GraphQL).
+   - Ensure we read the correct image field:
+     WooCommerce: product.images[].src (string)
+     WP GraphQL: product.featuredImage.node.sourceUrl
+   - Normalize to product.imageUrl = images?.[0]?.src || featuredImage?.sourceUrl.
+   - Do not strip querystrings from URLs.
+
+2) Next.js / Image component
+   - If using next/image, update next.config.js:
+     module.exports = {
+       images: {
+         remotePatterns: [
+           { protocol: 'https', hostname: '**.chezbeyrouth.com' },
+           { protocol: 'https', hostname: 'chezbeyrouth.com' },
+           { protocol: 'https', hostname: '**.wp.com' },
+           { protocol: 'https', hostname: '**.wordpress.com' },
+           { protocol: 'https', hostname: '**.cloudfront.net' },
+           { protocol: 'https', hostname: '**.amazonaws.com' },
+           { protocol: 'https', hostname: '**.cloudflare**' }
+         ]
+       }
+     }
+   - Rebuild after editing this file.
+   - In the card component:
+     const src = product.imageUrl || product.images?.[0]?.src;
+     return src ? <Image src={src} alt={product.title} fill sizes="120px" /> : <Placeholder />;
+
+3) URL & protocol fixes
+   - Force absolute HTTPS URLs:
+     if (src?.startsWith('//')) src = 'https:' + src;
+     if (src?.startsWith('http:')) src = src.replace('http:', 'https:');
+   - Reject relative paths by prefixing site origin.
+
+4) CORS / hotlink / permissions
+   - Ensure images are PUBLIC: for WP, media library files under /wp-content/uploads must be accessible without auth.
+   - Disable hotlink protection for the frontend domain if enabled in hosting/Cloudflare.
+   - If using Cloudflare Images/R2, use the public URL (not signed/private) for menu thumbnails.
+
+5) Caching & revalidation
+   - After saving images in admin, trigger revalidation:
+     await res.revalidate?.('/'); await res.revalidate?.('/menu');
+   - Purge CDN cache for /_next/image/* and /wp-content/uploads/*.
+
+6) Diagnostics (temporary console)
+   - Log first 5 product.imageUrl values and fetch HEAD for each; log status.
+   - In dev tools, confirm no errors like:
+     - 404 (file not found)
+     - Mixed Content (http on https page)
+     - Next Image “hostname not configured”
+
+7) Fallback (no breaking UI)
+   - If an image 404s, keep layout and show existing placeholder, but DO NOT hide the element.
+
+Acceptance:
+- All products with images in admin show their photos instead of the blue “?”.
+- No Mixed Content, CORS, or “hostname not configured” errors in console.
+- Card layout/design remains unchanged.
