@@ -196,6 +196,39 @@ export default function MenuPage() {
     })();
   }, [categories]);
 
+  // Minimal category strip helper as requested
+  useEffect(() => {
+    (function(){
+      // Category strip: select existing element (DO NOT create new elements)
+      const strip = document.getElementById('categoryStrip') || 
+                    document.querySelector('.menu-category-strip, .menu-category-tabs, nav .categories');
+      if(strip){
+        // Unblock parents that hide horizontal scroll (no visual change)
+        let p = strip.parentElement;
+        while(p){
+          const cs = getComputedStyle(p);
+          if(cs.overflowX === 'hidden') p.classList?.add('no-clip-h');
+          p = p.parentElement;
+        }
+        // Convert vertical wheel to horizontal on desktop without changing visuals
+        strip.addEventListener('wheel', (e)=>{
+          if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+            strip.scrollBy({left: e.deltaY, behavior:'auto'});
+            e.preventDefault();
+          }
+        }, {passive:false});
+
+        // Center active pill if present
+        const active = strip.querySelector('.active, .is-active, [aria-current="true"]');
+        if(active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+
+        // Verify we can reach ends (console only)
+        console.log('category pills:', strip.querySelectorAll('button,a,[role="tab"]').length);
+        console.log('strip widths:', {clientWidth: strip.clientWidth, scrollWidth: strip.scrollWidth});
+      }
+    })();
+  }, []);
+
   const activeCategoryData = categories.find(
     (cat) => cat.slug === activeCategory,
   );

@@ -1,0 +1,106 @@
+Goal (NO redesign): 
+A) On TABLET (min-width:768px max-width:1024px), item cards must be horizontal like mobile, with small left thumbnail and compact height, one column list. 
+B) Category nav must horizontally scroll on MOBILE & TABLET to reveal all 11 categories. 
+DO NOT change HTML structure, colors, fonts, borders, images, or desktop/mobile styles.
+
+Do exactly:
+
+1) Locate selectors:
+- Item list container (current list of cards). 
+- Item card root (e.g., .menu-item-card / .item-card).
+- Card image/thumb element.
+- Card content wrapper (title/desc/price).
+- Category strip container (row of 11 pills). Prefer existing id; if none, use the existing class (do NOT inject arrows or new markup).
+
+2) CSS — append to the main stylesheet (only responsive overrides; keep existing design):
+/* ===== Tablet-only: make cards horizontal & compact ===== */
+@media (min-width:768px) and (max-width:1024px){
+  /* one column list on tablet */
+  .menu-items, .item-list { display:block; }
+
+  .menu-item-card, .item-card {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 16px; min-height:88px;
+  }
+
+  /* small left thumbnail */
+  .menu-item-card .thumb, .item-card .thumb, 
+  .menu-item-card img, .item-card img {
+    flex:0 0 88px; width:88px; height:88px;
+    object-fit:cover; border-radius:12px;
+  }
+
+  .menu-item-card .content, .item-card .content { flex:1 1 auto; }
+
+  /* keep text compact without changing type scale drastically */
+  .menu-item-card .title, .item-card .title { 
+    font-size: clamp(14px, 1.9vw, 18px);
+    line-height:1.2;
+  }
+  .menu-item-card .desc, .item-card .desc {
+    font-size: clamp(12px, 1.6vw, 15px);
+    line-height:1.35; max-height:3.2em; overflow:hidden;
+  }
+  .menu-item-card .price, .item-card .price {
+    font-size: clamp(14px, 1.8vw, 17px);
+  }
+}
+
+/* ===== Mobile & Tablet: make category strip reliably scroll ===== */
+.menu-category-strip, #categoryStrip {
+  display:flex; flex-wrap:nowrap; gap:.75rem;
+  overflow-x:auto !important; overflow-y:hidden;
+  white-space:nowrap; -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  padding-inline:12px; max-width:100%;
+}
+.menu-category-strip * , #categoryStrip * { flex:0 0 auto; }
+
+/* keep scrollbar minimal without changing design */
+.menu-category-strip::-webkit-scrollbar, #categoryStrip::-webkit-scrollbar { height:8px; }
+
+/* prevent accidental clipping by wrappers */
+@media (max-width:1024px){
+  .no-clip-h { overflow-x:visible !important; }
+}
+
+3) JS — tiny helper (no DOM changes, no arrows). Load once after the page renders:
+(function(){
+  // Category strip: select existing element (DO NOT create new elements)
+  const strip = document.getElementById('categoryStrip') || 
+                document.querySelector('.menu-category-strip, .menu-category-tabs, nav .categories');
+  if(strip){
+    // Unblock parents that hide horizontal scroll (no visual change)
+    let p = strip.parentElement;
+    while(p){
+      const cs = getComputedStyle(p);
+      if(cs.overflowX === 'hidden') p.classList?.add('no-clip-h');
+      p = p.parentElement;
+    }
+    // Convert vertical wheel to horizontal on desktop without changing visuals
+    strip.addEventListener('wheel', (e)=>{
+      if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+        strip.scrollBy({left: e.deltaY, behavior:'auto'});
+        e.preventDefault();
+      }
+    }, {passive:false});
+
+    // Center active pill if present
+    const active = strip.querySelector('.active, .is-active, [aria-current="true"]');
+    if(active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+
+    // Verify we can reach ends (console only)
+    console.log('category pills:', strip.querySelectorAll('button,a,[role="tab"]').length);
+    console.log('strip widths:', {clientWidth: strip.clientWidth, scrollWidth: strip.scrollWidth});
+  }
+})();
+
+4) Constraints:
+- DO NOT change desktop or mobile look, only apply the tablet overrides above.
+- DO NOT modify HTML/DOM or add arrows; only CSS + minimal JS.
+- Keep image files and paths untouched.
+
+5) Verify & report:
+- On an iPad-size viewport (~820×1180), each item card is horizontal with a small 88×88 thumbnail and compact height; list is one column.
+- On mobile & tablet, you can swipe horizontally to reveal ALL 11 category pills; devtools shows scrollWidth > clientWidth and the first & last pills can be fully brought into view.
+- No visual changes to fonts/colors/borders beyond the compact tablet card layout.
+If your class names differ, map them to the ones in step 2 without changing HTML, and include the mapping in your report.
