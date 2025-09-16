@@ -771,3 +771,22 @@ header[role="banner"]{
     height: 14px;
   }
 }
+
+/* ====== CATEGORY STRIP SCROLLING NAVIGATION ====== */
+.category-strip-wrap{position:relative}
+.category-strip{
+  display:flex; gap:.75rem; overflow-x:auto; overflow-y:hidden; white-space:nowrap;
+  -webkit-overflow-scrolling:touch; scroll-behavior:smooth; padding:0 .75rem;
+  max-width:100%; scroll-snap-type:x proximity; scroll-padding-inline:12px;
+}
+.category-strip::-webkit-scrollbar{height:8px}
+.category-strip::-webkit-scrollbar-thumb{border-radius:8px}
+.cat-arrow{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+  border:none; width:32px; height:32px; border-radius:999px; cursor:pointer;
+  backdrop-filter:blur(6px); opacity:.9;
+}
+.cat-arrow.left{left:4px}
+.cat-arrow.right{right:4px}
+.cat-arrow[disabled]{opacity:.3; pointer-events:none}
+.category-btn{scroll-snap-align:center}

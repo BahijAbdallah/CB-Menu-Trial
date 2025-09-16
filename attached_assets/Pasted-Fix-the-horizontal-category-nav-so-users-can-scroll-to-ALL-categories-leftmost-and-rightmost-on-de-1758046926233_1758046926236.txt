@@ -1,0 +1,74 @@
+Fix the horizontal category nav so users can scroll to ALL categories (leftmost and rightmost) on desktop and mobile.
+
+Do this exactly:
+
+1) Identify the element that wraps the category pills (e.g., “Cold Appetizers”, “Hot Appetizers”, etc.). Give it id="categoryStrip" and ensure each pill button has class="category-btn".
+
+2) Wrap the strip with arrows:
+<div class="category-strip-wrap">
+  <button class="cat-arrow left" aria-label="Scroll left" type="button">‹</button>
+  <div id="categoryStrip" class="category-strip">[existing category buttons here]</div>
+  <button class="cat-arrow right" aria-label="Scroll right" type="button">›</button>
+</div>
+
+3) Add CSS (create/append to the site stylesheet):
+.category-strip-wrap{position:relative}
+.category-strip{
+  display:flex; gap:.75rem; overflow-x:auto; overflow-y:hidden; white-space:nowrap;
+  -webkit-overflow-scrolling:touch; scroll-behavior:smooth; padding:0 .75rem;
+  max-width:100%; scroll-snap-type:x proximity; scroll-padding-inline:12px;
+}
+.category-strip::-webkit-scrollbar{height:8px}
+.category-strip::-webkit-scrollbar-thumb{border-radius:8px}
+.cat-arrow{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+  border:none; width:32px; height:32px; border-radius:999px; cursor:pointer;
+  backdrop-filter:blur(6px); opacity:.9;
+}
+.cat-arrow.left{left:4px}
+.cat-arrow.right{right:4px}
+.cat-arrow[disabled]{opacity:.3; pointer-events:none}
+.category-btn{scroll-snap-align:center}
+
+4) Add JS (place after the strip renders / in a small script file that runs on page load):
+(function(){
+  const scroller = document.getElementById('categoryStrip');
+  if(!scroller) return;
+  const leftBtn = document.querySelector('.cat-arrow.left');
+  const rightBtn = document.querySelector('.cat-arrow.right');
+  const step = () => Math.max(240, Math.round(scroller.clientWidth * 0.8));
+
+  function updateArrows(){
+    const atStart = scroller.scrollLeft <= 0;
+    const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 1;
+    leftBtn.disabled = atStart;
+    rightBtn.disabled = atEnd;
+  }
+
+  leftBtn.addEventListener('click', ()=> scroller.scrollBy({left: -step(), behavior:'smooth'}));
+  rightBtn.addEventListener('click', ()=> scroller.scrollBy({left:  step(), behavior:'smooth'}));
+  scroller.addEventListener('scroll', updateArrows);
+  window.addEventListener('resize', updateArrows);
+
+  // Convert vertical wheel to horizontal scroll (desktop mice)
+  scroller.addEventListener('wheel', (e)=>{
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+      scroller.scrollBy({left: e.deltaY, behavior:'auto'});
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  // When a category is clicked/activated, center it
+  scroller.querySelectorAll('.category-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    });
+  });
+
+  // Make sure no parent container clips the strip
+  let p = scroller.parentElement;
+  while(p){ if(getComputedStyle(p).overflowX === 'hidden') p.style.overflowX = 'visible'; p = p.parentElement; }
+
+  // Initialize
+  scroller.scrollLeft = 0;
+  updateAr
