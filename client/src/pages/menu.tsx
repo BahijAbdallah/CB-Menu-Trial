@@ -85,6 +85,20 @@ export default function MenuPage() {
     setActiveCategory(categories[0].slug);
   }
 
+  // Auto-scroll active chip into view on desktop
+  useEffect(() => {
+    if (activeCategory && window.innerWidth >= 1024) {
+      const activeButton = document.querySelector(`.menu-tab.is-active`);
+      if (activeButton) {
+        activeButton.scrollIntoView({ 
+          inline: 'center', 
+          block: 'nearest', 
+          behavior: 'instant' 
+        });
+      }
+    }
+  }, [activeCategory]);
+
   const activeCategoryData = categories.find(
     (cat) => cat.slug === activeCategory,
   );
@@ -210,6 +224,7 @@ export default function MenuPage() {
                 key={category.id}
                 onClick={() => setActiveCategory(category.slug)}
                 className={`menu-tab variant-${tone} ${isActive ? "is-active" : ""}`}
+                data-category={category.slug}
               >
                 {categoryName}
               </button>

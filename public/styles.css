@@ -238,6 +238,52 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   .menu-tabs::-webkit-scrollbar-thumb{ background:#ddd; border-radius:999px; }
 }
 
+/* Desktop fix for clipped first chip */
+@media (min-width: 1024px) {
+  .menu-tabs {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-inline: 16px;
+    scroll-padding-left: 16px;
+    scroll-padding-right: 16px;
+    /* Remove the mask that clips the first chip */
+    -webkit-mask: none;
+    mask: none;
+    /* Ensure no fade elements overlap */
+    position: relative;
+    z-index: 1;
+  }
+  
+  .menu-tabs .categories-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  /* Active chip underline styling */
+  .menu-tab {
+    position: relative;
+  }
+  
+  .menu-tab.is-active::after {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: -6px;
+    height: 3px;
+    background: currentColor;
+    border-radius: 2px;
+  }
+  
+  /* Disable any fade elements that might overlap */
+  .fade-left,
+  .fade-right {
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
 /* -------- 3) Item cards: responsive and stable -------- */
 .menu-list{
   list-style:none; margin:0; padding:0;
