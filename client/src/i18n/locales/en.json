@@ -21,7 +21,9 @@
     "title": "Menu",
     "subtitle": "Discover our authentic Lebanese cuisine crafted with passion and tradition",
     "available": "Available",
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "viewMore": "View More",
+    "viewLess": "View Less"
   },
   "categories": {
     "breakfast-items": "Breakfast Items",
