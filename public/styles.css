@@ -776,8 +776,8 @@ header[role="banner"]{
 .category-strip-wrap{position:relative}
 .category-strip{
   display:flex; gap:.75rem; overflow-x:auto; overflow-y:hidden; white-space:nowrap;
-  -webkit-overflow-scrolling:touch; scroll-behavior:smooth; padding:0 44px;
-  max-width:100%; scroll-snap-type:x proximity; scroll-padding-inline:44px;
+  -webkit-overflow-scrolling:touch; scroll-behavior:smooth; padding:0 .75rem;
+  max-width:100%; scroll-snap-type:x proximity; scroll-padding-inline:12px;
 }
 .category-strip::-webkit-scrollbar{height:8px}
 .category-strip::-webkit-scrollbar-thumb{border-radius:8px}
