@@ -1,0 +1,101 @@
+Add 2-line description clamp with a "View more / View less" toggle on ALL item cards.
+Do NOT change any text, images, colors, or layout besides this behavior.
+
+Targets (map to our classes if different):
+- Card: .menu-item-card, .item-card
+- Description element: .desc, .description, [data-desc]
+
+1) CSS — append to the main stylesheet:
+/* collapsed: exactly 2 lines, consistent height */
+.desc--clamp-2{
+  display:-webkit-box; -webkit-box-orient:vertical;
+  -webkit-line-clamp:2; overflow:hidden;
+  line-height:1.35; /* keep current rhythm */
+}
+/* optional subtle link style; no color change */
+.desc-toggle{
+  background:none;border:0;padding:0;margin-top:6px;
+  font:inherit;text-decoration:underline;cursor:pointer;
+}
+.desc-toggle:focus{outline:2px solid currentColor; outline-offset:2px}
+
+/* keep card heights uniform when collapsed (no visual redesign) */
+.menu-item-card, .item-card{ /* already styled elsewhere */
+  /* nothing forced; uniformity comes from clamp */
+}
+.menu-item-card.expanded, .item-card.expanded{
+  /* allow natural expansion without affecting others */
+}
+
+2) JS — new small script loaded after the list renders (no DOM edits beyond adding the toggle button):
+(function(){
+  // Find all descriptions safely
+  const descNodes = document.querySelectorAll(
+    '.menu-item-card .desc, .item-card .desc, .menu-item-card .description, .item-card .description, .menu-item-card [data-desc], .item-card [data-desc]'
+  );
+  if(!descNodes.length) return;
+
+  descNodes.forEach(desc=>{
+    // Skip if already processed
+    if(desc.dataset.clamped === '1') return;
+
+    // Apply initial 2-line clamp
+    desc.classList.add('desc--clamp-2');
+    desc.dataset.clamped = '1';
+
+    // Measure if overflow exists (only then add the toggle)
+    const was = desc.style.webkitLineClamp;
+    // Reliable overflow check: clone for natural height
+    const clone = desc.cloneNode(true);
+    Object.assign(clone.style, {
+      position:'absolute', visibility:'hidden', height:'auto',
+      WebkitLineClamp:'unset', display:'block', overflow:'visible'
+    });
+    document.body.appendChild(clone);
+    const fullH = clone.scrollHeight;
+    document.body.removeChild(clone);
+    const collapsedH = desc.getBoundingClientRect().height;
+
+    const isOverflowing = fullH > collapsedH + 1;
+    if(!isOverflowing) return;
+
+    // Create minimal toggle button
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'desc-toggle';
+    toggle.textContent = 'View more';
+    toggle.setAttribute('aria-expanded','false');
+
+    // Place toggle right after the description (no style changes)
+    desc.insertAdjacentElement('afterend', toggle);
+
+    // Toggle behavior
+    toggle.addEventListener('click', ()=>{
+      const card = desc.closest('.menu-item-card, .item-card');
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+
+      if(expanded){
+        // Collapse back to 2 lines
+        desc.classList.add('desc--clamp-2');
+        toggle.textContent = 'View more';
+        toggle.setAttribute('aria-expanded','false');
+        card && card.classList.remove('expanded');
+      }else{
+        // Expand to full
+        desc.classList.remove('desc--clamp-2');
+        toggle.textContent = 'View less';
+        toggle.setAttribute('aria-expanded','true');
+        card && card.classList.add('expanded');
+      }
+    });
+  });
+
+  // Console check (no UI change)
+  console.log('Description clamp initialized on', descNodes.length, 'nodes');
+})();
+
+3) Verification (no visual redesign):
+- All item descriptions appear with exactly 2 lines when collapsed; cards are uniform in height.
+- If a description is longer than 2 lines, a small “View more” link appears under it.
+- Clicking “View more” shows the full text for THAT item only (others stay collapsed); link changes to “View less”.
+- No text/images/spacing/colors changed besides the clamp behavior.

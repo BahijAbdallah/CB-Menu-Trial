@@ -229,6 +229,76 @@ export default function MenuPage() {
     })();
   }, []);
 
+  // Description clamp with toggle functionality
+  useEffect(() => {
+    (function(){
+      // Find all descriptions safely (mapped to actual classes used)
+      const descNodes = document.querySelectorAll(
+        '.menu-card .menu-desc, .menu-card .description, .menu-card [data-desc]'
+      );
+      if(!descNodes.length) return;
+
+      descNodes.forEach(desc=>{
+        const descElement = desc as HTMLElement;
+        // Skip if already processed
+        if(descElement.dataset.clamped === '1') return;
+
+        // Apply initial 2-line clamp
+        descElement.classList.add('desc--clamp-2');
+        descElement.dataset.clamped = '1';
+
+        // Measure if overflow exists (only then add the toggle)
+        const was = descElement.style.webkitLineClamp;
+        // Reliable overflow check: clone for natural height
+        const clone = descElement.cloneNode(true) as HTMLElement;
+        Object.assign(clone.style, {
+          position:'absolute', visibility:'hidden', height:'auto',
+          WebkitLineClamp:'unset', display:'block', overflow:'visible'
+        });
+        document.body.appendChild(clone);
+        const fullH = clone.scrollHeight;
+        document.body.removeChild(clone);
+        const collapsedH = descElement.getBoundingClientRect().height;
+
+        const isOverflowing = fullH > collapsedH + 1;
+        if(!isOverflowing) return;
+
+        // Create minimal toggle button
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'desc-toggle';
+        toggle.textContent = 'View more';
+        toggle.setAttribute('aria-expanded','false');
+
+        // Place toggle right after the description (no style changes)
+        descElement.insertAdjacentElement('afterend', toggle);
+
+        // Toggle behavior
+        toggle.addEventListener('click', ()=>{
+          const card = descElement.closest('.menu-card');
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+
+          if(expanded){
+            // Collapse back to 2 lines
+            descElement.classList.add('desc--clamp-2');
+            toggle.textContent = 'View more';
+            toggle.setAttribute('aria-expanded','false');
+            card && card.classList.remove('expanded');
+          }else{
+            // Expand to full
+            descElement.classList.remove('desc--clamp-2');
+            toggle.textContent = 'View less';
+            toggle.setAttribute('aria-expanded','true');
+            card && card.classList.add('expanded');
+          }
+        });
+      });
+
+      // Console check (no UI change)
+      console.log('Description clamp initialized on', descNodes.length, 'nodes');
+    })();
+  }, [menuItems]); // Run when menu items change
+
   const activeCategoryData = categories.find(
     (cat) => cat.slug === activeCategory,
   );

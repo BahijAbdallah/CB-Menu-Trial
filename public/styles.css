@@ -843,3 +843,24 @@ header[role="banner"]{
 @media (max-width:1024px){
   .no-clip-h { overflow-x:visible !important; }
 }
+
+/* collapsed: exactly 2 lines, consistent height */
+.desc--clamp-2{
+  display:-webkit-box; -webkit-box-orient:vertical;
+  -webkit-line-clamp:2; overflow:hidden;
+  line-height:1.35; /* keep current rhythm */
+}
+/* optional subtle link style; no color change */
+.desc-toggle{
+  background:none;border:0;padding:0;margin-top:6px;
+  font:inherit;text-decoration:underline;cursor:pointer;
+}
+.desc-toggle:focus{outline:2px solid currentColor; outline-offset:2px}
+
+/* keep card heights uniform when collapsed (no visual redesign) */
+.menu-item-card, .item-card{ /* already styled elsewhere */
+  /* nothing forced; uniformity comes from clamp */
+}
+.menu-item-card.expanded, .item-card.expanded{
+  /* allow natural expansion without affecting others */
+}
