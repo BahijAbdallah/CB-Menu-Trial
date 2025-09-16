@@ -1,0 +1,131 @@
+Fix the horizontal categories bar so I can reach the FIRST and LAST pills on desktop & mobile.
+
+Do ALL steps exactly and show diffs:
+
+1) Selectors
+- The container that holds the category pills (e.g., “Cold Appetizers”, “Hot Drinks”, etc.) must have id="categoryStrip".
+- If it doesn’t, find the existing container (by checking the one that contains many pill buttons) and set id="categoryStrip" on it. Each pill should have class="category-btn" (add if missing).
+
+2) Markup (inject arrows only if not present)
+<div class="category-strip-wrap">
+  <button class="cat-arrow left" aria-label="Scroll left" type="button">‹</button>
+  <div id="categoryStrip" class="category-strip"><!-- existing pills here --></div>
+  <button class="cat-arrow right" aria-label="Scroll right" type="button">›</button>
+</div>
+
+3) CSS (append to the main stylesheet)
+.category-strip-wrap{position:relative; max-width:100%}
+.category-strip{
+  display:flex; flex-wrap:nowrap; gap:.75rem;
+  overflow-x:auto !important; overflow-y:hidden;
+  -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  white-space:nowrap; max-width:100%; padding:0 12px;
+  scroll-snap-type:x proximity; scroll-padding-inline:12px;
+}
+.category-strip *{flex:0 0 auto}
+.category-strip::-webkit-scrollbar{height:8px}
+.cat-arrow{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:34px; height:34px; border:none; border-radius:999px;
+  background:rgba(255,255,255,.9); box-shadow:0 2px 8px rgba(0,0,0,.15);
+  z-index:9999; cursor:pointer; line-height:34px; text-align:center;
+}
+.cat-arrow.left{left:4px}
+.cat-arrow.right{right:4px}
+.cat-arrow[disabled]{opacity:.35; pointer-events:none}
+.category-btn{scroll-snap-align:center}
+
+4) JS (run on DOM ready; create a small module if needed)
+(function(){
+  let scroller = document.getElementById('categoryStrip');
+  if(!scroller){
+    // Try to find the correct container and assign the id
+    const candidates = Array.from(document.querySelectorAll('.category-strip, .menu-categories, .menu-category-tabs, nav, .tabs, .chips'))
+      .filter(el => el.querySelectorAll('button, a').length >= 6);
+    if(candidates[0]) { candidates[0].id = 'categoryStrip'; scroller = candidates[0]; }
+  }
+  if(!scroller) { console.warn('categoryStrip not found'); return; }
+
+  // Unblock parent containers that hide overflow
+  let p = scroller.parentElement;
+  while(p){ 
+    const cs = getComputedStyle(p);
+    if(cs.overflowX === 'hidden') p.style.overflowX = 'visible';
+    p = p.parentElement;
+  }
+
+  // Ensure required styles at runtime
+  Object.assign(scroller.style, {
+    overflowX: 'auto',
+    whiteSpace: 'nowrap'
+  });
+
+  // Insert arrows if missing
+  const wrap = scroller.closest('.category-strip-wrap') || (()=>{
+    const w = document.createElement('div');
+    w.className = 'category-strip-wrap';
+    scroller.parentNode.insertBefore(w, scroller);
+    w.appendChild(scroller);
+    return w;
+  })();
+
+  let leftBtn = wrap.querySelector('.cat-arrow.left');
+  let rightBtn = wrap.querySelector('.cat-arrow.right');
+  if(!leftBtn){
+    leftBtn = document.createElement('button');
+    leftBtn.className = 'cat-arrow left';
+    leftBtn.type = 'button';
+    leftBtn.setAttribute('aria-label','Scroll left');
+    leftBtn.textContent = '‹';
+    wrap.insertBefore(leftBtn, scroller);
+  }
+  if(!rightBtn){
+    rightBtn = document.createElement('button');
+    rightBtn.className = 'cat-arrow right';
+    rightBtn.type = 'button';
+    rightBtn.setAttribute('aria-label','Scroll right');
+    rightBtn.textContent = '›';
+    wrap.appendChild(rightBtn);
+  }
+
+  // Helpers
+  const step = () => Math.max(260, Math.round(scroller.clientWidth * 0.85));
+  function updateArrows(){
+    const atStart = scroller.scrollLeft <= 0;
+    const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 1;
+    leftBtn.disabled = atStart;
+    rightBtn.disabled = atEnd;
+  }
+
+  // Click handlers (include hard-jumps to extremes as fallback)
+  leftBtn.addEventListener('click', ()=>{
+    if(scroller.scrollLeft <= step()) scroller.scrollTo({left: 0, behavior: 'smooth'});
+    else scroller.scrollBy({left: -step(), behavior: 'smooth'});
+  });
+  rightBtn.addEventListener('click', ()=>{
+    const end = scroller.scrollWidth - scroller.clientWidth;
+    if((end - scroller.scrollLeft) <= step()) scroller.scrollTo({left: end, behavior: 'smooth'});
+    else scroller.scrollBy({left: step(), behavior: 'smooth'});
+  });
+
+  // Convert vertical wheel to horizontal scrolling on desktop
+  scroller.addEventListener('wheel', (e)=>{
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+      scroller.scrollBy({left: e.deltaY, behavior:'auto'});
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  // Center a pill when clicked
+  scroller.querySelectorAll('.category-btn, button, a').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+    });
+  });
+
+  // Initialize at the absolute left
+  scroller.scrollTo({left: 0});
+  scroller.addEventListener('scroll', updateArrows);
+  window.addEventListener('resize', updateArrows);
+  updateArrows();
+})();

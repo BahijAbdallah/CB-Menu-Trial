@@ -101,66 +101,99 @@ export default function MenuPage() {
 
   // Category strip scrolling functionality
   useEffect(() => {
-    const scroller = document.getElementById('categoryStrip');
-    if (!scroller) return;
-
-    const leftBtn = document.querySelector('.cat-arrow.left') as HTMLButtonElement;
-    const rightBtn = document.querySelector('.cat-arrow.right') as HTMLButtonElement;
-    if (!leftBtn || !rightBtn) return;
-
-    const step = () => Math.max(240, Math.round(scroller!.clientWidth * 0.8));
-
-    function updateArrows() {
-      const atStart = scroller!.scrollLeft <= 0;
-      const atEnd = scroller!.scrollLeft + scroller!.clientWidth >= scroller!.scrollWidth - 1;
-      leftBtn.disabled = atStart;
-      rightBtn.disabled = atEnd;
-    }
-
-    const scrollLeft = () => scroller.scrollBy({ left: -step(), behavior: 'smooth' });
-    const scrollRight = () => scroller.scrollBy({ left: step(), behavior: 'smooth' });
-
-    leftBtn.addEventListener('click', scrollLeft);
-    rightBtn.addEventListener('click', scrollRight);
-    scroller.addEventListener('scroll', updateArrows);
-    window.addEventListener('resize', updateArrows);
-
-    // Convert vertical wheel to horizontal scroll (desktop mice)
-    const handleWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        scroller.scrollBy({ left: e.deltaY, behavior: 'auto' });
-        e.preventDefault();
+    (function(){
+      let scroller = document.getElementById('categoryStrip');
+      if(!scroller){
+        // Try to find the correct container and assign the id
+        const candidates = Array.from(document.querySelectorAll('.category-strip, .menu-categories, .menu-category-tabs, nav, .tabs, .chips'))
+          .filter(el => el.querySelectorAll('button, a').length >= 6);
+        if(candidates[0]) { candidates[0].id = 'categoryStrip'; scroller = candidates[0] as HTMLElement; }
       }
-    };
-    scroller.addEventListener('wheel', handleWheel, { passive: false });
+      if(!scroller) { console.warn('categoryStrip not found'); return; }
 
-    // When a category is clicked/activated, center it
-    scroller.querySelectorAll('.category-btn').forEach((btn) => {
-      const handleClick = () => {
-        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      };
-      btn.addEventListener('click', handleClick);
-    });
+      // Unblock parent containers that hide overflow
+      let p = scroller.parentElement;
+      while(p){ 
+        const cs = getComputedStyle(p);
+        if(cs.overflowX === 'hidden') p.style.overflowX = 'visible';
+        p = p.parentElement;
+      }
 
-    // Make sure no parent container clips the strip
-    let p = scroller.parentElement;
-    while (p) {
-      if (getComputedStyle(p).overflowX === 'hidden') p.style.overflowX = 'visible';
-      p = p.parentElement;
-    }
+      // Ensure required styles at runtime
+      Object.assign(scroller.style, {
+        overflowX: 'auto',
+        whiteSpace: 'nowrap'
+      });
 
-    // Initialize
-    scroller.scrollLeft = 0;
-    updateArrows();
+      // Insert arrows if missing
+      const wrap = scroller.closest('.category-strip-wrap') || (()=>{
+        const w = document.createElement('div');
+        w.className = 'category-strip-wrap';
+        scroller.parentNode!.insertBefore(w, scroller);
+        w.appendChild(scroller);
+        return w;
+      })();
 
-    // Cleanup
-    return () => {
-      leftBtn.removeEventListener('click', scrollLeft);
-      rightBtn.removeEventListener('click', scrollRight);
-      scroller.removeEventListener('scroll', updateArrows);
-      window.removeEventListener('resize', updateArrows);
-      scroller.removeEventListener('wheel', handleWheel);
-    };
+      let leftBtn = wrap.querySelector('.cat-arrow.left') as HTMLButtonElement;
+      let rightBtn = wrap.querySelector('.cat-arrow.right') as HTMLButtonElement;
+      if(!leftBtn){
+        leftBtn = document.createElement('button') as HTMLButtonElement;
+        leftBtn.className = 'cat-arrow left';
+        leftBtn.type = 'button';
+        leftBtn.setAttribute('aria-label','Scroll left');
+        leftBtn.textContent = '‹';
+        wrap.insertBefore(leftBtn, scroller);
+      }
+      if(!rightBtn){
+        rightBtn = document.createElement('button') as HTMLButtonElement;
+        rightBtn.className = 'cat-arrow right';
+        rightBtn.type = 'button';
+        rightBtn.setAttribute('aria-label','Scroll right');
+        rightBtn.textContent = '›';
+        wrap.appendChild(rightBtn);
+      }
+
+      // Helpers
+      const step = () => Math.max(260, Math.round(scroller!.clientWidth * 0.85));
+      function updateArrows(){
+        const atStart = scroller!.scrollLeft <= 0;
+        const atEnd = scroller!.scrollLeft + scroller!.clientWidth >= scroller!.scrollWidth - 1;
+        leftBtn.disabled = atStart;
+        rightBtn.disabled = atEnd;
+      }
+
+      // Click handlers (include hard-jumps to extremes as fallback)
+      leftBtn.addEventListener('click', ()=>{
+        if(scroller.scrollLeft <= step()) scroller.scrollTo({left: 0, behavior: 'smooth'});
+        else scroller.scrollBy({left: -step(), behavior: 'smooth'});
+      });
+      rightBtn.addEventListener('click', ()=>{
+        const end = scroller.scrollWidth - scroller.clientWidth;
+        if((end - scroller.scrollLeft) <= step()) scroller.scrollTo({left: end, behavior: 'smooth'});
+        else scroller.scrollBy({left: step(), behavior: 'smooth'});
+      });
+
+      // Convert vertical wheel to horizontal scrolling on desktop
+      scroller.addEventListener('wheel', (e)=>{
+        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+          scroller.scrollBy({left: e.deltaY, behavior:'auto'});
+          e.preventDefault();
+        }
+      }, {passive:false});
+
+      // Center a pill when clicked
+      scroller.querySelectorAll('.category-btn, button, a').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          btn.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+        });
+      });
+
+      // Initialize at the absolute left
+      scroller.scrollTo({left: 0});
+      scroller.addEventListener('scroll', updateArrows);
+      window.addEventListener('resize', updateArrows);
+      updateArrows();
+    })();
   }, [categories]);
 
   const activeCategoryData = categories.find(
