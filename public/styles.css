@@ -913,3 +913,27 @@ header[role="banner"]{
     flex:0 0 auto; min-width:max-content;
   }
 }
+
+/* Collapsed: exactly 2 lines -> uniform card height */
+.desc--clamp-2{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+  line-height:1.35;           /* keep current rhythm */
+}
+
+/* Minimal toggle link (inherits current typography/color) */
+.desc-toggle{
+  background:none;border:0;padding:0;margin-top:6px;
+  font:inherit;text-decoration:underline;cursor:pointer;
+}
+.desc-toggle:focus{outline:2px solid currentColor; outline-offset:2px}
+
+/* Keep all cards equal height in collapsed state without redesign */
+.menu-item-card, .item-card{
+  /* no fixed heights; equality comes from line-clamp */
+}
+.menu-item-card.expanded, .item-card.expanded{
+  /* allow only the expanded card to grow naturally */
+}

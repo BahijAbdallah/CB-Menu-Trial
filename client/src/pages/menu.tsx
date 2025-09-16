@@ -196,70 +196,69 @@ export default function MenuPage() {
   // Description clamp with toggle functionality
   useEffect(() => {
     (function(){
-      // Find all descriptions safely (mapped to actual classes used)
-      const descNodes = document.querySelectorAll(
-        '.menu-card .menu-desc, .menu-card .description, .menu-card [data-desc]'
-      );
-      if(!descNodes.length) return;
+      const cards = document.querySelectorAll('.menu-item-card, .item-card');
+      if(!cards.length) return;
 
-      descNodes.forEach(desc=>{
-        const descElement = desc as HTMLElement;
-        // Skip if already processed
-        if(descElement.dataset.clamped === '1') return;
+      console.log('Debug: Found', cards.length, 'cards with selector .menu-item-card, .item-card');
+      
+      const getDesc = (card: Element)=>{
+        return card.querySelector('.desc, .description, [data-desc]');
+      };
+
+      cards.forEach((card: Element)=>{
+        const desc = getDesc(card) as HTMLElement;
+        if(!desc) { 
+          console.log('Debug: No desc found in card', card); 
+          return; 
+        }
+        if(desc.dataset.clamped === '1') return;
 
         // Apply initial 2-line clamp
-        descElement.classList.add('desc--clamp-2');
-        descElement.dataset.clamped = '1';
+        desc.classList.add('desc--clamp-2');
+        desc.dataset.clamped = '1';
 
-        // Measure if overflow exists (only then add the toggle)
-        const was = descElement.style.webkitLineClamp;
-        // Reliable overflow check: clone for natural height
-        const clone = descElement.cloneNode(true) as HTMLElement;
-        Object.assign(clone.style, {
-          position:'absolute', visibility:'hidden', height:'auto',
-          WebkitLineClamp:'unset', display:'block', overflow:'visible'
-        });
-        document.body.appendChild(clone);
-        const fullH = clone.scrollHeight;
-        document.body.removeChild(clone);
-        const collapsedH = descElement.getBoundingClientRect().height;
-
+        // Check if overflow exists; only then add toggle
+        const probe = desc.cloneNode(true) as HTMLElement;
+        probe.style.cssText = 'position:absolute;visibility:hidden;height:auto;display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:unset;';
+        document.body.appendChild(probe);
+        const fullH = probe.scrollHeight;
+        document.body.removeChild(probe);
+        const collapsedH = desc.getBoundingClientRect().height;
         const isOverflowing = fullH > collapsedH + 1;
         if(!isOverflowing) return;
 
-        // Create minimal toggle button
-        const toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'desc-toggle';
-        toggle.textContent = 'View more';
-        toggle.setAttribute('aria-expanded','false');
-
-        // Place toggle right after the description (no style changes)
-        descElement.insertAdjacentElement('afterend', toggle);
+        // Create toggle
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'desc-toggle';
+        btn.textContent = 'View more';
+        btn.setAttribute('aria-expanded','false');
+        btn.setAttribute('aria-controls', (desc.id ||= 'desc_' + Math.random().toString(36).slice(2)));
+        desc.insertAdjacentElement('afterend', btn);
 
         // Toggle behavior
-        toggle.addEventListener('click', ()=>{
-          const card = descElement.closest('.menu-card');
-          const expanded = toggle.getAttribute('aria-expanded') === 'true';
-
+        btn.addEventListener('click', ()=>{
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
           if(expanded){
-            // Collapse back to 2 lines
-            descElement.classList.add('desc--clamp-2');
-            toggle.textContent = 'View more';
-            toggle.setAttribute('aria-expanded','false');
-            card && card.classList.remove('expanded');
+            // Collapse
+            desc.classList.add('desc--clamp-2');
+            btn.textContent = 'View more';
+            btn.setAttribute('aria-expanded','false');
+            card.classList.remove('expanded');
+            // keep list compact again
           }else{
-            // Expand to full
-            descElement.classList.remove('desc--clamp-2');
-            toggle.textContent = 'View less';
-            toggle.setAttribute('aria-expanded','true');
-            card && card.classList.add('expanded');
+            // Expand this card only
+            desc.classList.remove('desc--clamp-2');
+            btn.textContent = 'View less';
+            btn.setAttribute('aria-expanded','true');
+            card.classList.add('expanded');
+            // Ensure expanded text is fully visible
+            card.scrollIntoView({behavior:'smooth', block:'nearest'});
           }
         });
       });
 
-      // Console check (no UI change)
-      console.log('Description clamp initialized on', descNodes.length, 'nodes');
+      console.log('Description clamp initialized on', cards.length, 'nodes');
     })();
   }, [menuItems]); // Run when menu items change
 
