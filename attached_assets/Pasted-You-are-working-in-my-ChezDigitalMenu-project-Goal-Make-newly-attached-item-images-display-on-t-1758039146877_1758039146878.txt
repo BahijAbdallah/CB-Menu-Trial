@@ -1,0 +1,44 @@
+You are working in my ChezDigitalMenu project.
+
+Goal: Make newly attached item images display on the website.
+
+Do ALL of the following, step by step, and show me the diffs you make:
+
+1) Static folder & paths
+- Detect which stack we use (Vite/React, Next.js, or plain Express).
+- Ensure a public static folder exists and is served: 
+  - Vite/React: /public
+  - Next.js: /public
+  - Express: app.use('/public', express.static('public'))
+- Create /public/menu if missing and put all attached images there unchanged.
+
+2) Filename safety / URL encoding
+- Our filenames include spaces, parentheses, and dashes (e.g., "DSC00041-1.png", "DSC00005(2).png").
+- Do NOT rename files. Instead:
+  - In the frontend wherever src is built (item.image or similar), wrap with encodeURI(...) or encodeURIComponent for the path part so URLs like "/menu/DSC00005(2).png" resolve.
+  - Example: const safeSrc = `/menu/${encodeURIComponent(fileName)}`;
+- If we use Next/Image, confirm these are local images from /public; no domain config needed.
+
+3) Data source
+- Locate where products read their image path (DB table `items.image`, JSON seed, Prisma, or API).
+- Update each item.image to a relative path like "/menu/<exactFileName>.png" (keep exact casing).
+- If DB: run an UPDATE for the mapped items (I’ll provide mappings in the next prompts). Show the SQL you run.
+- If JSON/seed: update the mapping and re-seed if required.
+
+4) Frontend render
+- Confirm the component uses <img src={safeSrc} ...> or Next/Image with src={safeSrc}.
+- Add a simple onError fallback to show a placeholder if a file is missing.
+
+5) Verify & rebuild
+- Clear any build cache, rebuild, and run locally.
+- Open browser devtools → Network → filter “.png”; ensure 200 OK for these files (no 404).
+- If 404s appear, print the exact requested URL and the real file path and fix the mismatch.
+
+6) Publish
+- After confirming locally, republish the site.
+
+Report:
+- What stack we have.
+- Which files you edited.
+- The exact path you put images in.
+- A list of 200 OK checks for a few sample images including one with parentheses.
