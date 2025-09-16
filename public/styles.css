@@ -793,3 +793,53 @@ header[role="banner"]{
 .cat-arrow.right{right:4px}
 .cat-arrow[disabled]{opacity:.35; pointer-events:none}
 .category-btn{scroll-snap-align:center}
+
+/* ===== Tablet-only: make cards horizontal & compact ===== */
+@media (min-width:768px) and (max-width:1024px){
+  /* one column list on tablet */
+  .menu-list { display:block; }
+
+  .menu-card {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 16px; min-height:88px;
+  }
+
+  /* small left thumbnail */
+  .menu-card .thumb-wrap, 
+  .menu-card .menu-thumb {
+    flex:0 0 88px; width:88px; height:88px;
+    object-fit:cover; border-radius:12px;
+  }
+
+  .menu-card .menu-meta { flex:1 1 auto; }
+
+  /* keep text compact without changing type scale drastically */
+  .menu-card .menu-title { 
+    font-size: clamp(14px, 1.9vw, 18px);
+    line-height:1.2;
+  }
+  .menu-card .menu-desc {
+    font-size: clamp(12px, 1.6vw, 15px);
+    line-height:1.35; max-height:3.2em; overflow:hidden;
+  }
+  .menu-card .menu-price {
+    font-size: clamp(14px, 1.8vw, 17px);
+  }
+}
+
+/* ===== Mobile & Tablet: make category strip reliably scroll ===== */
+#categoryStrip, .category-strip {
+  display:flex; flex-wrap:nowrap; gap:.75rem;
+  overflow-x:auto !important; overflow-y:hidden;
+  white-space:nowrap; -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  padding-inline:12px; max-width:100%;
+}
+#categoryStrip * , .category-strip * { flex:0 0 auto; }
+
+/* keep scrollbar minimal without changing design */
+#categoryStrip::-webkit-scrollbar, .category-strip::-webkit-scrollbar { height:8px; }
+
+/* prevent accidental clipping by wrappers */
+@media (max-width:1024px){
+  .no-clip-h { overflow-x:visible !important; }
+}
