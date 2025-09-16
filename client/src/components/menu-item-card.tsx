@@ -4,6 +4,24 @@ import { getDefaultImageForItem } from "@/lib/menu-data";
 import { useState } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 
+// Helper function to safely encode image URLs for filenames with special characters
+function getEncodedImageUrl(imageUrl: string | null | undefined): string | null {
+  if (!imageUrl) return null;
+  
+  // If it's already a full URL (starts with http), return as-is
+  if (imageUrl.startsWith('http')) return imageUrl;
+  
+  // If it's a path starting with /, extract the filename and encode it
+  if (imageUrl.startsWith('/')) {
+    const parts = imageUrl.split('/');
+    const filename = parts[parts.length - 1];
+    const pathWithoutFilename = parts.slice(0, -1).join('/');
+    return pathWithoutFilename + '/' + encodeURIComponent(filename);
+  }
+  
+  return imageUrl;
+}
+
 interface MenuItemCardProps {
   item: MenuItem;
   category: Category;
@@ -24,7 +42,7 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </div>
         )}
         <img
-          src={(item.imageUrl && !imageError) ? item.imageUrl : getDefaultImageForItem(category.slug, index)}
+          src={(item.imageUrl && !imageError) ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) : getDefaultImageForItem(category.slug, index)}
           alt={item.name}
           className={`w-full h-48 object-cover ${!imageLoaded ? 'hidden' : ''}`}
           onLoad={() => setImageLoaded(true)}

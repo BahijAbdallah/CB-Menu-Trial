@@ -5,6 +5,24 @@ import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 import { useLocale, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
 
+// Helper function to safely encode image URLs for filenames with special characters
+function getEncodedImageUrl(imageUrl: string | null | undefined): string | null {
+  if (!imageUrl) return null;
+  
+  // If it's already a full URL (starts with http), return as-is
+  if (imageUrl.startsWith('http')) return imageUrl;
+  
+  // If it's a path starting with /, extract the filename and encode it
+  if (imageUrl.startsWith('/')) {
+    const parts = imageUrl.split('/');
+    const filename = parts[parts.length - 1];
+    const pathWithoutFilename = parts.slice(0, -1).join('/');
+    return pathWithoutFilename + '/' + encodeURIComponent(filename);
+  }
+  
+  return imageUrl;
+}
+
 interface ExpandableDescriptionProps {
   text: string;
   maxLines?: number;
@@ -99,7 +117,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
         )}
         <img 
           className={`menu-thumb ${!imageLoaded ? 'hidden' : ''}`}
-          src={(item.imageUrl && !imageError) ? item.imageUrl : getDefaultImageForItem(category.slug, index)}
+          src={(item.imageUrl && !imageError) ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) : getDefaultImageForItem(category.slug, index)}
           alt={itemName}
           loading="lazy"
           width="176"
