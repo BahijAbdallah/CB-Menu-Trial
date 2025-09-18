@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
-import { Plus, PrinterCheck, Search, ArrowLeft, LogOut, Utensils, Layers, FileText, FileSpreadsheet } from "lucide-react";
+import { Plus, PrinterCheck, Search, ArrowLeft, LogOut, Utensils, Layers, FileText, FileSpreadsheet, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import AdminStats from "@/components/admin-stats";
 import AdminItemModal from "@/components/admin-item-modal";
 import AdminCategoriesSection from "@/components/admin-categories-section";
 import AdminHalalCertificatesSection from "@/components/admin-halal-certificates-section";
+import AdminCategoryOrderSection from "@/components/admin-category-order-section";
 import type { Category, MenuItem } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 
@@ -239,7 +240,7 @@ export default function AdminPage() {
 
         {/* Admin Content Tabs */}
         <Tabs defaultValue="menu-items" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="menu-items" className="flex items-center space-x-2">
               <Utensils className="h-4 w-4" />
               <span>Menu Items</span>
@@ -251,6 +252,10 @@ export default function AdminPage() {
             <TabsTrigger value="halal-certificates" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Halal Certificates</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
             </TabsTrigger>
           </TabsList>
 
@@ -409,6 +414,10 @@ export default function AdminPage() {
 
           <TabsContent value="halal-certificates">
             <AdminHalalCertificatesSection />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <AdminCategoryOrderSection />
           </TabsContent>
         </Tabs>
       </div>

@@ -3,6 +3,7 @@ import {
   categories, 
   menuItems,
   halalCertificates,
+  settings,
   type User, 
   type InsertUser,
   type Category,
@@ -10,7 +11,9 @@ import {
   type MenuItem,
   type InsertMenuItem,
   type HalalCertificate,
-  type InsertHalalCertificate
+  type InsertHalalCertificate,
+  type Setting,
+  type InsertSetting
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -47,6 +50,12 @@ export interface IStorage {
   createHalalCertificate(certificate: InsertHalalCertificate): Promise<HalalCertificate>;
   updateHalalCertificate(id: number, certificate: Partial<InsertHalalCertificate>): Promise<HalalCertificate | undefined>;
   deleteHalalCertificate(id: number): Promise<boolean>;
+
+  // Settings methods
+  getSetting(key: string): Promise<string | undefined>;
+  setSetting(key: string, value: string): Promise<void>;
+  getCategoryOrder(): Promise<string[]>;
+  setCategoryOrder(categoryOrder: string[]): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -54,6 +63,7 @@ export class MemStorage implements IStorage {
   private categories: Map<number, Category>;
   private menuItems: Map<number, MenuItem>;
   private halalCertificates: Map<number, HalalCertificate>;
+  private settings: Map<string, string>;
   private currentUserId: number;
   private currentCategoryId: number;
   private currentMenuItemId: number;
@@ -64,6 +74,7 @@ export class MemStorage implements IStorage {
     this.categories = new Map();
     this.menuItems = new Map();
     this.halalCertificates = new Map();
+    this.settings = new Map();
     this.currentUserId = 1;
     this.currentCategoryId = 1;
     this.currentMenuItemId = 1;
@@ -326,6 +337,29 @@ export class MemStorage implements IStorage {
   async clearAllCategories(): Promise<void> {
     this.categories.clear();
   }
+
+  // Settings methods
+  async getSetting(key: string): Promise<string | undefined> {
+    return this.settings.get(key);
+  }
+
+  async setSetting(key: string, value: string): Promise<void> {
+    this.settings.set(key, value);
+  }
+
+  async getCategoryOrder(): Promise<string[]> {
+    const orderJson = this.settings.get('categoryOrder');
+    if (!orderJson) return [];
+    try {
+      return JSON.parse(orderJson);
+    } catch {
+      return [];
+    }
+  }
+
+  async setCategoryOrder(categoryOrder: string[]): Promise<void> {
+    this.settings.set('categoryOrder', JSON.stringify(categoryOrder));
+  }
 }
 
 // Database storage implementation
@@ -483,6 +517,36 @@ export class DatabaseStorage implements IStorage {
 
   async clearAllCategories(): Promise<void> {
     await db.delete(categories);
+  }
+
+  // Settings methods
+  async getSetting(key: string): Promise<string | undefined> {
+    const [setting] = await db.select().from(settings).where(eq(settings.key, key));
+    return setting?.value;
+  }
+
+  async setSetting(key: string, value: string): Promise<void> {
+    await db
+      .insert(settings)
+      .values({ key, value })
+      .onConflictDoUpdate({
+        target: settings.key,
+        set: { value, updatedAt: new Date() }
+      });
+  }
+
+  async getCategoryOrder(): Promise<string[]> {
+    const orderJson = await this.getSetting('categoryOrder');
+    if (!orderJson) return [];
+    try {
+      return JSON.parse(orderJson);
+    } catch {
+      return [];
+    }
+  }
+
+  async setCategoryOrder(categoryOrder: string[]): Promise<void> {
+    await this.setSetting('categoryOrder', JSON.stringify(categoryOrder));
   }
 }
 

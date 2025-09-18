@@ -74,3 +74,17 @@ export const insertHalalCertificateSchema = createInsertSchema(halalCertificates
 
 export type InsertHalalCertificate = z.infer<typeof insertHalalCertificateSchema>;
 export type HalalCertificate = typeof halalCertificates.$inferSelect;
+
+// Settings Table for configuration
+export const settings = pgTable("settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSettingSchema = createInsertSchema(settings).omit({
+  updatedAt: true,
+});
+
+export type InsertSetting = z.infer<typeof insertSettingSchema>;
+export type Setting = typeof settings.$inferSelect;

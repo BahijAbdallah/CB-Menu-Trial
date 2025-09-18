@@ -497,6 +497,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Settings routes for category ordering
+  app.get("/api/settings/category-order", async (req, res) => {
+    try {
+      const categoryOrder = await storage.getCategoryOrder();
+      res.json({ categoryOrder });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get category order" });
+    }
+  });
+
+  app.put("/api/settings/category-order", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({
+        categoryOrder: z.array(z.string())
+      });
+      
+      const { categoryOrder } = schema.parse(req.body);
+      await storage.setCategoryOrder(categoryOrder);
+      res.json({ success: true, categoryOrder });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid category order format" });
+      } else {
+        res.status(500).json({ message: "Failed to save category order" });
+      }
+    }
+  });
+
   // Excel import endpoint
   app.post("/api/import-excel", requireAuth, async (req, res) => {
     try {
