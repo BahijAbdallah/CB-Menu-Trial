@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -74,16 +74,35 @@ export default function MenuPage() {
     queryKey: ["/api/categories"],
   });
 
+  const { data: categoryOrderData } = useQuery<{ categoryOrder: string[] }>({
+    queryKey: ["/api/settings/category-order"],
+  });
+
   const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
     MenuItem[]
   >({
     queryKey: ["/api/menu-items"],
   });
 
+  // Apply category ordering based on settings
+  const sortedCategories = useMemo(() => {
+    if (!categories.length) return categories;
+    
+    const order = categoryOrderData?.categoryOrder || [];
+    const pos = (slug: string) => { 
+      const i = order.indexOf(slug); 
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i; 
+    };
+    
+    return [...categories].sort((a, b) => pos(a.slug) - pos(b.slug));
+  }, [categories, categoryOrderData]);
+
   // Set first category as active when categories load
-  if (categories.length > 0 && !activeCategory) {
-    setActiveCategory(categories[0].slug);
-  }
+  useEffect(() => {
+    if (sortedCategories.length > 0 && !activeCategory) {
+      setActiveCategory(sortedCategories[0].slug);
+    }
+  }, [sortedCategories, activeCategory]);
 
   // Auto-scroll active chip into view on desktop
   useEffect(() => {
@@ -99,14 +118,38 @@ export default function MenuPage() {
     }
   }, [activeCategory]);
 
-  // Category strip scrolling functionality - fixed for mobile & tablet
+  // Category strip scrolling functionality - Android mobile optimized
   useEffect(() => {
     (function(){
-      const strip = document.querySelector('#categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip');
-      if(!strip) { console.warn('category strip not found'); return; }
+      const el = document.querySelector('[data-category-scroll]') as HTMLElement;
+      if(!el) { console.warn('category strip not found'); return; }
 
+      // Android-specific wheel and pointer drag events
+      el.addEventListener('wheel', (e) => {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault(); 
+          el.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+
+      let down = false, startX = 0, sl = 0;
+      el.addEventListener('pointerdown', e => { 
+        down = true; 
+        startX = e.pageX; 
+        sl = el.scrollLeft; 
+        el.setPointerCapture(e.pointerId); 
+      });
+      el.addEventListener('pointermove', e => { 
+        if (down) el.scrollLeft = sl - (e.pageX - startX); 
+      });
+      ['pointerup','pointercancel','pointerleave'].forEach(t => 
+        el.addEventListener(t, () => { down = false; })
+      );
+      el.style.touchAction = 'pan-x'; // allow horizontal pan
+
+      // Legacy support for existing functionality
       // 1) Unblock any parent that hides horizontal overflow
-      let p = strip.parentElement;
+      let p = el.parentElement;
       while(p){
         const cs = getComputedStyle(p);
         if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
@@ -115,33 +158,18 @@ export default function MenuPage() {
         p = p.parentElement;
       }
 
-      // 2) Runtime safeties (no visual change)
-      const stripElement = strip as HTMLElement;
-      stripElement.style.overflowX = 'auto';
-      stripElement.style.whiteSpace = 'nowrap';
-      (stripElement.style as any).webkitOverflowScrolling = 'touch';
-      stripElement.style.scrollBehavior = 'smooth';
-
-      // 3) Convert vertical wheel to horizontal (desktop trackpads/mice)
-      stripElement.addEventListener('wheel', (e)=>{
-        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
-          stripElement.scrollBy({left: e.deltaY, behavior: 'auto'});
-          e.preventDefault();
-        }
-      }, {passive:false});
-
-      // 4) Verify we can reach both ends; if not, relax any sticky/clip ancestors
+      // 2) Verify we can reach both ends; if not, relax any sticky/clip ancestors
       function ensureEndsReachable(){
-        const before = { w: stripElement.scrollWidth, c: stripElement.clientWidth };
+        const before = { w: el.scrollWidth, c: el.clientWidth };
         // try full right then full left
-        stripElement.scrollTo({ left: stripElement.scrollWidth, behavior: 'auto' });
-        const atEnd = Math.abs(stripElement.scrollLeft - (stripElement.scrollWidth - stripElement.clientWidth)) <= 1;
-        stripElement.scrollTo({ left: 0, behavior: 'auto' });
-        const atStart = stripElement.scrollLeft === 0;
+        el.scrollTo({ left: el.scrollWidth, behavior: 'auto' });
+        const atEnd = Math.abs(el.scrollLeft - (el.scrollWidth - el.clientWidth)) <= 1;
+        el.scrollTo({ left: 0, behavior: 'auto' });
+        const atStart = el.scrollLeft === 0;
 
         // If either end is blocked, remove clip from nearest sticky ancestor
         if(!atEnd || !atStart){
-          let a = stripElement.parentElement;
+          let a = el.parentElement;
           while(a){
             const cs = getComputedStyle(a);
             if(cs.position === 'sticky' || cs.overflow === 'hidden' || cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
@@ -151,10 +179,10 @@ export default function MenuPage() {
             a = a.parentElement;
           }
         }
-        console.log('categories widths', before, 'scrollLeft', stripElement.scrollLeft);
+        console.log('categories widths', before, 'scrollLeft', el.scrollLeft);
       }
 
-      // 5) Run once and after a frame (in case of fonts/layout)
+      // Run once and after a frame (in case of fonts/layout)
       ensureEndsReachable();
       requestAnimationFrame(ensureEndsReachable);
     })();
@@ -262,7 +290,7 @@ export default function MenuPage() {
     })();
   }, [menuItems]); // Run when menu items change
 
-  const activeCategoryData = categories.find(
+  const activeCategoryData = sortedCategories.find(
     (cat) => cat.slug === activeCategory,
   );
   const categoryItems = menuItems.filter((item) =>
@@ -357,8 +385,9 @@ export default function MenuPage() {
           <nav
             id="categoryStrip"
             className="category-strip menu-tabs text-center"
+            data-category-scroll
           >
-            {categories.map((category, i) => {
+            {sortedCategories.map((category, i) => {
               const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
               const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
                 {

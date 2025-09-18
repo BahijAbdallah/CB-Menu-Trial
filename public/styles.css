@@ -937,3 +937,14 @@ header[role="banner"]{
 .menu-item-card.expanded, .item-card.expanded{
   /* allow only the expanded card to grow naturally */
 }
+
+/* Android horizontal scroll fix for categories nav */
+[data-category-scroll] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+[data-category-scroll]::-webkit-scrollbar { display: none; }
+[data-category-scroll] > * { flex: 0 0 auto; } /* chips remain inline */

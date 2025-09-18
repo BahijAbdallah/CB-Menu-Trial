@@ -1,0 +1,62 @@
+Goal
+Fix Android mobile responsiveness so the categories nav (chips bar) scrolls smoothly, and add an Admin option to sort category order on the frontend—without changing any data or visual design.
+
+A) Android horizontal scroll fix (no design change)
+- Target the existing categories nav container; add an attribute data-category-scroll on it (do not change styles/spacings).
+- Ensure it scrolls horizontally with touch/drag on Android.
+
+Code (append safely):
+CSS:
+  [data-category-scroll] {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+  [data-category-scroll]::-webkit-scrollbar { display: none; }
+  [data-category-scroll] > * { flex: 0 0 auto; } /* chips remain inline */
+
+JS (mount once after DOM ready):
+  const el = document.querySelector('[data-category-scroll]');
+  if (el) {
+    el.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault(); el.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+    let down = false, startX = 0, sl = 0;
+    el.addEventListener('pointerdown', e => { down = true; startX = e.pageX; sl = el.scrollLeft; el.setPointerCapture(e.pointerId); });
+    el.addEventListener('pointermove', e => { if (down) el.scrollLeft = sl - (e.pageX - startX); });
+    ['pointerup','pointercancel','pointerleave'].forEach(t => el.addEventListener(t, () => { down = false; }));
+    el.style.touchAction = 'pan-x'; // allow horizontal pan
+  }
+
+Acceptance:
+- On Android (Chrome), the category bar scrolls left/right by swipe/drag and mouse wheel, no layout/style changes.
+
+B) Admin: sort categories for frontend order (no data mutation)
+- Add an Admin screen "Category Order" (Settings → Category Order).
+- Show current categories as a simple draggable list (use HTML5 drag & drop or lightweight Sortable; min dep).
+- Persist only an ORDER ARRAY in the settings store (e.g., 'settings.categoryOrder' or a config table/doc). Do not edit category records themselves.
+  Example saved value: ["drinks","salads","mains","desserts","breakfast","sandwiches"]
+
+Backend/Store:
+- Create/read a single config key: categoryOrder (string[])
+- If not present, leave existing order unchanged.
+
+Frontend apply:
+- When rendering categories, read categoryOrder and sort non-destructively:
+  const order = settings?.categoryOrder || [];
+  const pos = id => { const i = order.indexOf(id); return i === -1 ? Number.MAX_SAFE_INTEGER : i; };
+  categoriesSorted = [...categories].sort((a,b) => pos(a.id) - pos(b.id));
+
+- Categories not listed in categoryOrder appear after the listed ones, keeping their current order.
+- No changes to items/products or their data; only the display order of category chips and sections.
+
+Acceptance:
+- Admin can drag to reorder categories and save; reload shows the new order on the frontend.
+- No visual design changes; only the order changes.
+- No product/item data modified; only a single settings key is created/updated.
+
+Please implement exactly as above and test on Android widths (360–430px). Do not alter existing colors, spacing, chip styles, or text.
