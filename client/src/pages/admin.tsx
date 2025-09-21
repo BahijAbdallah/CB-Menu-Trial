@@ -17,6 +17,7 @@ import AdminItemModal from "@/components/admin-item-modal";
 import AdminCategoriesSection from "@/components/admin-categories-section";
 import AdminHalalCertificatesSection from "@/components/admin-halal-certificates-section";
 import AdminCategoryOrderSection from "@/components/admin-category-order-section";
+import AdminItemOrderSection from "@/components/admin-item-order-section";
 import type { Category, MenuItem } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 
@@ -240,7 +241,7 @@ export default function AdminPage() {
 
         {/* Admin Content Tabs */}
         <Tabs defaultValue="menu-items" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="menu-items" className="flex items-center space-x-2">
               <Utensils className="h-4 w-4" />
               <span>Menu Items</span>
@@ -249,13 +250,17 @@ export default function AdminPage() {
               <Layers className="h-4 w-4" />
               <span>Categories</span>
             </TabsTrigger>
+            <TabsTrigger value="item-order" className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span>Item Order</span>
+            </TabsTrigger>
             <TabsTrigger value="halal-certificates" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Halal Certificates</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center space-x-2">
               <Settings className="h-4 w-4" />
-              <span>Settings</span>
+              <span>Category Order</span>
             </TabsTrigger>
           </TabsList>
 
@@ -410,6 +415,10 @@ export default function AdminPage() {
 
           <TabsContent value="categories">
             <AdminCategoriesSection />
+          </TabsContent>
+
+          <TabsContent value="item-order">
+            <AdminItemOrderSection />
           </TabsContent>
 
           <TabsContent value="halal-certificates">
