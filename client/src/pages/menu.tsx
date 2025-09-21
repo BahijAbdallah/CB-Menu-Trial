@@ -296,15 +296,18 @@ export default function MenuPage() {
     (cat) => cat.slug === activeCategory,
   );
   
-  // Filter items for active category and apply display order sorting
+  // Filter items for active category and apply display order sorting  
   const categoryItems = useMemo(() => {
     if (!activeCategoryData) return [];
     
     const filteredItems = menuItems.filter((item) => item.categoryId === activeCategoryData.id);
     
-    // Apply display order sorting - items with displayOrder come first, then others by original order
+    // Create cache key for displayOrder changes
+    const bump = filteredItems.map(i => i.displayOrder ?? '').join(',');
+    
+    // Sort by displayOrder right before render
     return sortByDisplayOrder(filteredItems);
-  }, [menuItems, activeCategoryData]);
+  }, [menuItems, activeCategoryData, menuItems.map(i => i.displayOrder ?? '').join(',')]);
 
   if (categoriesLoading || menuItemsLoading) {
     return (

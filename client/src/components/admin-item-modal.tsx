@@ -30,18 +30,7 @@ const formSchema = z.object({
   isAvailable: z.boolean().default(true),
   outOfStock: z.boolean().default(false),
   order: z.number().default(0),
-  displayOrder: z.string().optional().transform((val, ctx) => {
-    if (!val || val.trim() === "") return null;
-    const parsed = parseInt(val, 10);
-    if (isNaN(parsed) || parsed < 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Display Order must be a positive integer",
-      });
-      return z.NEVER;
-    }
-    return parsed;
-  }),
+  displayOrder: z.string().optional(),
   allergens: z.array(z.string()).default([]),
 });
 
@@ -208,6 +197,11 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
 
   const saveMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      // Parse displayOrder to number or null as per user instructions
+      const displayOrder = data.displayOrder && data.displayOrder.trim() !== "" 
+        ? parseInt(data.displayOrder, 10) 
+        : null;
+      
       const payload: any = {
         ...data,
         price: data.price,
@@ -216,6 +210,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         description: data.description || null,
         descriptionArabic: data.descriptionArabic || null,
         descriptionFrench: data.descriptionFrench || null,
+        displayOrder: displayOrder,
         allergens: JSON.stringify(data.allergens),
       };
 
