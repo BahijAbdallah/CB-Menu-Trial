@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
+import { sortItemsForCategory } from "@/lib/item-sort-utils";
 
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -76,6 +77,10 @@ export default function MenuPage() {
 
   const { data: categoryOrderData } = useQuery<{ categoryOrder: string[] }>({
     queryKey: ["/api/settings/category-order"],
+  });
+
+  const { data: itemOrderData } = useQuery<{ itemOrderByCategory: Record<string, string[]> }>({
+    queryKey: ["/api/settings/item-order"],
   });
 
   const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
@@ -293,9 +298,16 @@ export default function MenuPage() {
   const activeCategoryData = sortedCategories.find(
     (cat) => cat.slug === activeCategory,
   );
-  const categoryItems = menuItems.filter((item) =>
-    activeCategoryData ? item.categoryId === activeCategoryData.id : false,
-  );
+  
+  // Filter items for active category and apply custom ordering
+  const categoryItems = useMemo(() => {
+    if (!activeCategoryData) return [];
+    
+    const filteredItems = menuItems.filter((item) => item.categoryId === activeCategoryData.id);
+    
+    // Apply item ordering if available
+    return sortItemsForCategory(filteredItems, activeCategoryData.id, itemOrderData);
+  }, [menuItems, activeCategoryData, itemOrderData]);
 
   if (categoriesLoading || menuItemsLoading) {
     return (

@@ -56,6 +56,9 @@ export interface IStorage {
   setSetting(key: string, value: string): Promise<void>;
   getCategoryOrder(): Promise<string[]>;
   setCategoryOrder(categoryOrder: string[]): Promise<void>;
+  getItemOrderByCategory(): Promise<Record<string, string[]>>;
+  setItemOrderByCategory(categoryId: string, itemOrder: string[]): Promise<void>;
+  deleteItemOrderByCategory(categoryId: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -360,6 +363,28 @@ export class MemStorage implements IStorage {
   async setCategoryOrder(categoryOrder: string[]): Promise<void> {
     this.settings.set('categoryOrder', JSON.stringify(categoryOrder));
   }
+
+  async getItemOrderByCategory(): Promise<Record<string, string[]>> {
+    const orderJson = this.settings.get('itemOrderByCategory');
+    if (!orderJson) return {};
+    try {
+      return JSON.parse(orderJson);
+    } catch {
+      return {};
+    }
+  }
+
+  async setItemOrderByCategory(categoryId: string, itemOrder: string[]): Promise<void> {
+    const current = await this.getItemOrderByCategory();
+    current[categoryId] = itemOrder;
+    this.settings.set('itemOrderByCategory', JSON.stringify(current));
+  }
+
+  async deleteItemOrderByCategory(categoryId: string): Promise<void> {
+    const current = await this.getItemOrderByCategory();
+    delete current[categoryId];
+    this.settings.set('itemOrderByCategory', JSON.stringify(current));
+  }
 }
 
 // Database storage implementation
@@ -547,6 +572,28 @@ export class DatabaseStorage implements IStorage {
 
   async setCategoryOrder(categoryOrder: string[]): Promise<void> {
     await this.setSetting('categoryOrder', JSON.stringify(categoryOrder));
+  }
+
+  async getItemOrderByCategory(): Promise<Record<string, string[]>> {
+    const orderJson = await this.getSetting('itemOrderByCategory');
+    if (!orderJson) return {};
+    try {
+      return JSON.parse(orderJson);
+    } catch {
+      return {};
+    }
+  }
+
+  async setItemOrderByCategory(categoryId: string, itemOrder: string[]): Promise<void> {
+    const current = await this.getItemOrderByCategory();
+    current[categoryId] = itemOrder;
+    await this.setSetting('itemOrderByCategory', JSON.stringify(current));
+  }
+
+  async deleteItemOrderByCategory(categoryId: string): Promise<void> {
+    const current = await this.getItemOrderByCategory();
+    delete current[categoryId];
+    await this.setSetting('itemOrderByCategory', JSON.stringify(current));
   }
 }
 
