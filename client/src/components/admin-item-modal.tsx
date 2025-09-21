@@ -30,7 +30,6 @@ const formSchema = z.object({
   isAvailable: z.boolean().default(true),
   outOfStock: z.boolean().default(false),
   order: z.number().default(0),
-  displayOrder: z.string().optional(),
   allergens: z.array(z.string()).default([]),
 });
 
@@ -65,7 +64,6 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       isAvailable: true,
       outOfStock: false,
       order: 0,
-      displayOrder: "",
       allergens: [],
     },
   });
@@ -99,7 +97,6 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         isAvailable: editingItem.isAvailable,
         outOfStock: editingItem.outOfStock || false,
         order: editingItem.order,
-        displayOrder: editingItem.displayOrder ? editingItem.displayOrder.toString() : "",
         allergens: allergens,
       });
       setImagePreview(editingItem.imageUrl || "");
@@ -117,7 +114,6 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         isAvailable: true,
         outOfStock: false,
         order: 0,
-        displayOrder: "",
         allergens: [],
       });
       setImagePreview("");
@@ -197,11 +193,6 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
 
   const saveMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      // Parse displayOrder to number or null as per user instructions
-      const displayOrder = data.displayOrder && data.displayOrder.trim() !== "" 
-        ? parseInt(data.displayOrder, 10) 
-        : null;
-      
       const payload: any = {
         ...data,
         price: data.price,
@@ -210,7 +201,6 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         description: data.description || null,
         descriptionArabic: data.descriptionArabic || null,
         descriptionFrench: data.descriptionFrench || null,
-        displayOrder: displayOrder,
         allergens: JSON.stringify(data.allergens),
       };
 
@@ -499,7 +489,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                 name="order"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Order</FormLabel>
+                    <FormLabel>Display Order</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -509,26 +499,6 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                       />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="displayOrder"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Order</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Optional - leave empty for default order"
-                        {...field}
-                        data-testid="display-order-input"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                    <p className="text-xs text-gray-500">Lower number shows earlier. Leave empty to use default order.</p>
                   </FormItem>
                 )}
               />
