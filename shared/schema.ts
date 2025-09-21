@@ -25,7 +25,6 @@ export const menuItems = pgTable("menu_items", {
   isAvailable: boolean("is_available").notNull().default(true),
   outOfStock: boolean("out_of_stock").notNull().default(false),
   order: integer("order").notNull().default(0),
-  displayOrder: integer("display_order"),
   allergens: text("allergens").default("[]"),
 });
 
