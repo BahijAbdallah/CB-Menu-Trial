@@ -238,34 +238,9 @@ export class MemStorage implements IStorage {
   }
 
   async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
-    // 1) Load items in the usual way (unchanged query/filters)
-    const items = Array.from(this.menuItems.values())
+    return Array.from(this.menuItems.values())
       .filter(item => item.categoryId === categoryId)
       .sort((a, b) => a.order - b.order);
-
-    // 2) Load settings and seed if missing
-    const catId = categoryId.toString();
-    const settings = await this.getItemOrderByCategory();
-    
-    if (!settings[catId] && items.length > 0) {
-      // One-time default seeding: save current DB order as default
-      const defaultOrder = items.map(item => item.id.toString());
-      await this.setItemOrderByCategory(catId, defaultOrder);
-      settings[catId] = defaultOrder;
-    }
-
-    // 3) Sort server-side using stable helper
-    return this.sortBySavedOrder(items, catId, { itemOrderByCategory: settings });
-  }
-
-  // Stable sorting helper function as specified
-  private sortBySavedOrder(items: MenuItem[], catId: string, settings: { itemOrderByCategory: Record<string, string[]> }): MenuItem[] {
-    const order = settings?.itemOrderByCategory?.[catId] || [];
-    const pos = new Map(order.map((id, i) => [id, i]));
-    return items
-      .map((it, idx) => ({ it, idx, p: pos.has(it.id.toString()) ? pos.get(it.id.toString())! : Number.POSITIVE_INFINITY }))
-      .sort((a, b) => (a.p !== b.p ? a.p - b.p : a.idx - b.idx))
-      .map(x => x.it);
   }
 
   async getMenuItemById(id: number): Promise<MenuItem | undefined> {
@@ -470,36 +445,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
-    // 1) Load items in the usual way (unchanged query/filters)
-    const items = await db
+    return await db
       .select()
       .from(menuItems)
       .where(eq(menuItems.categoryId, categoryId))
       .orderBy(menuItems.order);
-
-    // 2) Load settings and seed if missing
-    const catId = categoryId.toString();
-    const settings = await this.getItemOrderByCategory();
-    
-    if (!settings[catId] && items.length > 0) {
-      // One-time default seeding: save current DB order as default
-      const defaultOrder = items.map(item => item.id.toString());
-      await this.setItemOrderByCategory(catId, defaultOrder);
-      settings[catId] = defaultOrder;
-    }
-
-    // 3) Sort server-side using stable helper
-    return this.sortBySavedOrder(items, catId, { itemOrderByCategory: settings });
-  }
-
-  // Stable sorting helper function as specified
-  private sortBySavedOrder(items: MenuItem[], catId: string, settings: { itemOrderByCategory: Record<string, string[]> }): MenuItem[] {
-    const order = settings?.itemOrderByCategory?.[catId] || [];
-    const pos = new Map(order.map((id, i) => [id, i]));
-    return items
-      .map((it, idx) => ({ it, idx, p: pos.has(it.id.toString()) ? pos.get(it.id.toString())! : Number.POSITIVE_INFINITY }))
-      .sort((a, b) => (a.p !== b.p ? a.p - b.p : a.idx - b.idx))
-      .map(x => x.it);
   }
 
   async getMenuItemById(id: number): Promise<MenuItem | undefined> {
