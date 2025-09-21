@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { applyCategoryOrder } from "@/utils/applyCategoryOrder";
-import { useRefMap } from "@/utils/refMap";
 
 import MenuCategory from "@/components/menu-category";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -46,7 +45,6 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRefMap<HTMLDivElement>();
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -301,29 +299,16 @@ export default function MenuPage() {
     (cat) => cat.slug === activeCategory,
   );
   
-  // Create items organized by category with custom ordering applied
-  const itemsByCategory = useMemo(() => {
+  // Filter items for active category and apply custom ordering
+  const categoryItems = useMemo(() => {
+    if (!activeCategoryData) return [];
+    
+    const itemsInCatRaw = menuItems.filter((item) => item.categoryId === activeCategoryData.id);
     const orderMap = itemOrderData?.itemOrderByCategory;
     
-    return sortedCategories.map(category => {
-      const itemsInCatRaw = menuItems.filter((item) => item.categoryId === category.id);
-      const itemsSorted = applyCategoryOrder(itemsInCatRaw, category.id.toString(), orderMap);
-      return {
-        category,
-        items: itemsSorted
-      };
-    });
-  }, [menuItems, sortedCategories, itemOrderData]);
-
-  // Navigation handler with stable refs
-  const onChipClick = (e: React.MouseEvent, catId: string) => {
-    e.preventDefault();
-    const ref = sectionRefs.map.get(catId);
-    if (ref?.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActiveCategory(catId); // Update active state for visual feedback
-    }
-  };
+    // Apply category order using the utility function
+    return applyCategoryOrder(itemsInCatRaw, activeCategoryData.id.toString(), orderMap);
+  }, [menuItems, activeCategoryData, itemOrderData]);
 
   if (categoriesLoading || menuItemsLoading) {
     return (
@@ -439,9 +424,7 @@ export default function MenuPage() {
               return (
                 <button
                   key={category.id}
-                  type="button"
-                  data-target-id={category.slug}
-                  onClick={(e) => onChipClick(e, category.slug)}
+                  onClick={() => setActiveCategory(category.slug)}
                   className={`menu-tab variant-${tone} category-btn ${isActive ? "is-active" : ""}`}
                   data-category={category.slug}
                 >
@@ -452,19 +435,12 @@ export default function MenuPage() {
           </nav>
         </div>
 
-        {/* Menu Items Display - All Categories as Sections */}
-        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
-          {itemsByCategory.map(({ category, items }) => (
-            <div
-              key={category.id}
-              ref={sectionRefs.get(category.slug)}
-              data-category-id={category.slug}
-              className="mb-12 last:mb-0"
-            >
-              <MenuCategory category={category} items={items} />
-            </div>
-          ))}
-        </div>
+        {/* Menu Items Display */}
+        <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
+          {activeCategoryData && (
+            <MenuCategory category={activeCategoryData} items={categoryItems} />
+          )}
+        </section>
       </div>
     </div>
   );

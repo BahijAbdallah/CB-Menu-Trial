@@ -53,10 +53,6 @@ localPort = 36745
 externalPort = 8008
 
 [[ports]]
-localPort = 37331
-externalPort = 8080
-
-[[ports]]
 localPort = 38429
 externalPort = 3001
 
@@ -83,6 +79,10 @@ externalPort = 8000
 [[ports]]
 localPort = 42535
 externalPort = 3003
+
+[[ports]]
+localPort = 46665
+externalPort = 8080
 
 [agent]
 integrations = ["javascript_database==1.0.0", "javascript_mem_db==1.0.0", "javascript_log_in_with_replit==1.0.0"]
