@@ -1,0 +1,48 @@
+Bug: Setting “Display Order” in admin does not change the order of items in the category on the frontend.
+
+Goal
+- Honor the per-item Display Order when rendering items inside a category.
+- No UI/design/image/content changes — only sorting logic.
+- Keep behavior stable across desktop/tablet/mobile.
+
+Tasks
+
+1) Data plumbing
+- Ensure the item model has a numeric field `displayOrder` (nullable).
+- Admin save: persist `displayOrder` as an integer (parseInt, NaN -> null).
+- API: include `displayOrder` in item responses (REST/GraphQL). Do not rename it.
+
+2) Frontend sort (non-destructive, stable, category-local)
+- Before rendering a category’s items, sort them by:
+  a) displayOrder ASC (null/undefined go LAST),
+  b) original index as tiebreaker (stable).
+- DO NOT modify components or styles; only the array order.
+
+Use this exact helper:
+--------------------------------------------------
+// items: original array for a category
+export function sortByDisplayOrder(items) {
+  return items
+    .map((it, idx) => ({ it, idx, ord: Number.isFinite(+it.displayOrder) ? +it.displayOrder : Number.POSITIVE_INFINITY }))
+    .sort((a, b) => (a.ord !== b.ord ? a.ord - b.ord : a.idx - b.idx))
+    .map(x => x.it);
+}
+--------------------------------------------------
+- Call `sortByDisplayOrder(categoryItems)` right before mapping to ItemCard.
+- Do not mutate the original array.
+
+3) Admin validation (no UI redesign)
+- In the admin form, the “Display Order” input accepts only positive integers.
+- On save, coerce to int; empty -> null. Never write strings.
+- Optional: show a small note “Lower number shows earlier” (no layout change).
+
+4) Caching
+- If there is any client or server cache for category items, invalidate/refresh after saving an item so the new order appears on reload.
+
+5) Acceptance criteria
+- If two items in the same category have Display Order 1 and 2, they appear 1st and 2nd respectively.
+- Items without Display Order appear AFTER all with numbers, preserving their previous relative order.
+- No change to card design, images, fonts, spacing, or any other UI.
+- Works on Android, iOS, and desktop.
+
+Please implement exactly as above and test with a category where multiple items have different Display Order values (1,2,3,…) and some left blank.

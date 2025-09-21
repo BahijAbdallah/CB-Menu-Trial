@@ -172,6 +172,7 @@ export class MemStorage implements IStorage {
         descriptionArabic: null,
         descriptionFrench: null,
         outOfStock: false,
+        displayOrder: null,
         allergens: null
       };
       this.menuItems.set(menuItem.id, menuItem);
@@ -258,6 +259,7 @@ export class MemStorage implements IStorage {
       descriptionFrench: item.descriptionFrench || null,
       imageUrl: item.imageUrl || null,
       order: item.order || 0,
+      displayOrder: item.displayOrder || null,
       isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
       outOfStock: item.outOfStock || false,
       allergens: item.allergens || null
