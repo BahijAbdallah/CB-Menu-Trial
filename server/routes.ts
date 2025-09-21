@@ -525,6 +525,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Item order settings routes
+  app.get("/api/settings/item-order", async (req, res) => {
+    try {
+      const itemOrderByCategory = await storage.getItemOrderByCategory();
+      res.json({ itemOrderByCategory });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch item order" });
+    }
+  });
+
+  app.post("/api/settings/item-order", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({
+        categoryId: z.string(),
+        order: z.array(z.string())
+      });
+      
+      const { categoryId, order } = schema.parse(req.body);
+      await storage.setItemOrderByCategory(categoryId, order);
+      res.json({ success: true });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid request format" });
+      } else {
+        res.status(500).json({ message: "Failed to save item order" });
+      }
+    }
+  });
+
+  app.delete("/api/settings/item-order", requireAuth, async (req, res) => {
+    try {
+      const categoryId = req.query.categoryId as string;
+      if (!categoryId) {
+        return res.status(400).json({ message: "categoryId is required" });
+      }
+      
+      await storage.deleteItemOrderByCategory(categoryId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete item order" });
+    }
+  });
+
   // Excel import endpoint
   app.post("/api/import-excel", requireAuth, async (req, res) => {
     try {
