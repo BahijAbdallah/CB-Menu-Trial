@@ -30,6 +30,18 @@ const formSchema = z.object({
   isAvailable: z.boolean().default(true),
   outOfStock: z.boolean().default(false),
   order: z.number().default(0),
+  displayOrder: z.string().optional().transform((val, ctx) => {
+    if (!val || val.trim() === "") return null;
+    const parsed = parseInt(val, 10);
+    if (isNaN(parsed) || parsed < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Display Order must be a positive integer",
+      });
+      return z.NEVER;
+    }
+    return parsed;
+  }),
   allergens: z.array(z.string()).default([]),
 });
 
@@ -64,6 +76,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       isAvailable: true,
       outOfStock: false,
       order: 0,
+      displayOrder: "",
       allergens: [],
     },
   });
@@ -97,6 +110,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         isAvailable: editingItem.isAvailable,
         outOfStock: editingItem.outOfStock || false,
         order: editingItem.order,
+        displayOrder: editingItem.displayOrder ? editingItem.displayOrder.toString() : "",
         allergens: allergens,
       });
       setImagePreview(editingItem.imageUrl || "");
@@ -114,6 +128,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         isAvailable: true,
         outOfStock: false,
         order: 0,
+        displayOrder: "",
         allergens: [],
       });
       setImagePreview("");
@@ -489,7 +504,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                 name="order"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display Order</FormLabel>
+                    <FormLabel>Order</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -499,6 +514,26 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="displayOrder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Display Order</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Optional - leave empty for default order"
+                        {...field}
+                        data-testid="display-order-input"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    <p className="text-xs text-gray-500">Lower number shows earlier. Leave empty to use default order.</p>
                   </FormItem>
                 )}
               />
