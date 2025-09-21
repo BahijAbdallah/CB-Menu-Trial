@@ -32,8 +32,9 @@ export default function AdminItemOrderSection() {
     mutationFn: async ({ categoryId, order }: { categoryId: string; order: string[] }) => {
       return apiRequest("POST", "/api/settings/item-order", { categoryId, order });
     },
-    onSuccess: () => {
+    onSuccess: (_, { categoryId }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings/item-order"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
       setHasChanges(false);
       toast({
         title: "Success",
@@ -55,6 +56,7 @@ export default function AdminItemOrderSection() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings/item-order"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
       setHasChanges(false);
       toast({
         title: "Success",
