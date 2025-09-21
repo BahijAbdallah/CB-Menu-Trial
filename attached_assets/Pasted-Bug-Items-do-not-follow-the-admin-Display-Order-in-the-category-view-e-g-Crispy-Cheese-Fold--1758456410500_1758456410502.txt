@@ -1,0 +1,62 @@
+Bug: Items do not follow the admin “Display Order” in the category view (e.g., “Crispy Cheese Fold” set to 1 still shows later).
+
+Goal
+- Use the numeric Display Order to sort items within EACH category on the frontend.
+- No changes to design, images, markup, or content. Logic-only fix.
+
+Implement exactly:
+
+1) Make sure the API returns a numeric field for order
+   - Accept either `displayOrder` or `display_order` from DB.
+   - In the API mapper (server → client), coerce to number:
+     item.displayOrder = (() => {
+       const v = row.display_order ?? row.displayOrder ?? null;
+       if (v === null || v === undefined) return null;
+       const n = parseInt(String(v).trim(), 10);
+       return Number.isFinite(n) ? n : null;
+     })();
+
+2) Frontend: final sort RIGHT BEFORE rendering items for a category
+   - Create a small stable-sort helper and use it everywhere category items are rendered
+     (grid/list/search results inside a category). Do not change components/styles.
+
+   // src/utils/sortByDisplayOrder.ts
+   export function sortByDisplayOrder(items) {
+     const ord = (it) => {
+       const v = it.displayOrder ?? it.display_order ?? it.order ?? null;
+       if (v === null || v === undefined) return Number.POSITIVE_INFINITY;
+       const n = parseInt(String(v).trim(), 10);
+       return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+     };
+     return items
+       .map((it, idx) => ({ it, idx, o: ord(it) }))
+       .sort((a, b) => (a.o !== b.o ? a.o - b.o : a.idx - b.idx)) // nulls last, stable
+       .map(x => x.it);
+   }
+
+   // In Category view component (right before map to ItemCard)
+   import { sortByDisplayOrder } from "@/utils/sortByDisplayOrder";
+   const raw = items.filter(i => i.categoryId === currentCategoryId);
+   const sorted = sortByDisplayOrder(raw);            // ← use THIS array for rendering
+   return sorted.map(it => <ItemCard key={it.id} item={it} />);
+
+   IMPORTANT:
+   - If there is any other sort (alphabetical/price/createdAt), remove it or run sortByDisplayOrder LAST so it wins.
+   - If you paginate, sort first then slice:
+       const page = sortByDisplayOrder(raw).slice(offset, offset + pageSize);
+
+3) React memo/caching (ensure re-render when order changes)
+   - If ItemList/ItemCard is memoized, include a dependency that changes when orders change:
+     const bump = raw.map(i => i.displayOrder ?? i.display_order ?? "").join(",");
+     useEffect deps / useMemo deps should include [currentCategoryId, raw.length, bump].
+   - After saving in Admin, invalidate/refetch the items query so the new order reaches the client.
+
+4) Admin save (no UI change)
+   - Ensure `displayOrder` is saved as INT (parseInt on save; empty → null).
+   - No mutation of any other item fields.
+
+Acceptance tests
+- Set “Crispy Cheese Fold” to Display Order = 1, leave others blank → it shows FIRST.
+- Set three items to 1,2,3 → they appear 1st/2nd/3rd in that order; others follow unchanged.
+- Works identically on Android, iOS, and desktop.
+- No changes to the visual design, images, fonts, or markup.
