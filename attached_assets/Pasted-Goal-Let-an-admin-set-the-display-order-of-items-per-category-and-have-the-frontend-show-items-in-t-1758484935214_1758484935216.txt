@@ -1,0 +1,61 @@
+Goal
+Let an admin set the display order of items per category and have the frontend show items in that exact order — with ZERO changes to UI/markup/images/content. Default must be the current live order.
+
+Do EXACTLY this:
+
+1) Settings (non-destructive)
+- Add/ensure a single key in the settings store:
+  settings.itemOrderByCategory : Record<string, string[]>
+  // Example: { "mains": ["id_3","id_8","id_2"], "salads": [...] }
+- Do NOT edit any item documents.
+
+2) Admin page (already exists or minimal):
+- Category dropdown + draggable list of that category’s item IDs.
+- Save writes ONLY that array to settings.itemOrderByCategory[categoryId].
+- Reset deletes that single entry.
+
+3) Frontend — one utility, applied where categories render (NO UI changes)
+Create file: src/utils/applyCategoryOrder.ts
+--------------------------------------------------
+export function normalizeId(it:any){
+  return String(it?.id ?? it?._id ?? it?.slug ?? "");
+}
+export function applyCategoryOrder(items:any[], categoryId:string, orderMap?:Record<string,string[]>) {
+  const order = orderMap?.[categoryId] ?? [];
+  if (!Array.isArray(order) || order.length === 0) return items; // default = current order
+  const pos = new Map(order.map((id, i) => [String(id), i]));
+  return items
+    .map((it, idx) => ({ it, idx, p: pos.has(normalizeId(it)) ? pos.get(normalizeId(it))! : Number.POSITIVE_INFINITY }))
+    .sort((a,b) => a.p !== b.p ? a.p - b.p : a.idx - b.idx) // stable, unknowns keep old order after knowns
+    .map(x => x.it);
+}
+--------------------------------------------------
+
+4) Use it RIGHT BEFORE mapping to cards (and nowhere else).
+In the component that renders a category (e.g., CategorySection/ItemList):
+--------------------------------------------------
+import { applyCategoryOrder } from "@/utils/applyCategoryOrder";
+const orderMap = settings?.itemOrderByCategory; // fetch via your settings API/hook
+const itemsInCatRaw = allItems.filter(i => i.categoryId === category.id);
+
+const ordered = React.useMemo(
+  () => applyCategoryOrder(itemsInCatRaw, category.id, orderMap),
+  [itemsInCatRaw, category.id, orderMap]
+);
+
+// IMPORTANT: render 'ordered' (not the raw array)
+return ordered.map(it => <ItemCard key={it.id ?? it._id ?? it.slug} item={it} />);
+--------------------------------------------------
+
+5) Kill conflicting sorts
+- Remove/disable any other sort (alphabetical/price/createdAt) for category pages.
+- If you must keep them, run them first, then call applyCategoryOrder LAST so it wins.
+
+6) Caching / re-render
+- After admin saves, invalidate/refetch the settings key and items query for that category.
+- If the list is memoized, the dependency on `orderMap` in useMemo above ensures re-render.
+
+Acceptance
+- With no saved order: items appear exactly as they do today (default).
+- After saving order for a category: the frontend shows that exact 1st/2nd/3rd… sequence.
+- No changes to markup, CSS, images, or text.
