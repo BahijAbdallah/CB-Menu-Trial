@@ -254,18 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         menuItems = await storage.getMenuItems();
       }
       
-      // Apply displayOrder coercion as per user specifications
-      const transformedItems = menuItems.map(item => ({
-        ...item,
-        displayOrder: (() => {
-          const v = (item as any).display_order ?? (item as any).displayOrder ?? null;
-          if (v === null || v === undefined) return null;
-          const n = parseInt(String(v).trim(), 10);
-          return Number.isFinite(n) ? n : null;
-        })()
-      }));
-      
-      res.json(transformedItems);
+      res.json(menuItems);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch menu items" });
     }
@@ -280,18 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Menu item not found" });
       }
       
-      // Apply displayOrder coercion as per user specifications
-      const transformedItem = {
-        ...menuItem,
-        displayOrder: (() => {
-          const v = (menuItem as any).display_order ?? (menuItem as any).displayOrder ?? null;
-          if (v === null || v === undefined) return null;
-          const n = parseInt(String(v).trim(), 10);
-          return Number.isFinite(n) ? n : null;
-        })()
-      };
-      
-      res.json(transformedItem);
+      res.json(menuItem);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch menu item" });
     }
