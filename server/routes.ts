@@ -339,6 +339,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sort items endpoint for reordering
+  app.post("/api/items/sort", requireAuth, async (req, res) => {
+    try {
+      const sortSchema = z.object({
+        categoryId: z.number(),
+        orderedItemIds: z.array(z.number()),
+      });
+
+      const { categoryId, orderedItemIds } = sortSchema.parse(req.body);
+      
+      await storage.updateItemsDisplayOrder(categoryId, orderedItemIds);
+      
+      res.json({ ok: true });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid sort data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: error instanceof Error ? error.message : "Failed to update item order" });
+      }
+    }
+  });
+
   // Stats endpoint for admin dashboard
   app.get("/api/stats", requireAuth, async (req, res) => {
     try {
