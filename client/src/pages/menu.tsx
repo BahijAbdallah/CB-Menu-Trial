@@ -44,6 +44,7 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const categoryStripRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -118,177 +119,180 @@ export default function MenuPage() {
     }
   }, [activeCategory]);
 
-  // Category strip scrolling functionality - Android mobile optimized
+  // Category strip scrolling functionality with proper cleanup
   useEffect(() => {
-    (function(){
-      const el = document.querySelector('[data-category-scroll]') as HTMLElement;
-      if(!el) { console.warn('category strip not found'); return; }
+    const el = categoryStripRef.current;
+    if (!el) return;
 
-      // Android-specific wheel and pointer drag events
-      el.addEventListener('wheel', (e) => {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-          e.preventDefault(); 
-          el.scrollLeft += e.deltaY;
-        }
-      }, { passive: false });
-
-      let down = false, startX = 0, sl = 0;
-      el.addEventListener('pointerdown', e => { 
-        down = true; 
-        startX = e.pageX; 
-        sl = el.scrollLeft; 
-        el.setPointerCapture(e.pointerId); 
-      });
-      el.addEventListener('pointermove', e => { 
-        if (down) el.scrollLeft = sl - (e.pageX - startX); 
-      });
-      ['pointerup','pointercancel','pointerleave'].forEach(t => 
-        el.addEventListener(t, () => { down = false; })
-      );
-      el.style.touchAction = 'pan-x'; // allow horizontal pan
-
-      // Legacy support for existing functionality
-      // 1) Unblock any parent that hides horizontal overflow
-      let p = el.parentElement;
-      while(p){
-        const cs = getComputedStyle(p);
-        if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
-          p.style.overflowX = 'visible';   // no visual change; just allow child scroll
-        }
-        p = p.parentElement;
+    // Event handlers
+    const wheelHandler = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault(); 
+        el.scrollLeft += e.deltaY;
       }
+    };
 
-      // 2) Verify we can reach both ends; if not, relax any sticky/clip ancestors
-      function ensureEndsReachable(){
-        const before = { w: el.scrollWidth, c: el.clientWidth };
-        // try full right then full left
-        el.scrollTo({ left: el.scrollWidth, behavior: 'auto' });
-        const atEnd = Math.abs(el.scrollLeft - (el.scrollWidth - el.clientWidth)) <= 1;
-        el.scrollTo({ left: 0, behavior: 'auto' });
-        const atStart = el.scrollLeft === 0;
+    let down = false, startX = 0, sl = 0;
+    const pointerDownHandler = (e: PointerEvent) => { 
+      down = true; 
+      startX = e.pageX; 
+      sl = el.scrollLeft; 
+      el.setPointerCapture(e.pointerId); 
+    };
+    
+    const pointerMoveHandler = (e: PointerEvent) => { 
+      if (down) el.scrollLeft = sl - (e.pageX - startX); 
+    };
+    
+    const pointerEndHandler = () => { 
+      down = false; 
+    };
 
-        // If either end is blocked, remove clip from nearest sticky ancestor
-        if(!atEnd || !atStart){
-          let a = el.parentElement;
-          while(a){
-            const cs = getComputedStyle(a);
-            if(cs.position === 'sticky' || cs.overflow === 'hidden' || cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
-              a.style.overflowX = 'visible';
-              a.style.overflow = cs.overflowY === 'hidden' ? 'visible hidden' : 'visible';
-            }
-            a = a.parentElement;
+    // Add event listeners
+    el.addEventListener('wheel', wheelHandler, { passive: false });
+    el.addEventListener('pointerdown', pointerDownHandler);
+    el.addEventListener('pointermove', pointerMoveHandler);
+    el.addEventListener('pointerup', pointerEndHandler);
+    el.addEventListener('pointercancel', pointerEndHandler);
+    el.addEventListener('pointerleave', pointerEndHandler);
+    el.style.touchAction = 'pan-x'; // allow horizontal pan
+
+    // Unblock any parent that hides horizontal overflow
+    let p = el.parentElement;
+    while(p){
+      const cs = getComputedStyle(p);
+      if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
+        p.style.overflowX = 'visible';   // no visual change; just allow child scroll
+      }
+      p = p.parentElement;
+    }
+
+    // Verify we can reach both ends; if not, relax any sticky/clip ancestors
+    const ensureEndsReachable = () => {
+      const before = { w: el.scrollWidth, c: el.clientWidth };
+      // try full right then full left
+      el.scrollTo({ left: el.scrollWidth, behavior: 'auto' });
+      const atEnd = Math.abs(el.scrollLeft - (el.scrollWidth - el.clientWidth)) <= 1;
+      el.scrollTo({ left: 0, behavior: 'auto' });
+      const atStart = el.scrollLeft === 0;
+
+      // If either end is blocked, remove clip from nearest sticky ancestor
+      if(!atEnd || !atStart){
+        let a = el.parentElement;
+        while(a){
+          const cs = getComputedStyle(a);
+          if(cs.position === 'sticky' || cs.overflow === 'hidden' || cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
+            a.style.overflowX = 'visible';
+            a.style.overflow = cs.overflowY === 'hidden' ? 'visible hidden' : 'visible';
           }
+          a = a.parentElement;
         }
-        console.log('categories widths', before, 'scrollLeft', el.scrollLeft);
       }
+      console.log('categories widths', before, 'scrollLeft', el.scrollLeft);
+    };
 
-      // Run once and after a frame (in case of fonts/layout)
-      ensureEndsReachable();
-      requestAnimationFrame(ensureEndsReachable);
-    })();
-  }, [categories]);
+    // Run once and after a frame (in case of fonts/layout)
+    ensureEndsReachable();
+    const rafId = requestAnimationFrame(ensureEndsReachable);
 
-  // Minimal category strip helper as requested
+    // Center active pill if present
+    const active = el.querySelector('.active, .is-active, [aria-current="true"]');
+    if(active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+
+    // Verify we can reach ends (console only)
+    console.log('category pills:', el.querySelectorAll('button,a,[role="tab"]').length);
+    console.log('strip widths:', {clientWidth: el.clientWidth, scrollWidth: el.scrollWidth});
+
+    // Cleanup function
+    return () => {
+      el.removeEventListener('wheel', wheelHandler);
+      el.removeEventListener('pointerdown', pointerDownHandler);
+      el.removeEventListener('pointermove', pointerMoveHandler);
+      el.removeEventListener('pointerup', pointerEndHandler);
+      el.removeEventListener('pointercancel', pointerEndHandler);
+      el.removeEventListener('pointerleave', pointerEndHandler);
+      cancelAnimationFrame(rafId);
+    };
+  }, []); // Empty dependency array - only run once, stable
+
+  // Description clamp with toggle functionality - stable dependencies
   useEffect(() => {
-    (function(){
-      // Category strip: select existing element (DO NOT create new elements)
-      const strip = document.getElementById('categoryStrip') || 
-                    document.querySelector('.menu-category-strip, .menu-category-tabs, nav .categories');
-      if(strip){
-        // Unblock parents that hide horizontal scroll (no visual change)
-        let p = strip.parentElement;
-        while(p){
-          const cs = getComputedStyle(p);
-          if(cs.overflowX === 'hidden') p.classList?.add('no-clip-h');
-          p = p.parentElement;
+    const cards = document.querySelectorAll('.menu-item-card, .item-card');
+    if(!cards.length) return;
+
+    console.log('Debug: Found', cards.length, 'cards with selector .menu-item-card, .item-card');
+    
+    const getDesc = (card: Element)=>{
+      return card.querySelector('.desc, .description, [data-desc]');
+    };
+
+    const clickHandlers: Array<{btn: HTMLElement, handler: () => void}> = [];
+
+    cards.forEach((card: Element)=>{
+      const desc = getDesc(card) as HTMLElement;
+      if(!desc) { 
+        console.log('Debug: No desc found in card', card); 
+        return; 
+      }
+      if(desc.dataset.clamped === '1') return;
+
+      // Apply initial 2-line clamp
+      desc.classList.add('desc--clamp-2');
+      desc.dataset.clamped = '1';
+
+      // Check if overflow exists; only then add toggle
+      const probe = desc.cloneNode(true) as HTMLElement;
+      probe.style.cssText = 'position:absolute;visibility:hidden;height:auto;display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:unset;';
+      document.body.appendChild(probe);
+      const fullH = probe.scrollHeight;
+      document.body.removeChild(probe);
+      const collapsedH = desc.getBoundingClientRect().height;
+      const isOverflowing = fullH > collapsedH + 1;
+      if(!isOverflowing) return;
+
+      // Create toggle
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'desc-toggle';
+      btn.textContent = 'View more';
+      btn.setAttribute('aria-expanded','false');
+      btn.setAttribute('aria-controls', (desc.id ||= 'desc_' + Math.random().toString(36).slice(2)));
+      desc.insertAdjacentElement('afterend', btn);
+
+      // Toggle behavior
+      const clickHandler = () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        if(expanded){
+          // Collapse
+          desc.classList.add('desc--clamp-2');
+          btn.textContent = 'View more';
+          btn.setAttribute('aria-expanded','false');
+          card.classList.remove('expanded');
+          // keep list compact again
+        }else{
+          // Expand this card only
+          desc.classList.remove('desc--clamp-2');
+          btn.textContent = 'View less';
+          btn.setAttribute('aria-expanded','true');
+          card.classList.add('expanded');
+          // Ensure expanded text is fully visible
+          card.scrollIntoView({behavior:'smooth', block:'nearest'});
         }
-        // Convert vertical wheel to horizontal on desktop without changing visuals
-        strip.addEventListener('wheel', (e)=>{
-          if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
-            strip.scrollBy({left: e.deltaY, behavior:'auto'});
-            e.preventDefault();
-          }
-        }, {passive:false});
-
-        // Center active pill if present
-        const active = strip.querySelector('.active, .is-active, [aria-current="true"]');
-        if(active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
-
-        // Verify we can reach ends (console only)
-        console.log('category pills:', strip.querySelectorAll('button,a,[role="tab"]').length);
-        console.log('strip widths:', {clientWidth: strip.clientWidth, scrollWidth: strip.scrollWidth});
-      }
-    })();
-  }, []);
-
-  // Description clamp with toggle functionality
-  useEffect(() => {
-    (function(){
-      const cards = document.querySelectorAll('.menu-item-card, .item-card');
-      if(!cards.length) return;
-
-      console.log('Debug: Found', cards.length, 'cards with selector .menu-item-card, .item-card');
-      
-      const getDesc = (card: Element)=>{
-        return card.querySelector('.desc, .description, [data-desc]');
       };
 
-      cards.forEach((card: Element)=>{
-        const desc = getDesc(card) as HTMLElement;
-        if(!desc) { 
-          console.log('Debug: No desc found in card', card); 
-          return; 
-        }
-        if(desc.dataset.clamped === '1') return;
+      btn.addEventListener('click', clickHandler);
+      clickHandlers.push({btn, handler: clickHandler});
+    });
 
-        // Apply initial 2-line clamp
-        desc.classList.add('desc--clamp-2');
-        desc.dataset.clamped = '1';
+    console.log('Description clamp initialized on', cards.length, 'nodes');
 
-        // Check if overflow exists; only then add toggle
-        const probe = desc.cloneNode(true) as HTMLElement;
-        probe.style.cssText = 'position:absolute;visibility:hidden;height:auto;display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:unset;';
-        document.body.appendChild(probe);
-        const fullH = probe.scrollHeight;
-        document.body.removeChild(probe);
-        const collapsedH = desc.getBoundingClientRect().height;
-        const isOverflowing = fullH > collapsedH + 1;
-        if(!isOverflowing) return;
-
-        // Create toggle
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'desc-toggle';
-        btn.textContent = 'View more';
-        btn.setAttribute('aria-expanded','false');
-        btn.setAttribute('aria-controls', (desc.id ||= 'desc_' + Math.random().toString(36).slice(2)));
-        desc.insertAdjacentElement('afterend', btn);
-
-        // Toggle behavior
-        btn.addEventListener('click', ()=>{
-          const expanded = btn.getAttribute('aria-expanded') === 'true';
-          if(expanded){
-            // Collapse
-            desc.classList.add('desc--clamp-2');
-            btn.textContent = 'View more';
-            btn.setAttribute('aria-expanded','false');
-            card.classList.remove('expanded');
-            // keep list compact again
-          }else{
-            // Expand this card only
-            desc.classList.remove('desc--clamp-2');
-            btn.textContent = 'View less';
-            btn.setAttribute('aria-expanded','true');
-            card.classList.add('expanded');
-            // Ensure expanded text is fully visible
-            card.scrollIntoView({behavior:'smooth', block:'nearest'});
-          }
-        });
+    // Cleanup function
+    return () => {
+      clickHandlers.forEach(({btn, handler}) => {
+        btn.removeEventListener('click', handler);
       });
-
-      console.log('Description clamp initialized on', cards.length, 'nodes');
-    })();
-  }, [menuItems]); // Run when menu items change
+    };
+  }, [activeCategoryData?.id]); // Only depend on category change, not full menu items
 
   const activeCategoryData = sortedCategories.find(
     (cat) => cat.slug === activeCategory,
@@ -388,6 +392,7 @@ export default function MenuPage() {
       <div style={{ background: "white" }}>
         <div className="category-strip-wrap">
           <nav
+            ref={categoryStripRef}
             id="categoryStrip"
             className="category-strip menu-tabs text-center"
             data-category-scroll
