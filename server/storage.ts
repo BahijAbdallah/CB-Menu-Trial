@@ -39,6 +39,7 @@ export interface IStorage {
   updateMenuItem(id: number, item: Partial<InsertMenuItem>): Promise<MenuItem | undefined>;
   deleteMenuItem(id: number): Promise<boolean>;
   toggleMenuItemAvailability(id: number): Promise<MenuItem | undefined>;
+  updateItemsDisplayOrder(categoryId: number, orderedItemIds: number[]): Promise<void>;
 
   // Bulk operations
   clearAllMenuItems(): Promise<void>;
@@ -234,13 +235,25 @@ export class MemStorage implements IStorage {
 
   // Menu item methods
   async getMenuItems(): Promise<MenuItem[]> {
-    return Array.from(this.menuItems.values()).sort((a, b) => a.order - b.order);
+    return Array.from(this.menuItems.values()).sort((a, b) => {
+      // Order by display_order ASC NULLS LAST, then order ASC
+      if (a.displayOrder === null && b.displayOrder === null) return a.order - b.order;
+      if (a.displayOrder === null) return 1; // a goes after b
+      if (b.displayOrder === null) return -1; // a goes before b
+      return a.displayOrder - b.displayOrder;
+    });
   }
 
   async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
     return Array.from(this.menuItems.values())
       .filter(item => item.categoryId === categoryId)
-      .sort((a, b) => a.order - b.order);
+      .sort((a, b) => {
+        // Order by display_order ASC NULLS LAST, then order ASC
+        if (a.displayOrder === null && b.displayOrder === null) return a.order - b.order;
+        if (a.displayOrder === null) return 1; // a goes after b
+        if (b.displayOrder === null) return -1; // a goes before b
+        return a.displayOrder - b.displayOrder;
+      });
   }
 
   async getMenuItemById(id: number): Promise<MenuItem | undefined> {
@@ -294,6 +307,25 @@ export class MemStorage implements IStorage {
     const updated = { ...existing, isAvailable: !existing.isAvailable };
     this.menuItems.set(id, updated);
     return updated;
+  }
+
+  async updateItemsDisplayOrder(categoryId: number, orderedItemIds: number[]): Promise<void> {
+    // Validate that all items belong to the category
+    for (const itemId of orderedItemIds) {
+      const item = this.menuItems.get(itemId);
+      if (!item || item.categoryId !== categoryId) {
+        throw new Error(`Item ${itemId} does not belong to category ${categoryId}`);
+      }
+    }
+    
+    // Update display_order for each item
+    orderedItemIds.forEach((itemId, index) => {
+      const item = this.menuItems.get(itemId);
+      if (item) {
+        const updated = { ...item, displayOrder: index + 1 };
+        this.menuItems.set(itemId, updated);
+      }
+    });
   }
 
   // Halal certificate methods
@@ -441,7 +473,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMenuItems(): Promise<MenuItem[]> {
-    return await db.select().from(menuItems).orderBy(menuItems.order);
+    return await db.select().from(menuItems).orderBy(
+      menuItems.displayOrder,
+      menuItems.order
+    );
   }
 
   async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
@@ -449,7 +484,10 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(menuItems)
       .where(eq(menuItems.categoryId, categoryId))
-      .orderBy(menuItems.order);
+      .orderBy(
+        menuItems.displayOrder,
+        menuItems.order
+      );
   }
 
   async getMenuItemById(id: number): Promise<MenuItem | undefined> {
@@ -500,6 +538,26 @@ export class DatabaseStorage implements IStorage {
       .where(eq(menuItems.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async updateItemsDisplayOrder(categoryId: number, orderedItemIds: number[]): Promise<void> {
+    // Validate that all items belong to the category
+    for (const itemId of orderedItemIds) {
+      const [item] = await db.select().from(menuItems).where(eq(menuItems.id, itemId));
+      if (!item || item.categoryId !== categoryId) {
+        throw new Error(`Item ${itemId} does not belong to category ${categoryId}`);
+      }
+    }
+    
+    // Update display_order for each item in a transaction
+    await db.transaction(async (tx) => {
+      for (let i = 0; i < orderedItemIds.length; i++) {
+        await tx
+          .update(menuItems)
+          .set({ displayOrder: i + 1 })
+          .where(eq(menuItems.id, orderedItemIds[i]));
+      }
+    });
   }
 
   // Halal certificate methods
