@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import NotFound from "@/pages/not-found";
 import MenuPage from "@/pages/menu";
 import AdminPage from "@/pages/admin";
+import AdminSortPage from "@/pages/admin-sort";
 import LoginPage from "@/pages/login";
 import HalalCertificatesPage from "@/pages/halal-certificates";
 import HalalCertification from "@/pages/HalalCertification";
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/halal" component={HalalCertification} />
       <Route path="/halal-certificates" component={HalalCertificatesPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/admin/sort" component={AdminSortPage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
