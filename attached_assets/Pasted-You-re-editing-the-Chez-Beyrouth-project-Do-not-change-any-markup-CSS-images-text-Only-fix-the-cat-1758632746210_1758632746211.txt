@@ -1,0 +1,97 @@
+You’re editing the Chez Beyrouth project.
+Do not change any markup/CSS/images/text. Only fix the category nav breaking after reordering items.
+
+Goal: After the admin changes item order and returns to the menu, the category nav remains fully functional (scroll, click, active state, etc.).
+
+Likely root causes to fix (functionality only)
+
+Unstable keys: Lists use index as React keys → reordering remounts nodes, detaching nav listeners/refs.
+
+Replace all key={index} with stable unique keys: key={item.id} / key={cat.id} everywhere (items list + category nav + carousels).
+
+Listeners lost on remount: Horizontal scroll / wheel / drag listeners on the nav container get dropped after list updates.
+
+In CategoryNav component, attach listeners inside useEffect with cleanup and a ref:
+
+const navRef = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  const el = navRef.current;
+  if (!el) return;
+  const onWheel = (e: WheelEvent) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) el.scrollLeft += e.deltaY; };
+  el.addEventListener('wheel', onWheel, { passive: false });
+  return () => el.removeEventListener('wheel', onWheel as any);
+}, [/* only stable deps, NOT item order */]);
+
+
+Ensure effects don’t depend on item order, so they don’t re-bind unnecessarily.
+
+IDs/anchors changing: Active-category logic uses element IDs/slugs that change after reorder → broken nav sync.
+
+Make IDs/slugs stable (derived from category ID/slug only, never from array index or item order).
+
+Shared state mutation: Reorder mutates a shared object that CategoryNav also reads → causes nav to unmount/remount.
+
+Ensure reorder only updates the items state for that category (immutable update), not the categories/nav state.
+
+Example:
+
+setItems(prev => ({
+  ...prev,
+  [categoryId]: newOrderArray  // don’t replace categories or nav data
+}));
+
+
+IntersectionObserver / scrollspy: If used, disconnect & re-init after data changes.
+
+Keep observer setup in an effect with cleanup; depend on category list only, not item order.
+
+Routing side effects: If you use hash/shallow routes to jump to categories, call:
+
+router.push({ pathname, query, hash }, undefined, { shallow: true, scroll: false })
+
+
+to avoid full remounts.
+
+Concrete changes to apply (no visual edits)
+
+Replace every key={index} with stable keys in:
+
+Category nav map
+
+Items grid/list
+
+Any carousels related to categories/items
+
+Ensure CategoryNav:
+
+Uses ref + useEffect to attach listeners with proper cleanup
+
+Derives button data-*/id from category.id/slug only
+
+Ensure reorder code:
+
+Updates only the items array for that category (immutable)
+
+Does not mutate or replace categories/nav state
+
+If using observers/scrollspy, add cleanup (observer.disconnect()) before re-init
+
+QA (must pass)
+
+Reorder items → go back to menu → category nav scrolls & clicks work as before.
+
+Active category highlight still updates on scroll (if implemented).
+
+Mobile/tablet/desktop nav behavior unchanged visually.
+
+No CSS/markup/text changes; only JS logic and keys/effects.
+
+Deliverables
+
+Key replacements (index → stable ids) in nav + items.
+
+CategoryNav listener refactor with useEffect + cleanup.
+
+Immutable reorder update scoped to items only.
+
+Optional: observer/routing cleanup as described.
