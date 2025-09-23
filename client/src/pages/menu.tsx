@@ -292,7 +292,7 @@ export default function MenuPage() {
         btn.removeEventListener('click', handler);
       });
     };
-  }, [activeCategoryData?.id]); // Only depend on category change, not full menu items
+  }, []); // Empty dependency - runs only when component mounts
 
   const activeCategoryData = sortedCategories.find(
     (cat) => cat.slug === activeCategory,
