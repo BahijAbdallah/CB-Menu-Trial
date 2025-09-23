@@ -1,0 +1,86 @@
+You are editing the Chez Beyrouth project.
+Do not change any existing design, layout, images, or copy. Add only the ability for an admin to control the display order of items per category from the dashboard.
+
+Tech assumptions: Next.js + React + Supabase/Prisma (adjust to current stack).
+
+Requirements
+
+DB
+
+Add a numeric column display_order to the items table (nullable, default NULL).
+
+Ordering rule per category: items sort by display_order ASC, then fallback to current default (e.g., created_at ASC or existing order) if display_order is NULL.
+
+Admin UI (new page, e.g., /admin/sort)
+
+Show category selector (dropdown).
+
+Below it, render items in that category in their current frontend order.
+
+Implement drag-and-drop reordering (use @dnd-kit/core or similar).
+
+Include a Save Order button that batch-updates display_order for the shown category only.
+
+Add an inline numeric editor per row (optional) for precise ranking.
+
+Permissions: restrict to authenticated admins only (reuse existing auth guard).
+
+API
+
+Create endpoint POST /api/items/sort that accepts { categoryId, orderedItemIds: string[] }.
+
+In a single transaction, set display_order based on array index (starting at 1).
+
+Return { ok: true } on success.
+
+Validate: user is admin; items all belong to the provided category.
+
+Frontend data fetching (NO visual changes)
+
+Wherever items are read for display (home, category page, explore, profiles, mobile, tablet, desktop), update queries to order by:
+
+display_order ASC NULLS LAST, then existing secondary sort (keep previous behavior as tie-breaker).
+
+Do not alter components, CSS, spacing, or images; only adjust the ORDER BY in the data layer.
+
+Defaults & Backward Compatibility
+
+On first load (before any manual sort), keep the exact current ordering users see today.
+
+When admin saves, only that category’s order changes. Others remain untouched.
+
+If an item is added later with no display_order, it naturally appears after all ordered items (due to NULLS LAST).
+
+QA checklist
+
+Drag-and-drop reorder → Save → hard refresh category page: new order is reflected.
+
+Mobile/Tablet/Desktop all show the same order.
+
+Pagination (if any) respects the new order.
+
+No layout/spacing/image/text changes.
+
+Non-admins cannot access /admin/sort or the API.
+
+Deliverables
+
+Migration file adding display_order (and rollback).
+
+New admin page /admin/sort with category picker + DnD list + Save.
+
+API route POST /api/items/sort.
+
+Updated item fetchers with the new ORDER BY.
+
+Minimal unit test for the API (validates category ownership & rank assignment).
+
+If the stack is WordPress/WooCommerce instead, do the equivalent:
+
+Use the built-in menu_order (or custom meta _display_order) per product/post in the category.
+
+Add a quick drag-sort screen for items within a category in wp-admin.
+
+Hook pre_get_posts on category templates to order by menu_order (or meta), falling back to the existing order.
+
+Do not modify theme templates’ markup or CSS.
