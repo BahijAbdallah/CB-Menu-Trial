@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Smart image serving middleware - serves optimized images based on Accept headers
-app.use('/images', (req: Request, res: Response, next: NextFunction) => {
+app.use('/menu', async (req: Request, res: Response, next: NextFunction) => {
   // Only handle image requests
   if (!req.path.match(/\.(jpg|jpeg|png)$/i)) {
     return next();
@@ -23,44 +23,40 @@ app.use('/images', (req: Request, res: Response, next: NextFunction) => {
   const acceptHeader = req.headers.accept || '';
   const imagePath = req.path;
   const { dir, name } = path.parse(imagePath);
-  const publicImagePath = path.join('public/images', imagePath);
   
   // Check what formats the browser supports
   const supportsAvif = acceptHeader.includes('image/avif');
   const supportsWebp = acceptHeader.includes('image/webp');
   
-  // Try to serve optimized versions in order of preference
-  const tryServeOptimized = async () => {
-    try {
-      if (supportsAvif) {
-        const avifPath = path.join('public/images', dir, `${name}.avif`);
-        try {
-          await fs.access(avifPath);
-          res.setHeader('Content-Type', 'image/avif');
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-          return res.sendFile(path.resolve(avifPath));
-        } catch {}
-      }
-      
-      if (supportsWebp) {
-        const webpPath = path.join('public/images', dir, `${name}.webp`);
-        try {
-          await fs.access(webpPath);
-          res.setHeader('Content-Type', 'image/webp');
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-          return res.sendFile(path.resolve(webpPath));
-        } catch {}
-      }
-      
-      // Fall back to original image
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      next();
-    } catch (error) {
-      next();
+  try {
+    // Try AVIF first (best compression)
+    if (supportsAvif) {
+      const avifPath = path.join('public/menu', dir, `${name}.avif`);
+      try {
+        await fs.access(avifPath);
+        res.setHeader('Content-Type', 'image/avif');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        return res.sendFile(path.resolve(avifPath));
+      } catch {}
     }
-  };
-  
-  tryServeOptimized();
+    
+    // Try WebP second (good compression, wider support)
+    if (supportsWebp) {
+      const webpPath = path.join('public/menu', dir, `${name}.webp`);
+      try {
+        await fs.access(webpPath);
+        res.setHeader('Content-Type', 'image/webp');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        return res.sendFile(path.resolve(webpPath));
+      } catch {}
+    }
+    
+    // Fall back to original image
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    next();
+  } catch (error) {
+    next();
+  }
 });
 
 // Serve static files from public directory with caching for images

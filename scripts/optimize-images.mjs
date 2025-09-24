@@ -5,7 +5,7 @@ import path from 'path';
 import sharp from 'sharp';
 import glob from 'fast-glob';
 
-const IMAGES_DIR = 'public/images/menu';
+const IMAGES_DIR = 'public/menu';
 const SUPPORTED_FORMATS = ['jpg', 'jpeg', 'png'];
 
 async function optimizeImages() {
