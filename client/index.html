@@ -9,6 +9,35 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Image lazy loading optimization script -->
+    <script>
+      (function () {
+        const imgs = document.querySelectorAll("img:not([loading])");
+        imgs.forEach(img => {
+          img.setAttribute("loading", "lazy");
+          img.setAttribute("decoding", "async");
+          img.setAttribute("fetchpriority", "low");
+        });
+        
+        // Also observe for dynamically added images
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeType === 1) {
+                const imgs = node.querySelectorAll ? node.querySelectorAll("img:not([loading])") : 
+                           node.tagName === "IMG" && !node.hasAttribute("loading") ? [node] : [];
+                imgs.forEach(img => {
+                  img.setAttribute("loading", "lazy");
+                  img.setAttribute("decoding", "async");
+                  img.setAttribute("fetchpriority", "low");
+                });
+              }
+            });
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      })();
+    </script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
