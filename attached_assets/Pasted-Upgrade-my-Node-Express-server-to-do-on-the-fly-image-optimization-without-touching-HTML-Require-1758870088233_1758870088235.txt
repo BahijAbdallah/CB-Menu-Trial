@@ -1,0 +1,126 @@
+Upgrade my Node/Express server to do on-the-fly image optimization without touching HTML.
+
+Requirements:
+1) Intercept requests for .jpg/.jpeg/.png under /public (same URLs as before).
+2) If the file exists, generate a cached optimized version using "sharp":
+   - Use AVIF if the request Accept header includes image/avif, else WebP.
+   - quality: AVIF=55, WebP=70
+   - auto-orient and resize to max width 1200px (without enlarging).
+3) Save outputs to ".img-cache" with a cache key based on:
+   - original file path + mtime + output format + quality + target width
+4) Serve the optimized file with:
+   - Content-Type: image/avif or image/webp
+   - Cache-Control: public, max-age=31536000, immutable
+   - Vary: Accept
+5) Fall back to the original file if something fails.
+6) Must work **before** the static file middleware so existing `/images/foo.jpg` paths get optimized automatically.
+7) Add a tiny client script (no DOM changes to HTML) that sets `loading="lazy"` and `decoding="async"` on all `<img>` elements at runtime to reduce initial bandwidth.
+8) Do not change my HTML, design, or image filenames. Only add server code and a small runtime script.
+9) Add npm scripts and dependencies.
+
+Provide:
+- The Express middleware code block.
+- Where to insert it in server/index.js.
+- A small client script snippet and how to include it.
+- The npm install command and package.json changes.
+✅ What the AI should produce (reference)
+Dependencies
+
+bash
+Copy code
+npm i express sharp mime
+server/index.js (core middleware)
+
+js
+Copy code
+import express from "express";
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+
+const app = express();
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+// ---- Image optimizer (place BEFORE static) ----
+app.use(async (req, res, next) => {
+  try {
+    // Only handle .jpg/.jpeg/.png
+    if (!/\.(jpe?g|png)$/i.test(req.path)) return next();
+
+    const originalAbs = path.join(__dirname, "public", req.path);
+    if (!fs.existsSync(originalAbs)) return next(); // let static 404 it
+
+    // Decide output format via Accept header
+    const accept = req.headers["accept"] || "";
+    const fmt = accept.includes("image/avif") ? "avif" : "webp";
+    const quality = fmt === "avif" ? 55 : 70;
+    const maxWidth = 1200;
+
+    // Build cache key using file mtime
+    const stat = fs.statSync(originalAbs);
+    const cacheKey = [
+      originalAbs,
+      Math.floor(stat.mtimeMs),
+      fmt,
+      quality,
+      `w${maxWidth}`
+    ].join("|");
+
+    const cacheDir = path.join(__dirname, ".img-cache");
+    await fs.promises.mkdir(cacheDir, { recursive: true });
+    const cacheName =
+      Buffer.from(cacheKey).toString("hex") + "." + fmt;
+    const outAbs = path.join(cacheDir, cacheName);
+
+    if (!fs.existsSync(outAbs)) {
+      let pipeline = sharp(originalAbs).rotate().resize({
+        width: maxWidth,
+        withoutEnlargement: true
+      });
+      pipeline =
+        fmt === "avif"
+          ? pipeline.avif({ quality })
+          : pipeline.webp({ quality });
+      await pipeline.toFile(outAbs);
+    }
+
+    res.setHeader("Content-Type", `image/${fmt}`);
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    res.setHeader("Vary", "Accept");
+
+    fs.createReadStream(outAbs).pipe(res);
+  } catch (e) {
+    // On error, fall back to normal static handling
+    next();
+  }
+});
+
+// ---- Your existing static handler (keep as-is) ----
+app.use(express.static(path.join(__dirname, "public")));
+Client-side helper (optional but safe)
+
+html
+Copy code
+<script>
+  (function () {
+    const imgs = document.querySelectorAll("img:not([loading])");
+    imgs.forEach(img => {
+      img.setAttribute("loading", "lazy");
+      img.setAttribute("decoding", "async");
+      img.setAttribute("fetchpriority", "low");
+    });
+  })();
+</script>
+(Include this once, near the end of <body>; it doesn’t alter design or markup—just adds lazy/async flags at runtime.)
+
+package.json
+
+json
+Copy code
+{
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  }
+}
