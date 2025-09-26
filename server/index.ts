@@ -14,8 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Image proxy route for dynamic optimization (BEFORE static middleware)
-app.use("/img", imgProxy());
+// Image proxy will be registered in routes.ts to ensure it comes before Vite middleware
 
 // Advanced image optimization with client hints support (BEFORE static middleware)
 app.use(imageOptimizer({ root: "public" }));
