@@ -9,6 +9,7 @@ import path from "path";
 import fs from "fs";
 import "./types";
 import { importExcelMenu } from "./import-excel";
+import imgProxy from "./img-proxy";
 
 // Simple token store for demo purposes
 const activeTokens = new Map<string, number>(); // token -> userId
@@ -95,6 +96,9 @@ function requireAuth(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Image proxy route for dynamic optimization (BEFORE any other routes)
+  app.use("/img", imgProxy());
+  
   // Serve uploaded files statically
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
