@@ -1,0 +1,116 @@
+Replit prompt (paste as one message):
+
+Add a Node script "prewarm-images.js" that scans ./public for .jpg/.jpeg/.png, and for each file generates cached variants using sharp into ./.img-cache:
+- formats: avif(55), webp(70)
+- widths: 320, 640, 960, 1200 (don’t enlarge)
+- cache key uses full path + mtime + fmt + width + quality
+Update package.json:
+  "scripts": {
+    "build": "node prewarm-images.js",
+    "start": "node server/index.js"
+  }
+Ensure the optimizer middleware keeps the same cache key logic so it serves the prebuilt files instantly.
+
+
+Why: first views become instant; no more “optimize while user waits”.
+
+B) Serve right size per device (no HTML edits)
+
+Drop-in replacement middleware (still before express.static):
+
+// server/image-optimizer.js
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+
+export default function imageOptimizer({ root = "public" } = {}) {
+  return async (req, res, next) => {
+    try {
+      if (!/\.(jpe?g|png)$/i.test(req.path)) return next();
+
+      const abs = path.join(process.cwd(), root, req.path);
+      if (!fs.existsSync(abs)) return next();
+
+      // Advertise client hints (works over HTTPS)
+      res.setHeader("Accept-CH", "DPR, Width");
+      res.setHeader("Vary", "Accept, DPR, Width");
+
+      // Detect format
+      const accept = req.headers.accept || "";
+      const fmt = accept.includes("image/avif") ? "avif" : "webp";
+      const quality = fmt === "avif" ? 55 : 70;
+
+      // Choose a target width from client hints (fallback 1200)
+      const chWidth = parseInt(req.headers["sec-ch-width"] || "", 10);
+      const dpr = parseFloat(req.headers["dpr"] || "1");
+      const cssWidth = Number.isFinite(chWidth) && chWidth > 0 ? chWidth : 1200;
+      const target = Math.min(1200, Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)));
+
+      // Snap to buckets you prewarmed
+      const widths = [320, 640, 960, 1200];
+      const w = widths.find(x => x >= target) || 1200;
+
+      const stat = fs.statSync(abs);
+      const cacheKey = [abs, Math.floor(stat.mtimeMs), fmt, quality, `w${w}`].join("|");
+      const cacheDir = path.join(process.cwd(), ".img-cache");
+      await fs.promises.mkdir(cacheDir, { recursive: true });
+      const out = path.join(cacheDir, Buffer.from(cacheKey).toString("hex") + "." + fmt);
+
+      if (!fs.existsSync(out)) {
+        let p = sharp(abs).rotate().resize({ width: w, withoutEnlargement: true });
+        p = fmt === "avif" ? p.avif({ quality }) : p.webp({ quality });
+        await p.toFile(out);
+      }
+
+      res.setHeader("Content-Type", `image/${fmt}`);
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      res.setHeader("Vary", "Accept, DPR, Width");
+      res.setHeader("Content-DPR", (Number.isFinite(dpr) ? dpr : 1).toString());
+
+      fs.createReadStream(out).pipe(res);
+    } catch {
+      next();
+    }
+  };
+}
+
+
+Wire it up (before static):
+
+// server/index.js
+import express from "express";
+import path from "path";
+import imageOptimizer from "./image-optimizer.js";
+
+const app = express();
+app.use(imageOptimizer({ root: "public" }));   // <— before static
+app.use(express.static(path.join(process.cwd(), "public")));
+
+C) Two tiny boosts (safe, no visual changes)
+
+Lazy/async flags at runtime
+
+<script>
+  (function(){document.querySelectorAll('img:not([loading])')
+    .forEach(i=>{i.loading='lazy'; i.decoding='async'; i.fetchPriority='low';});})();
+</script>
+
+
+Preload ONLY above-the-fold hero image (if you have one)
+
+<link rel="preload" as="image" href="/images/hero.jpg" imagesrcset="/images/hero.jpg 1200w, /images/hero@2x.jpg 2400w" imagesizes="100vw">
+
+D) Run order
+npm i sharp express
+npm run build     # prewarms .img-cache
+npm start
+
+If it’s still slow
+
+Lower max width buckets to [320, 600, 900] (menus rarely need 1200px).
+
+Check that the optimizer middleware is before express.static.
+
+First paint lag might be fonts/CSS: add font-display: swap and inline critical CSS.
+
+Put Replit behind Cloudflare proxy for global caching (no code changes).
