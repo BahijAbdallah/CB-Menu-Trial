@@ -1,0 +1,166 @@
+Replit AI prompt (paste as one message)
+Add a server-side proxy optimizer and a tiny client script so ALL images (including those loaded when switching categories) are compressed and cached automatically, without changing my HTML manually.
+
+1) Create `server/img-proxy.js` with an Express route `/img`:
+   - Accept: `src` (original image URL, absolute or relative) and optional `w` (target width).
+   - Resolve relative URLs to the app’s own origin.
+   - If `src` points to a local file under `/public`, read it from disk. If remote (http/https), fetch it with `fetch`.
+   - Decide format from `Accept` header: AVIF if supported, else WebP.
+   - quality: AVIF 55, WebP 70. Resize to `w` (default 900) with `withoutEnlargement:true`. Auto-rotate.
+   - Cache result to `.img-cache/` using a key of (resolvedSrc + fmt + quality + width). Use hex of that key as filename.
+   - Serve with `Content-Type`, `Cache-Control: public, max-age=31536000, immutable`, and `Vary: Accept`.
+   - On any error, `res.redirect(src)` to fall back.
+
+2) Wire it in `server/index.js` **before** `express.static`:
+   `app.use('/img', imgProxy());`
+
+3) Add a client script `public/optimize-images.js`:
+   - Immediately upgrade every `<img>` by rewriting its `src` to `/img?src=<original>&w=<elementWidth>`.
+   - Set `loading="lazy"`, `decoding="async"`, `fetchpriority="low"`.
+   - Use a `MutationObserver` to auto-upgrade images added later (when switching categories).
+   - On `resize`, if an upgraded image becomes wider, swap to a bigger `w` (up to 1200).
+
+4) Include the client script once at the end of `<body>`:
+   `<script src="/optimize-images.js" defer></script>`
+
+5) Ensure dependencies and scripts:
+   `npm i express sharp`
+   In `package.json` keep/start server as before.
+
+Provide the full code for:
+- `server/img-proxy.js`
+- the changes to `server/index.js`
+- `public/optimize-images.js`
+
+Reference code (what it should output)
+
+server/img-proxy.js
+
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+
+export default function imgProxy() {
+  return async (req, res) => {
+    try {
+      const { src, w } = req.query;
+      if (!src) return res.status(400).send("Missing src");
+
+      // Decide format
+      const accept = req.headers.accept || "";
+      const fmt = accept.includes("image/avif") ? "avif" : "webp";
+      const quality = fmt === "avif" ? 55 : 70;
+
+      // Width
+      const width = Math.min(1200, Math.max(320, parseInt(w || "900", 10) || 900));
+
+      // Resolve URL
+      const isAbsolute = /^https?:\/\//i.test(src);
+      const resolvedUrl = isAbsolute ? src : `${req.protocol}://${req.get("host")}${src}`;
+
+      // Cache
+      const cacheDir = path.join(process.cwd(), ".img-cache");
+      await fs.promises.mkdir(cacheDir, { recursive: true });
+      const cacheKey = Buffer.from(`${resolvedUrl}|${fmt}|q${quality}|w${width}`).toString("hex");
+      const outFile = path.join(cacheDir, `${cacheKey}.${fmt}`);
+
+      if (!fs.existsSync(outFile)) {
+        let inputBuffer;
+
+        // If local file under /public, read from disk (faster, avoids recursion)
+        if (!isAbsolute) {
+          const publicPath = path.join(process.cwd(), "public", src.replace(/^\/+/, ""));
+          if (fs.existsSync(publicPath)) {
+            inputBuffer = await fs.promises.readFile(publicPath);
+          }
+        }
+        if (!inputBuffer) {
+          const r = await fetch(resolvedUrl);
+          if (!r.ok) return res.redirect(resolvedUrl);
+          const ab = await r.arrayBuffer();
+          inputBuffer = Buffer.from(ab);
+        }
+
+        let p = sharp(inputBuffer).rotate().resize({ width, withoutEnlargement: true });
+        p = fmt === "avif" ? p.avif({ quality }) : p.webp({ quality });
+        await p.toFile(outFile);
+      }
+
+      res.setHeader("Content-Type", `image/${fmt}`);
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      res.setHeader("Vary", "Accept");
+      fs.createReadStream(outFile).pipe(res);
+    } catch (e) {
+      // Fallback to original
+      const back = req.query.src;
+      if (back) return res.redirect(back);
+      res.status(500).end();
+    }
+  };
+}
+
+
+server/index.js
+
+import express from "express";
+import path from "path";
+import imgProxy from "./img-proxy.js";
+
+const app = express();
+
+app.use("/img", imgProxy()); // <- must be BEFORE static
+
+app.use(express.static(path.join(process.cwd(), "public")));
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log("Server on", port));
+
+
+public/optimize-images.js
+
+(function () {
+  function upgrade(img) {
+    if (!img || img.dataset.optimized) return;
+    const src = img.getAttribute("src");
+    if (!src || src.startsWith("/img?")) return;
+
+    const w = Math.ceil(img.getBoundingClientRect().width || 900);
+    img.loading = img.loading || "lazy";
+    img.decoding = "async";
+    img.fetchPriority = "low";
+    img.src = `/img?src=${encodeURIComponent(src)}&w=${w}`;
+    img.dataset.optimized = "1";
+  }
+
+  // Upgrade existing images
+  document.querySelectorAll("img").forEach(upgrade);
+
+  // Upgrade images added later (when you switch categories)
+  const mo = new MutationObserver((muts) => {
+    for (const m of muts) {
+      m.addedNodes.forEach((n) => {
+        if (n.tagName === "IMG") upgrade(n);
+        else if (n.querySelectorAll) n.querySelectorAll("img").forEach(upgrade);
+      });
+    }
+  });
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+
+  // If layout grows, request a bigger width (up to 1200)
+  window.addEventListener("resize", () => {
+    document.querySelectorAll("img[data-optimized]").forEach((img) => {
+      const want = Math.ceil(img.getBoundingClientRect().width || 900);
+      const url = new URL(img.src, location.href);
+      const have = parseInt(url.searchParams.get("w") || "0", 10);
+      if (want > have && want <= 1200) {
+        url.searchParams.set("w", want);
+        img.src = url.toString();
+      }
+    });
+  });
+})();
+
+
+Include once (end of <body>)
+
+<script src="/optimize-images.js" defer></script>
