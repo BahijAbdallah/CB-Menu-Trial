@@ -1,0 +1,109 @@
+Add support for optimizing CSS background images without touching my HTML.
+
+1) Keep my existing /img proxy. Create a new client script at public/optimize-bg-images.js that:
+   - Uses IntersectionObserver to watch elements entering the viewport.
+   - For any element whose computed style has a background-image: url("..."), rewrite that URL to `/img?src=<original>&w=<elementWidth * devicePixelRatio>` (cap at 1200, min 320).
+   - Skip if already optimized (data-bg-optimized=1) or URL already starts with /img?.
+   - On resize, if an optimized element grows wider, request a larger width (up to 1200).
+   - Also observe DOM mutations so backgrounds added when switching categories are handled automatically.
+
+2) Include the script once at the end of <body>:
+   <script src="/optimize-bg-images.js" defer></script>
+
+3) In server/img-proxy.js:
+   - Keep format negotiation (AVIF if Accept includes image/avif else WebP).
+   - Set quality AVIF=55, WebP=70 and resize to the provided w (withoutEnlargement), default w=720.
+   - Cache to .img-cache keyed by (resolvedSrc + fmt + q + w). Serve with Cache-Control: public, max-age=31536000, immutable and Vary: Accept.
+
+4) Do NOT change my HTML or CSS files besides adding the one script tag. Don’t change filenames or paths.
+Reference code for the script (what the AI should output)
+js
+Copy code
+// public/optimize-bg-images.js
+(function () {
+  const MAX_W = 1200, MIN_W = 320;
+
+  function parseBg(urlStr) {
+    const m = urlStr && urlStr.match(/url\(\s*['"]?([^'")]+)['"]?\s*\)/i);
+    return m ? m[1] : null;
+  }
+
+  function wantWidth(el) {
+    const rect = el.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.ceil((rect.width || 600) * dpr);
+    return Math.min(MAX_W, Math.max(MIN_W, w));
+  }
+
+  function upgrade(el) {
+    if (!el || el.dataset.bgOptimized === "1") return;
+
+    const cs = getComputedStyle(el);
+    const bg = cs.backgroundImage;
+    const src = parseBg(bg);
+    if (!src || src.startsWith("data:") || src.startsWith("/img?")) return;
+
+    const w = wantWidth(el);
+    el.style.backgroundImage = `url(/img?src=${encodeURIComponent(src)}&w=${w})`;
+    el.dataset.bgOptimized = "1";
+  }
+
+  // Observe elements entering viewport
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) upgrade(e.target);
+    });
+  }, { rootMargin: "600px" }); // prefetch a bit before visible
+
+  // Attach observer to existing elements that have a background image
+  function scan(root = document) {
+    const all = root.querySelectorAll("*");
+    all.forEach(el => {
+      const bg = getComputedStyle(el).backgroundImage;
+      if (bg && bg !== "none") io.observe(el);
+    });
+  }
+  scan();
+
+  // Watch DOM for newly added nodes (e.g., when switching categories)
+  const mo = new MutationObserver(muts => {
+    for (const m of muts) {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType !== 1) return;
+        if (getComputedStyle(n).backgroundImage !== "none") io.observe(n);
+        // also check descendants
+        if (n.querySelectorAll) {
+          n.querySelectorAll("*").forEach(el => {
+            if (getComputedStyle(el).backgroundImage !== "none") io.observe(el);
+          });
+        }
+      });
+    }
+  });
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+
+  // If an optimized element grows, request a larger width
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      document.querySelectorAll("[data-bg-optimized='1']").forEach(el => {
+        const url = parseBg(getComputedStyle(el).backgroundImage);
+        if (!url || !url.includes("/img?")) return;
+        const u = new URL(url, location.href);
+        const have = parseInt(u.searchParams.get("w") || "0", 10);
+        const need = wantWidth(el);
+        if (need > have && need <= MAX_W) {
+          u.searchParams.set("w", need);
+          el.style.backgroundImage = `url(${u.toString()})`;
+        }
+      });
+    }, 200);
+  });
+})();
+Quick checks
+Put the <script src="/optimize-bg-images.js" defer></script> right before </body>.
+
+In img-proxy default to w=720 (menus don’t need 1200px), then clear .img-cache once so smaller files regenerate.
+
+Keep the proxy before express.static.
