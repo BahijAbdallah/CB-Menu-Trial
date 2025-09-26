@@ -17,7 +17,7 @@ export default function imgProxy() {
       const quality = fmt === "avif" ? 55 : 70;
 
       // Parse and constrain width
-      const width = Math.min(1200, Math.max(320, parseInt((w as string) || "900", 10) || 900));
+      const width = Math.min(1200, Math.max(320, parseInt((w as string) || "720", 10) || 720));
 
       // Resolve URL - handle both absolute and relative
       const isAbsolute = /^https?:\/\//i.test(src);
