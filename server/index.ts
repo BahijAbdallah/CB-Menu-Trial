@@ -1,10 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import MemoryStore from "memorystore";
-import fs from "fs/promises";
 import path from "path";
-import sharp from "sharp";
-import { createReadStream, existsSync, statSync } from "fs";
+import imageOptimizer from "./image-optimizer";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
@@ -15,71 +13,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// On-the-fly image optimization middleware (BEFORE static middleware)
-app.use(async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Only handle .jpg/.jpeg/.png requests
-    if (!/\.(jpe?g|png)$/i.test(req.path)) {
-      return next();
-    }
-
-    const originalAbs = path.join(process.cwd(), "public", req.path);
-    
-    // Check if original file exists, let static middleware handle 404
-    if (!existsSync(originalAbs)) {
-      return next();
-    }
-
-    // Decide output format via Accept header
-    const accept = req.headers.accept || "";
-    const fmt = accept.includes("image/avif") ? "avif" : "webp";
-    const quality = fmt === "avif" ? 55 : 70;
-    const maxWidth = 1200;
-
-    // Build cache key using file mtime
-    const stat = statSync(originalAbs);
-    const cacheKey = [
-      originalAbs,
-      Math.floor(stat.mtimeMs),
-      fmt,
-      quality,
-      `w${maxWidth}`
-    ].join("|");
-
-    const cacheDir = path.join(process.cwd(), ".img-cache");
-    await fs.mkdir(cacheDir, { recursive: true });
-    
-    const cacheName = Buffer.from(cacheKey).toString("hex") + "." + fmt;
-    const outAbs = path.join(cacheDir, cacheName);
-
-    // Generate optimized version if not cached
-    if (!existsSync(outAbs)) {
-      let pipeline = sharp(originalAbs)
-        .rotate() // auto-orient
-        .resize({
-          width: maxWidth,
-          withoutEnlargement: true
-        });
-        
-      pipeline = fmt === "avif"
-        ? pipeline.avif({ quality })
-        : pipeline.webp({ quality });
-        
-      await pipeline.toFile(outAbs);
-    }
-
-    // Serve optimized version
-    res.setHeader("Content-Type", `image/${fmt}`);
-    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-    res.setHeader("Vary", "Accept");
-
-    createReadStream(outAbs).pipe(res);
-    
-  } catch (error) {
-    // On error, fall back to normal static handling
-    next();
-  }
-});
+// Advanced image optimization with client hints support (BEFORE static middleware)
+app.use(imageOptimizer({ root: "public" }));
 
 // Serve static files from public directory with caching for images
 app.use(express.static('public', {
