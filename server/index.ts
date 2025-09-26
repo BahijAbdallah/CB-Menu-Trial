@@ -3,6 +3,7 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import path from "path";
 import imageOptimizer from "./image-optimizer";
+import imgProxy from "./img-proxy";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
@@ -12,6 +13,9 @@ const memoryStore = MemoryStore(session);
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Image proxy route for dynamic optimization (BEFORE static middleware)
+app.use("/img", imgProxy());
 
 // Advanced image optimization with client hints support (BEFORE static middleware)
 app.use(imageOptimizer({ root: "public" }));
