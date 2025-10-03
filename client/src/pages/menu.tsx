@@ -134,6 +134,9 @@ export default function MenuPage() {
 
     let down = false, startX = 0, sl = 0;
     const pointerDownHandler = (e: PointerEvent) => { 
+      // Only handle mouse events, let touch events use native scrolling
+      if (e.pointerType !== 'mouse') return;
+      
       down = true; 
       startX = e.pageX; 
       sl = el.scrollLeft; 
@@ -141,7 +144,9 @@ export default function MenuPage() {
     };
     
     const pointerMoveHandler = (e: PointerEvent) => { 
-      if (down) el.scrollLeft = sl - (e.pageX - startX); 
+      // Only handle mouse events
+      if (e.pointerType !== 'mouse' || !down) return;
+      el.scrollLeft = sl - (e.pageX - startX); 
     };
     
     const pointerEndHandler = () => { 
