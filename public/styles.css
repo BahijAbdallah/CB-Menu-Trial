@@ -203,7 +203,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   margin:14px auto 8px;
   padding:0 16px;
   display:flex;
-  justify-content:center;
+  justify-content:flex-start; /* Start alignment for mobile so first item is reachable */
   gap:10px;
   overflow-x:auto;
   overflow-y:hidden;
@@ -251,7 +251,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   background: #234a26 !important;
 }
 
-/* Desktop/tablet: smooth horizontal scroller */
+/* Desktop/tablet: smooth horizontal scroller with centering */
 @media (min-width:769px){
   .menu-tabs{
     display:flex;
@@ -261,7 +261,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     white-space:nowrap;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
-    justify-content:center;
+    justify-content:center; /* Center on desktop where space allows */
     padding:8px 24px;
     /* soft edge fade so pills feel native */
     -webkit-mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
@@ -968,6 +968,7 @@ header[role="banner"]{
     touch-action: pan-x !important;
     scroll-snap-type: none !important;
     scrollbar-width: none;
+    justify-content: flex-start !important; /* Align to start so first item is reachable */
   }
   
   #categoryStrip::-webkit-scrollbar {
