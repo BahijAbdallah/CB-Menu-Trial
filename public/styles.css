@@ -224,15 +224,18 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 .menu-tab.variant-taupe{  background:var(--taupe);  color:var(--olive); }
 .menu-tab.variant-yellow{ background:var(--soft-yellow); color:#fff; }
 
-/* Active state with enhanced styling */
+/* Active state with enhanced styling - unique color */
 .menu-tab.is-active{ 
-  box-shadow: 0 0 0 3px var(--olive), 0 6px 16px rgba(0,0,0,.2);
+  background: #2c5530 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 3px #1a3a1d, 0 6px 16px rgba(0,0,0,.25);
   transform: scale(1.08);
-  border-color: var(--olive);
+  border-color: #1a3a1d;
 }
 
 .menu-tab.is-active:hover {
   transform: scale(1.1);
+  background: #234a26 !important;
 }
 
 /* Desktop/tablet: smooth horizontal scroller */
