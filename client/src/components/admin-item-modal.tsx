@@ -547,54 +547,29 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
               )}
             />
 
-            {/* Availability Toggle */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="isAvailable"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Item Availability
-                      </FormLabel>
-                      <div className="text-sm text-gray-600">
-                        Toggle to mark this item as {field.value ? 'available' : 'unavailable'}
-                      </div>
+            {/* Out of Stock Toggle */}
+            <FormField
+              control={form.control}
+              name="outOfStock"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Out of Stock
+                    </FormLabel>
+                    <div className="text-sm text-gray-600">
+                      Mark this item as {field.value ? 'out of stock' : 'in stock'}
                     </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="outOfStock"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Out of Stock
-                      </FormLabel>
-                      <div className="text-sm text-gray-600">
-                        Mark this item as {field.value ? 'out of stock' : 'in stock'}
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <div className="flex space-x-4">
               <Button
