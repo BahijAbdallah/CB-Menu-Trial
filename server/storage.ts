@@ -16,7 +16,7 @@ import {
   type InsertSetting
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -474,8 +474,8 @@ export class DatabaseStorage implements IStorage {
 
   async getMenuItems(): Promise<MenuItem[]> {
     return await db.select().from(menuItems).orderBy(
-      menuItems.displayOrder,
-      menuItems.order
+      sql`${menuItems.displayOrder} NULLS LAST`,
+      asc(menuItems.order)
     );
   }
 
@@ -485,8 +485,8 @@ export class DatabaseStorage implements IStorage {
       .from(menuItems)
       .where(eq(menuItems.categoryId, categoryId))
       .orderBy(
-        menuItems.displayOrder,
-        menuItems.order
+        sql`${menuItems.displayOrder} NULLS LAST`,
+        asc(menuItems.order)
       );
   }
 
