@@ -582,8 +582,18 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   }
 }
 
-/* Optional: prevent accidental horizontal scroll anywhere */
-section, header, footer, .hero { overflow-x: clip; }
+/* Optional: prevent accidental horizontal scroll anywhere - but not on category wrapper */
+section:not(.category-strip-wrap), header, footer, .hero { overflow-x: clip; }
+
+/* Mobile: allow category section to overflow */
+@media (max-width: 1024px) {
+  section, div { 
+    overflow-x: visible;
+  }
+  section:has(.category-strip-wrap) {
+    overflow-x: visible !important;
+  }
+}
 
 /* === Allergens: slightly larger text + icons, keep current layout === */
 .allergens-legend h3{ font-size:18px; font-family: 'Billmake', sans-serif; }          /* was ~16px */
@@ -915,23 +925,41 @@ header[role="banner"]{
 }
 
 @media (max-width:1024px){
+  /* Allow parent wrapper to support full width scrolling */
+  .category-strip-wrap {
+    overflow-x: visible !important;
+    overflow-y: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+  
   /* Ensure strip can actually overflow and be scrolled */
   #categoryStrip, .menu-category-strip, .menu-category-tabs, nav .categories, .categories-strip{
-    display:flex; flex-wrap:nowrap;
+    display:flex !important; 
+    flex-wrap:nowrap !important;
     gap:.75rem;
-    overflow-x:auto !important; overflow-y:hidden !important;
+    overflow-x:auto !important; 
+    overflow-y:hidden !important;
     white-space:nowrap;
     -webkit-overflow-scrolling:touch;
     scroll-behavior:smooth;
-    max-width:100%;
-    padding-inline:12px;
-    touch-action: pan-x !important;  /* enable horizontal touch swipe */
-    scroll-snap-type: none !important; /* avoid snap traps at edges */
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: 20px !important;
+    touch-action: pan-x !important;
+    scroll-snap-type: none !important;
+    scrollbar-width: none;
   }
+  
+  #categoryStrip::-webkit-scrollbar {
+    display: none;
+  }
+  
   /* children shouldn't shrink or wrap */
   #categoryStrip > *, .menu-category-strip > *, .menu-category-tabs > *, 
   nav .categories > *, .categories-strip > *{
-    flex:0 0 auto; min-width:max-content;
+    flex:0 0 auto !important; 
+    min-width:max-content !important;
   }
 }
 
