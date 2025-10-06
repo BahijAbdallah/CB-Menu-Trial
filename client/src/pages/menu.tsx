@@ -162,12 +162,18 @@ export default function MenuPage() {
     el.addEventListener('pointerleave', pointerEndHandler);
     el.style.touchAction = 'pan-x'; // allow horizontal pan
 
-    // Unblock any parent that hides horizontal overflow
+    // Unblock any parent that hides horizontal overflow - more aggressive for mobile
     let p = el.parentElement;
-    while(p){
+    while(p && p !== document.body){
       const cs = getComputedStyle(p);
       if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
-        p.style.overflowX = 'visible';   // no visual change; just allow child scroll
+        p.style.overflowX = 'visible';
+      }
+      // On mobile, ensure width doesn't constrain scrolling
+      if(window.innerWidth <= 1024) {
+        if(cs.maxWidth && cs.maxWidth !== 'none') {
+          p.style.maxWidth = '100vw';
+        }
       }
       p = p.parentElement;
     }
