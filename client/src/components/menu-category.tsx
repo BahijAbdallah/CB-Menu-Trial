@@ -4,6 +4,12 @@ import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 import { useLocale, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Helper function to safely encode image URLs for filenames with special characters
 function getEncodedImageUrl(imageUrl: string | null | undefined): string | null {
@@ -99,6 +105,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   const locale = useLocale();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Get translated content with fallback to English
   const itemName = getTranslatedItemName(item, locale);
@@ -107,8 +114,17 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
   
+  const imageUrl = (item.imageUrl && !imageError) 
+    ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) 
+    : getDefaultImageForItem(category.slug, index);
+  
   return (
-    <li className="menu-card">
+    <>
+      <li 
+        className="menu-card cursor-pointer hover:shadow-lg transition-shadow"
+        onClick={() => setIsModalOpen(true)}
+        data-testid={`menu-card-${item.id}`}
+      >
       <div className="thumb-wrap">
         {!imageLoaded && (
           <div className="menu-thumb bg-gray-200 animate-pulse flex items-center justify-center">
@@ -117,7 +133,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
         )}
         <img 
           className={`menu-thumb ${!imageLoaded ? 'hidden' : ''}`}
-          src={(item.imageUrl && !imageError) ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) : getDefaultImageForItem(category.slug, index)}
+          src={imageUrl}
           alt={itemName}
           loading="lazy"
           width="176"
@@ -166,7 +182,78 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
           </p>
         )}
       </div>
-    </li>
+      </li>
+
+      {/* Modal Dialog */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-[#f0eee7]">
+          <div className="grid md:grid-cols-2 gap-0">
+            {/* Left side - Large Image */}
+            <div className="relative h-[400px] md:h-[500px] bg-white">
+              <img 
+                src={imageUrl}
+                alt={itemName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Right side - Item Details */}
+            <div className="p-8 flex flex-col">
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-bold text-[#3b4b30] mb-4" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                  {itemName}
+                </DialogTitle>
+              </DialogHeader>
+
+              {/* Description */}
+              <div className="flex-1 mb-6">
+                <div className="text-[#6d756f] text-base leading-relaxed whitespace-pre-line" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                  {itemDescription}
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="text-2xl font-bold text-[#efa25f] mb-4" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                ${parseFloat(item.price).toFixed(2)}
+              </div>
+
+              {/* Allergens */}
+              {allergens.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-3">
+                    {allergens.map((slug: AllergenSlug) => {
+                      const a = ALLERGENS_MAP[slug];
+                      if (!a) return null;
+                      return (
+                        <div 
+                          key={slug} 
+                          className="flex items-center gap-2 px-3 py-2 bg-white/70 rounded-full border border-[#3b4b30]/20"
+                          title={a.label}
+                        >
+                          <img src={a.icon} alt={a.label} className="w-5 h-5" />
+                          <span className="text-sm font-semibold text-[#3b4b30]" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                            {a.label}
+                          </span>
+                        </div>
+                      );
+                    }).filter(Boolean)}
+                  </div>
+                </div>
+              )}
+
+              {/* Out of Stock Badge */}
+              {isOutOfStock && (
+                <div className="mt-2 px-4 py-2 bg-red-100 border border-red-300 rounded-lg">
+                  <p className="text-red-700 font-bold text-center" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                    {t('menu.outOfStock', 'Out of Stock')}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
