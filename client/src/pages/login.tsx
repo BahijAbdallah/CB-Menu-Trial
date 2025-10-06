@@ -41,14 +41,16 @@ export default function LoginPage() {
       if (data.token) {
         localStorage.setItem('authToken', data.token);
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      
+      // Wait for auth query to refetch and complete before redirecting
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/me"] });
+      
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
-      setTimeout(() => {
-        setLocation("/admin");
-      }, 100);
+      
+      setLocation("/admin");
     },
     onError: (error: any) => {
       toast({
