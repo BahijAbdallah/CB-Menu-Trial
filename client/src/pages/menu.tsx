@@ -400,8 +400,8 @@ export default function MenuPage() {
       {/* Allergens Legend */}
       <AllergensLegend />
       {/* Menu Categories Navigation and Items Display - White Background */}
-      <div style={{ background: "white" }}>
-        <div className="category-strip-wrap">
+      <div style={{ background: "white", overflowX: "visible" }}>
+        <div className="category-strip-wrap" style={{ overflowX: "visible" }}>
           <nav
             ref={categoryStripRef}
             id="categoryStrip"
