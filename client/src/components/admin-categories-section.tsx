@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Plus, Edit, Trash2, Layers } from "lucide-react";
+import { Plus, Edit, Trash2, Layers, GripVertical, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +12,17 @@ import type { Category } from "@shared/schema";
 export default function AdminCategoriesSection() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [orderedCategories, setOrderedCategories] = useState<Category[]>([]);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
 
   const { data: categories = [], isLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+  });
+
+  const { data: categoryOrderData } = useQuery<{ categoryOrder: string[] }>({
+    queryKey: ["/api/settings/category-order"],
   });
 
   const deleteCategoryMutation = useMutation({
@@ -42,6 +49,90 @@ export default function AdminCategoriesSection() {
       });
     },
   });
+
+  const saveCategoryOrderMutation = useMutation({
+    mutationFn: async (categoryOrder: string[]) => {
+      const response = await fetch("/api/settings/category-order", {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ categoryOrder }),
+      });
+      if (!response.ok) throw new Error("Failed to save category order");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/category-order"] });
+      setHasChanges(false);
+      toast({
+        title: "Success",
+        description: "Category order saved successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error", 
+        description: "Failed to save category order",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Apply category ordering when data is loaded
+  useEffect(() => {
+    if (categories.length > 0) {
+      const categoryOrder = categoryOrderData?.categoryOrder || [];
+      
+      // Sort categories based on saved order
+      const pos = (slug: string) => {
+        const index = categoryOrder.indexOf(slug);
+        return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+      };
+      
+      const sorted = [...categories].sort((a, b) => pos(a.slug) - pos(b.slug));
+      setOrderedCategories(sorted);
+    }
+  }, [categories, categoryOrderData]);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    e.currentTarget.style.opacity = '1';
+    setDraggedIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+    
+    const newOrderedCategories = [...orderedCategories];
+    const draggedItem = newOrderedCategories[draggedIndex];
+    
+    // Remove dragged item and insert at new position
+    newOrderedCategories.splice(draggedIndex, 1);
+    newOrderedCategories.splice(dropIndex, 0, draggedItem);
+    
+    setOrderedCategories(newOrderedCategories);
+    setHasChanges(true);
+  };
+
+  const handleSave = () => {
+    const categoryOrder = orderedCategories.map(cat => cat.slug);
+    saveCategoryOrderMutation.mutate(categoryOrder);
+  };
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
@@ -95,15 +186,21 @@ export default function AdminCategoriesSection() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            {categories.map((category) => (
+          <div className="space-y-2 mb-4">
+            {orderedCategories.map((category, index) => (
               <div
                 key={category.id}
-                className="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+                className="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-move transition-colors"
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
+                  <GripVertical className="h-5 w-5 text-gray-400" />
                   <Badge variant="outline" className="text-xs">
-                    #{category.order}
+                    #{index + 1}
                   </Badge>
                   <div>
                     <h4 className="font-medium text-dark-brown">{category.name}</h4>
@@ -138,7 +235,25 @@ export default function AdminCategoriesSection() {
             ))}
           </div>
 
-          {categories.length === 0 && (
+          {orderedCategories.length > 0 && (
+            <div className="flex gap-3 pt-4 border-t">
+              <Button
+                onClick={handleSave}
+                disabled={!hasChanges || saveCategoryOrderMutation.isPending}
+                className="bg-brand-green text-white hover:bg-brand-dark-green"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {saveCategoryOrderMutation.isPending ? "Saving..." : "Save Order"}
+              </Button>
+              {hasChanges && (
+                <p className="text-sm text-amber-600 self-center">
+                  You have unsaved changes
+                </p>
+              )}
+            </div>
+          )}
+
+          {orderedCategories.length === 0 && (
             <div className="text-center py-8">
               <Layers className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-saddle-brown text-lg mb-2">No categories yet</p>
