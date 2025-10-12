@@ -201,12 +201,12 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 .menu-tabs{
   width:100%;
   margin:14px auto 8px;
-  padding:0 16px;
+  padding: 8px 16px; /* Added vertical padding to prevent clipping */
   display:flex;
   justify-content:flex-start; /* Start alignment for mobile so first item is reachable */
   gap:10px;
   overflow-x:auto;
-  overflow-y:hidden;
+  overflow-y:visible; /* Changed to visible to prevent clipping of ring shadow */
   white-space:nowrap;
   -webkit-overflow-scrolling:touch;
   scroll-snap-type:x proximity;
@@ -256,12 +256,12 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     display:flex;
     gap:12px;
     overflow-x:auto;
-    overflow-y:hidden;
+    overflow-y:visible; /* Changed to visible to prevent clipping */
     white-space:nowrap;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
     justify-content:center; /* Center on desktop where space allows */
-    padding:8px 24px;
+    padding:12px 24px; /* Increased vertical padding */
     /* soft edge fade so pills feel native */
     -webkit-mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
             mask: linear-gradient(90deg, rgba(0,0,0,0), #000 24px, #000 calc(100% - 24px), rgba(0,0,0,0));
@@ -275,8 +275,9 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 @media (min-width: 1024px) {
   .menu-tabs {
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: visible; /* Changed to visible to prevent clipping */
     padding-inline: 16px;
+    padding-block: 12px; /* Ensure vertical padding for ring shadow */
     scroll-padding-left: 16px;
     scroll-padding-right: 16px;
     /* Remove the mask that clips the first chip */
