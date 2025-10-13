@@ -90,12 +90,26 @@ export default function MenuPage() {
     if (!categories.length) return categories;
     
     const order = categoryOrderData?.categoryOrder || [];
+    
+    if (order.length === 0) {
+      // No saved order, use database order
+      return [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    }
+    
     const pos = (slug: string) => { 
       const i = order.indexOf(slug); 
-      return i === -1 ? Number.MAX_SAFE_INTEGER : i; 
+      return i === -1 ? 999 : i; 
     };
     
-    return [...categories].sort((a, b) => pos(a.slug) - pos(b.slug));
+    return [...categories].sort((a, b) => {
+      const posA = pos(a.slug);
+      const posB = pos(b.slug);
+      if (posA === posB) {
+        // Same position, maintain database order
+        return (a.order ?? 0) - (b.order ?? 0);
+      }
+      return posA - posB;
+    });
   }, [categories, categoryOrderData]);
 
   // Set first category as active when categories load
