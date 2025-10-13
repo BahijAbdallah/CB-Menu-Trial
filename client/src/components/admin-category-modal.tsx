@@ -188,7 +188,8 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
             <div className="flex space-x-4">
               <Button
                 type="submit"
-                className="flex-1 bg-warm-gold text-white hover:bg-goldenrod"
+                variant="outline"
+                className="flex-1 border-2 border-black text-black hover:bg-black hover:text-white"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Saving..." : "Save Category"}
