@@ -255,7 +255,8 @@ export default function AdminCategoriesSection() {
               <Button
                 onClick={handleSave}
                 disabled={!hasChanges || saveCategoryOrderMutation.isPending}
-                className="bg-warm-gold text-white hover:bg-goldenrod"
+                variant="outline"
+                className="border-2 border-black text-black hover:bg-warm-gold hover:text-white hover:border-warm-gold"
                 data-testid="button-save-category-order"
               >
                 <Save className="mr-2 h-4 w-4" />
