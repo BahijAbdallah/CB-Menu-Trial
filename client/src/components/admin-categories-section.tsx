@@ -251,19 +251,19 @@ export default function AdminCategoriesSection() {
           </div>
 
           {orderedCategories.length > 0 && (
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t items-stretch sm:items-center">
               <Button
                 onClick={handleSave}
                 disabled={!hasChanges || saveCategoryOrderMutation.isPending}
                 variant="outline"
-                className="border-2 border-black text-black hover:bg-warm-gold hover:text-white hover:border-warm-gold"
+                className="w-full sm:w-auto border-2 border-black text-black hover:bg-warm-gold hover:text-white hover:border-warm-gold"
                 data-testid="button-save-category-order"
               >
                 <Save className="mr-2 h-4 w-4" />
                 {saveCategoryOrderMutation.isPending ? "Saving..." : "Save Order"}
               </Button>
               {hasChanges && (
-                <p className="text-sm text-amber-600 self-center">
+                <p className="text-sm text-amber-600 self-center text-center sm:text-left">
                   You have unsaved changes
                 </p>
               )}
