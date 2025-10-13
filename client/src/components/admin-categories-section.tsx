@@ -85,14 +85,28 @@ export default function AdminCategoriesSection() {
     if (categories.length > 0) {
       const categoryOrder = categoryOrderData?.categoryOrder || [];
       
-      // Sort categories based on saved order
-      const pos = (slug: string) => {
-        const index = categoryOrder.indexOf(slug);
-        return index === -1 ? Number.MAX_SAFE_INTEGER : index;
-      };
-      
-      const sorted = [...categories].sort((a, b) => pos(a.slug) - pos(b.slug));
-      setOrderedCategories(sorted);
+      if (categoryOrder.length === 0) {
+        // No saved order, use database order
+        const sorted = [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        setOrderedCategories(sorted);
+      } else {
+        // Sort categories based on saved order
+        const pos = (slug: string) => {
+          const index = categoryOrder.indexOf(slug);
+          return index === -1 ? 999 : index;
+        };
+        
+        const sorted = [...categories].sort((a, b) => {
+          const posA = pos(a.slug);
+          const posB = pos(b.slug);
+          if (posA === posB) {
+            // Same position, maintain database order
+            return (a.order ?? 0) - (b.order ?? 0);
+          }
+          return posA - posB;
+        });
+        setOrderedCategories(sorted);
+      }
     }
   }, [categories, categoryOrderData]);
 
