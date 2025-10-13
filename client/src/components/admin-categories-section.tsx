@@ -190,7 +190,7 @@ export default function AdminCategoriesSection() {
                 <CardTitle className="font-parslay text-xl font-bold text-dark-brown">
                   Menu Categories
                 </CardTitle>
-                <p className="text-saddle-brown text-sm">Organize your menu structure</p>
+                <p className="text-saddle-brown text-sm">Drag to reorder • Changes appear on frontend menu</p>
               </div>
             </div>
             <Button onClick={handleAddNew} className="bg-warm-gold text-white hover:bg-goldenrod">
@@ -209,7 +209,8 @@ export default function AdminCategoriesSection() {
                 onDragEnd={handleDragEnd}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
-                className="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-move transition-colors"
+                className="border-2 border-gray-200 rounded-lg p-4 flex items-center justify-between hover:bg-blue-50 hover:border-blue-300 cursor-move transition-all active:opacity-50"
+                data-testid={`category-item-${category.slug}`}
               >
                 <div className="flex items-center space-x-3">
                   <GripVertical className="h-5 w-5 text-gray-400" />
