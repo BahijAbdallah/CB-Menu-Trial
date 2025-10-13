@@ -16,7 +16,6 @@ const formSchema = z.object({
   nameArabic: z.string().optional(),
   nameFrench: z.string().optional(),
   slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
-  order: z.number().min(0, "Order must be a positive number"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -38,7 +37,6 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
       nameArabic: "",
       nameFrench: "",
       slug: "",
-      order: 0,
     },
   });
 
@@ -49,7 +47,6 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
         nameArabic: editingCategory.nameArabic || "",
         nameFrench: editingCategory.nameFrench || "",
         slug: editingCategory.slug,
-        order: editingCategory.order,
       });
     } else {
       form.reset({
@@ -57,7 +54,6 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
         nameArabic: "",
         nameFrench: "",
         slug: "",
-        order: 0,
       });
     }
   }, [editingCategory, form]);
@@ -68,6 +64,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
         ...data,
         nameArabic: data.nameArabic || null,
         nameFrench: data.nameFrench || null,
+        order: editingCategory?.order ?? 0, // Preserve existing order or default to 0
       };
 
       if (editingCategory) {
@@ -181,25 +178,6 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
                     <FormLabel>URL Slug</FormLabel>
                     <FormControl>
                       <Input placeholder="category-slug" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="order"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Order</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
