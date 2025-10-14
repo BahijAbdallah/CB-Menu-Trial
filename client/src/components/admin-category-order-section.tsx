@@ -155,11 +155,12 @@ export default function AdminCategoryOrderSection() {
           </div>
         )}
 
-        <div className="flex gap-3 pt-4 border-t">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t items-stretch sm:items-center">
           <Button
             onClick={handleSave}
             disabled={!hasChanges || saveCategoryOrderMutation.isPending}
-            className="bg-brand-green text-white hover:bg-brand-dark-green"
+            variant="outline"
+            className="w-full sm:w-auto border-[3px] border-black text-black font-semibold hover:bg-black hover:text-white hover:border-black bg-white active:bg-black active:text-white"
             data-testid="save-category-order"
           >
             <Save className="mr-2 h-4 w-4" />
@@ -169,6 +170,7 @@ export default function AdminCategoryOrderSection() {
             variant="outline"
             onClick={handleReset}
             disabled={!hasChanges}
+            className="w-full sm:w-auto border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white"
             data-testid="reset-category-order"
           >
             Reset to Default
