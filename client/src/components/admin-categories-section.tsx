@@ -193,7 +193,12 @@ export default function AdminCategoriesSection() {
                 <p className="text-saddle-brown text-sm">Drag to reorder • Changes appear on frontend menu</p>
               </div>
             </div>
-            <Button onClick={handleAddNew} className="bg-warm-gold text-white hover:bg-goldenrod">
+            <Button 
+              onClick={handleAddNew} 
+              variant="outline"
+              className="border-[3px] border-black text-black font-semibold hover:bg-black hover:text-white bg-white"
+              data-testid="button-add-category"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Category
             </Button>
@@ -277,7 +282,11 @@ export default function AdminCategoriesSection() {
               <p className="text-gray-500 text-sm mb-4">
                 Create your first menu category to organize your items
               </p>
-              <Button onClick={handleAddNew} className="bg-warm-gold text-white hover:bg-goldenrod">
+              <Button 
+                onClick={handleAddNew} 
+                variant="outline"
+                className="border-[3px] border-black text-black font-semibold hover:bg-black hover:text-white bg-white"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add First Category
               </Button>
