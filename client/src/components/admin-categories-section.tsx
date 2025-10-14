@@ -256,7 +256,7 @@ export default function AdminCategoriesSection() {
                 onClick={handleSave}
                 disabled={!hasChanges || saveCategoryOrderMutation.isPending}
                 variant="outline"
-                className="w-full sm:w-auto border-[3px] border-gray-900 text-gray-900 font-semibold hover:bg-warm-gold hover:text-white hover:border-warm-gold bg-white dark:bg-gray-50"
+                className="w-full sm:w-auto border-[3px] border-gray-900 text-gray-900 font-semibold hover:bg-gray-900 hover:text-white hover:border-gray-900 bg-white dark:bg-gray-50"
                 data-testid="button-save-category-order"
               >
                 <Save className="mr-2 h-4 w-4" />
