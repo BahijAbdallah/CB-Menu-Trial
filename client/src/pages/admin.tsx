@@ -15,6 +15,7 @@ import { queryClient } from "@/lib/queryClient";
 import AdminStats from "@/components/admin-stats";
 import AdminItemModal from "@/components/admin-item-modal";
 import AdminCategoriesSection from "@/components/admin-categories-section";
+import AdminCategoryModal from "@/components/admin-category-modal";
 import AdminHalalCertificatesSection from "@/components/admin-halal-certificates-section";
 import AdminCategoryOrderSection from "@/components/admin-category-order-section";
 import type { Category, MenuItem } from "@shared/schema";
@@ -29,6 +30,7 @@ export default function AdminPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const { toast } = useToast();
 
@@ -170,6 +172,10 @@ export default function AdminPage() {
     setIsModalOpen(true);
   };
 
+  const handleAddCategory = () => {
+    setIsCategoryModalOpen(true);
+  };
+
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this item?")) {
       deleteItemMutation.mutate(id);
@@ -215,6 +221,10 @@ export default function AdminPage() {
                 <Button onClick={handleAddNew} className="bg-brand-green text-white hover:bg-brand-dark-green">
                   <Plus className="mr-2 h-4 w-4" />
                   Add New Item
+                </Button>
+                <Button onClick={handleAddCategory} className="bg-warm-gold text-white hover:bg-goldenrod">
+                  <Layers className="mr-2 h-4 w-4" />
+                  Add Category
                 </Button>
                 <Button variant="outline" className="border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white">
                   <PrinterCheck className="mr-2 h-4 w-4" />
@@ -428,6 +438,13 @@ export default function AdminPage() {
         onClose={() => setIsModalOpen(false)}
         editingItem={editingItem}
         categories={categories}
+      />
+
+      {/* Add/Edit Category Modal */}
+      <AdminCategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        editingCategory={null}
       />
     </div>
   );
