@@ -118,6 +118,11 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
     ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) 
     : getDefaultImageForItem(category.slug, index);
   
+  // High-resolution image for modal - use original URL without constraints
+  const highResImageUrl = item.imageUrl 
+    ? (getEncodedImageUrl(item.imageUrl) || imageUrl)
+    : imageUrl;
+  
   return (
     <>
       <li 
@@ -188,10 +193,10 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden bg-[#f0eee7]">
           <div className="grid md:grid-cols-2 gap-0">
-            {/* Left side - Large Image */}
+            {/* Left side - Large High-Resolution Image */}
             <div className="relative h-[400px] md:h-[500px] bg-white">
               <img 
-                src={imageUrl}
+                src={highResImageUrl}
                 alt={itemName}
                 className="w-full h-full object-cover"
               />
