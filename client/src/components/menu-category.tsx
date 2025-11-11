@@ -114,14 +114,17 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
   
+  // Add cache-busting timestamp to prevent stale cached images
+  const cacheBuster = Date.now();
+  
   const imageUrl = (item.imageUrl && !imageError) 
     ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) 
     : getDefaultImageForItem(category.slug, index);
   
-  // High-resolution image for modal - use original URL without constraints
+  // High-resolution image for modal - use original URL with high-res flag and cache-busting
   const highResImageUrl = item.imageUrl 
-    ? (getEncodedImageUrl(item.imageUrl) || imageUrl)
-    : imageUrl;
+    ? `${getEncodedImageUrl(item.imageUrl) || imageUrl}?highres=true&t=${cacheBuster}`
+    : `${imageUrl}?highres=true&t=${cacheBuster}`;
   
   return (
     <>

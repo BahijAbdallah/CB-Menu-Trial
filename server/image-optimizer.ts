@@ -1,9 +1,10 @@
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
+import type { Request, Response, NextFunction } from "express";
 
 export default function imageOptimizer({ root = "public" } = {}) {
-  return async (req, res, next) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Only handle image requests
       if (!/\.(jpe?g|png)$/i.test(req.path)) {
@@ -22,17 +23,22 @@ export default function imageOptimizer({ root = "public" } = {}) {
       // Detect format based on Accept header
       const accept = req.headers.accept || "";
       const fmt = accept.includes("image/avif") ? "avif" : "webp";
-      const quality = fmt === "avif" ? 55 : 70;
+      const quality = fmt === "avif" ? 75 : 90;
 
-      // Choose a target width from client hints (fallback 1200)
+      // Check if high-res is requested via query param
+      const highResParam = Array.isArray(req.query.highres) ? req.query.highres[0] : req.query.highres;
+      const highRes = highResParam === 'true';
+      
+      // Choose a target width from client hints (fallback to higher resolution)
       const chWidth = parseInt(req.headers["sec-ch-width"] || "", 10);
       const dpr = parseFloat(req.headers["dpr"] || "1");
-      const cssWidth = Number.isFinite(chWidth) && chWidth > 0 ? chWidth : 1200;
-      const target = Math.min(1200, Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)));
+      const cssWidth = Number.isFinite(chWidth) && chWidth > 0 ? chWidth : (highRes ? 2400 : 1200);
+      const maxWidth = highRes ? 2400 : 1200;
+      const target = Math.min(maxWidth, Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)));
 
-      // Snap to buckets we prewarmed
-      const widths = [320, 640, 960, 1200];
-      const w = widths.find(x => x >= target) || 1200;
+      // Snap to buckets we prewarmed - extended for higher resolution
+      const widths = highRes ? [640, 1200, 1600, 2400] : [320, 640, 960, 1200];
+      const w = widths.find(x => x >= target) || (highRes ? 2400 : 1200);
 
       // Build cache key (same logic as prewarm script)
       const stat = fs.statSync(abs);
@@ -66,11 +72,12 @@ export default function imageOptimizer({ root = "public" } = {}) {
         await pipeline.toFile(out);
       }
 
-      // Set response headers
+      // Set response headers - more flexible caching for development
       res.setHeader("Content-Type", `image/${fmt}`);
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
       res.setHeader("Vary", "Accept, DPR, Width");
       res.setHeader("Content-DPR", (Number.isFinite(dpr) ? dpr : 1).toString());
+      res.setHeader("ETag", cacheName);
 
       // Stream the optimized image
       fs.createReadStream(out).pipe(res);
