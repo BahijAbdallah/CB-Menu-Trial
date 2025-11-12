@@ -29,16 +29,24 @@ export default function imageOptimizer({ root = "public" } = {}) {
       const highResParam = Array.isArray(req.query.highres) ? req.query.highres[0] : req.query.highres;
       const highRes = highResParam === 'true';
       
-      // Choose a target width from client hints (fallback to higher resolution)
-      const chWidth = parseInt(req.headers["sec-ch-width"] || "", 10);
-      const dpr = parseFloat(req.headers["dpr"] || "1");
-      const cssWidth = Number.isFinite(chWidth) && chWidth > 0 ? chWidth : (highRes ? 2400 : 1200);
-      const maxWidth = highRes ? 2400 : 1200;
-      const target = Math.min(maxWidth, Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)));
-
-      // Snap to buckets we prewarmed - extended for higher resolution
-      const widths = highRes ? [640, 1200, 1600, 2400] : [320, 640, 960, 1200];
-      const w = widths.find(x => x >= target) || (highRes ? 2400 : 1200);
+      // For high-res images (modal), ALWAYS use maximum resolution regardless of viewport
+      let w: number;
+      if (highRes) {
+        // Force highest resolution for modal images on all devices including mobile
+        w = 2400;
+      } else {
+        // Normal responsive behavior for thumbnails
+        const chWidthHeader = req.headers["sec-ch-width"];
+        const dprHeader = req.headers["dpr"];
+        const chWidthStr = Array.isArray(chWidthHeader) ? chWidthHeader[0] : chWidthHeader;
+        const dprStr = Array.isArray(dprHeader) ? dprHeader[0] : dprHeader;
+        const chWidth = parseInt(chWidthStr || "", 10);
+        const dpr = parseFloat(dprStr || "1");
+        const cssWidth = Number.isFinite(chWidth) && chWidth > 0 ? chWidth : 1200;
+        const target = Math.min(1200, Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)));
+        const widths = [320, 640, 960, 1200];
+        w = widths.find(x => x >= target) || 1200;
+      }
 
       // Build cache key (same logic as prewarm script)
       const stat = fs.statSync(abs);
@@ -76,7 +84,6 @@ export default function imageOptimizer({ root = "public" } = {}) {
       res.setHeader("Content-Type", `image/${fmt}`);
       res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
       res.setHeader("Vary", "Accept, DPR, Width");
-      res.setHeader("Content-DPR", (Number.isFinite(dpr) ? dpr : 1).toString());
       res.setHeader("ETag", cacheName);
 
       // Stream the optimized image

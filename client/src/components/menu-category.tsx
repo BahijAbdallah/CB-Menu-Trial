@@ -202,6 +202,10 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
                 src={highResImageUrl}
                 alt={itemName}
                 className="w-full h-full object-cover"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
 
