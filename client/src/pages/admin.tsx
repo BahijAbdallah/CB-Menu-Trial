@@ -100,6 +100,36 @@ export default function AdminPage() {
     },
   });
 
+  const duplicateItemMutation = useMutation({
+    mutationFn: async (item: MenuItem) => {
+      const response = await fetch("/api/menu-items/duplicate", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: item.id }),
+      });
+      if (!response.ok) throw new Error("Failed to duplicate item");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "Success",
+        description: "Item duplicated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to duplicate item",
+        variant: "destructive",
+      });
+    },
+  });
+
   const importExcelMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch("/api/import-excel", {
@@ -180,6 +210,10 @@ export default function AdminPage() {
     if (confirm("Are you sure you want to delete this item?")) {
       deleteItemMutation.mutate(id);
     }
+  };
+
+  const handleDuplicate = (item: MenuItem) => {
+    duplicateItemMutation.mutate(item);
   };
 
   if (authLoading || isLoading) {
@@ -390,8 +424,19 @@ export default function AdminPage() {
                                 variant="ghost"
                                 onClick={() => handleEdit(item)}
                                 className="text-brand-green hover:bg-brand-green/10"
+                                data-testid={`button-edit-${item.id}`}
                               >
                                 Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDuplicate(item)}
+                                className="text-blue-600 hover:bg-blue-50"
+                                disabled={duplicateItemMutation.isPending}
+                                data-testid={`button-duplicate-${item.id}`}
+                              >
+                                Duplicate
                               </Button>
                               <Button
                                 size="sm"
@@ -399,6 +444,7 @@ export default function AdminPage() {
                                 onClick={() => handleDelete(item.id)}
                                 className="text-brand-coral hover:bg-brand-coral/10"
                                 disabled={deleteItemMutation.isPending}
+                                data-testid={`button-delete-${item.id}`}
                               >
                                 Delete
                               </Button>
