@@ -73,16 +73,23 @@ export default function MenuPage() {
     Category[]
   >({
     queryKey: ["/api/categories"],
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const { data: categoryOrderData } = useQuery<{ categoryOrder: string[] }>({
     queryKey: ["/api/settings/category-order"],
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
     MenuItem[]
   >({
     queryKey: ["/api/menu-items"],
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale to ensure fresh data
   });
 
   // Apply category ordering based on settings
@@ -328,7 +335,9 @@ export default function MenuPage() {
     if (!activeCategoryData) return [];
     
     // Backend already returns items ordered by display_order ASC NULLS LAST, then order ASC
-    return menuItems.filter((item) => item.categoryId === activeCategoryData.id);
+    const filtered = menuItems.filter((item) => item.categoryId === activeCategoryData.id);
+    console.log(`[Menu] Category "${activeCategoryData.name}" has ${filtered.length} items:`, filtered.map(i => ({ id: i.id, name: i.name })));
+    return filtered;
   }, [menuItems, activeCategoryData]);
 
   if (categoriesLoading || menuItemsLoading) {
