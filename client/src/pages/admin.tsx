@@ -45,7 +45,7 @@ export default function AdminPage() {
     queryKey: ["/api/categories"],
   });
 
-  const { data: menuItems = [], isLoading } = useQuery<MenuItem[]>({
+  const { data: menuItems = [], isLoading, dataUpdatedAt } = useQuery<MenuItem[]>({
     queryKey: ["/api/menu-items"],
   });
 
@@ -355,9 +355,10 @@ export default function AdminPage() {
                           <td className="py-4 px-2">
                             <div className="flex items-center space-x-3">
                               <img
-                                src={item.imageUrl || getDefaultImageForItem(getCategorySlug(item.categoryId), index)}
+                                src={`${item.imageUrl || getDefaultImageForItem(getCategorySlug(item.categoryId), index)}?v=${dataUpdatedAt}`}
                                 alt={item.name}
                                 className="w-12 h-12 rounded-lg object-cover"
+                                key={`${item.id}-${dataUpdatedAt}`}
                               />
                               <div>
                                 <p className="font-medium text-brand-green">{item.name}</p>
