@@ -146,16 +146,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image upload endpoint
   app.post("/api/upload-image", requireAuth, uploadImage.single('image'), (req, res) => {
     try {
+      console.log('[Upload] Image upload attempt:', {
+        hasFile: !!req.file,
+        filename: req.file?.filename,
+        size: req.file?.size,
+        mimetype: req.file?.mimetype
+      });
+      
       if (!req.file) {
+        console.log('[Upload] No file in request');
         return res.status(400).json({ message: "No image file provided" });
+      }
+      
+      // Verify file was saved
+      const filePath = path.join(process.cwd(), 'attached_assets', req.file.filename);
+      const fileExists = fs.existsSync(filePath);
+      console.log('[Upload] File saved:', {
+        path: filePath,
+        exists: fileExists,
+        filename: req.file.filename
+      });
+      
+      if (!fileExists) {
+        console.error('[Upload] File was not saved to disk!');
+        return res.status(500).json({ message: "Failed to save image file" });
       }
       
       // For now, we'll use the attached_assets directory for uploaded images
       // In production, you might want to use cloud storage
       const imageUrl = `/attached_assets/${req.file.filename}`;
+      console.log('[Upload] Success! Image URL:', imageUrl);
       
       res.json({ imageUrl });
     } catch (error) {
+      console.error('[Upload] Error:', error);
       res.status(500).json({ message: "Failed to upload image" });
     }
   });
@@ -290,6 +314,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Failed to create menu item" });
       }
+    }
+  });
+
+  app.post("/api/menu-items/duplicate", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.body;
+      if (!id || typeof id !== 'number') {
+        return res.status(400).json({ message: "Invalid item ID" });
+      }
+
+      const originalItem = await storage.getMenuItemById(id);
+      if (!originalItem) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+
+      // Handle allergens - they're stored as JSON string in DB but may need parsing
+      let allergensValue = originalItem.allergens;
+      if (typeof allergensValue === 'string') {
+        // Already stringified, use as-is
+        allergensValue = allergensValue;
+      } else if (Array.isArray(allergensValue)) {
+        // Array format, stringify it
+        allergensValue = JSON.stringify(allergensValue);
+      } else {
+        // Null or undefined
+        allergensValue = JSON.stringify([]);
+      }
+
+      const duplicateData = {
+        name: `${originalItem.name} (Copy)`,
+        nameArabic: originalItem.nameArabic,
+        nameFrench: originalItem.nameFrench,
+        description: originalItem.description,
+        descriptionArabic: originalItem.descriptionArabic,
+        descriptionFrench: originalItem.descriptionFrench,
+        price: originalItem.price,
+        categoryId: originalItem.categoryId,
+        imageUrl: originalItem.imageUrl,
+        isAvailable: originalItem.isAvailable,
+        outOfStock: originalItem.outOfStock,
+        displayOrder: originalItem.displayOrder,
+        allergens: allergensValue,
+      };
+
+      const newItem = await storage.createMenuItem(duplicateData);
+      console.log('[Duplicate] Created copy of item', id, '-> new item', newItem.id);
+      res.status(201).json(newItem);
+    } catch (error) {
+      console.error('[Duplicate] Error:', error);
+      res.status(500).json({ message: "Failed to duplicate menu item" });
     }
   });
 
