@@ -129,12 +129,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Image upload endpoint
-  app.post("/api/upload-image", requireAuth, uploadImage.single('image'), (req, res) => {
+  // Image upload endpoint (using Object Storage)
+  app.post("/api/upload-image", requireAuth, uploadImage.single('image'), async (req, res) => {
     try {
       console.log('[Upload] Image upload attempt:', {
         hasFile: !!req.file,
-        filename: req.file?.filename,
+        originalname: req.file?.originalname,
         size: req.file?.size,
         mimetype: req.file?.mimetype
       });
@@ -144,23 +144,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
       
-      // Verify file was saved
-      const filePath = path.join(process.cwd(), 'attached_assets', req.file.filename);
-      const fileExists = fs.existsSync(filePath);
-      console.log('[Upload] File saved:', {
-        path: filePath,
-        exists: fileExists,
-        filename: req.file.filename
-      });
+      // Generate unique filename
+      const filename = generateImageFilename(req.file.originalname);
       
-      if (!fileExists) {
-        console.error('[Upload] File was not saved to disk!');
-        return res.status(500).json({ message: "Failed to save image file" });
+      console.log('[Upload] Uploading to Object Storage:', filename);
+      
+      // Upload to Replit Object Storage
+      const { ok, error } = await storageClient.uploadFromBytes(
+        filename,
+        req.file.buffer
+      );
+      
+      if (!ok) {
+        console.error('[Upload] Failed to upload to Object Storage:', error);
+        return res.status(500).json({ message: "Failed to save image to storage" });
       }
       
-      // For now, we'll use the attached_assets directory for uploaded images
-      // In production, you might want to use cloud storage
-      const imageUrl = `/attached_assets/${req.file.filename}`;
+      // Return the URL pointing to our storage endpoint
+      const imageUrl = `/api/storage/${filename}`;
       console.log('[Upload] Success! Image URL:', imageUrl);
       
       res.json({ imageUrl });
