@@ -10,6 +10,7 @@ import fs from "fs";
 import "./types";
 import { importExcelMenu } from "./import-excel";
 import imgProxy from "./img-proxy";
+import { storageClient, generateImageFilename, getContentType } from "./storage-client";
 
 // Simple token store for demo purposes
 const activeTokens = new Map<string, number>(); // token -> userId
@@ -36,22 +37,7 @@ const storage_multer = multer.diskStorage({
   }
 });
 
-// Multer configuration for image uploads
-const imageStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const imageDir = path.join(process.cwd(), 'attached_assets');
-    if (!fs.existsSync(imageDir)) {
-      fs.mkdirSync(imageDir, { recursive: true });
-    }
-    cb(null, imageDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename with timestamp
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'menu-item-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Multer configuration for image uploads (using memory storage for Object Storage)
 const upload = multer({
   storage: storage_multer,
   limits: {
@@ -68,7 +54,7 @@ const upload = multer({
 });
 
 const uploadImage = multer({
-  storage: imageStorage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
