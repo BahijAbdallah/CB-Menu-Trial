@@ -121,6 +121,7 @@ This is a full-stack restaurant menu management system built with React, Express
 - August 8, 2025: Updated 8 menu items with professional food photography: Continental Breakfast, Honey Yogurt With Fruits, Oriental Breakfast, Tuna Tartar Crispy Rice, Salmon Sashimi, Artichoke Salad, Quinoa Fetta Frisee, and Buratta Salad
 - August 8, 2025: Updated 3 additional menu items with professional food photography: Chicken Breast (grilled with vegetables), Parmigiano Reggiano باذنجان (eggplant parmigiana), and Shrimps (grilled prawns with microgreens)
 - August 22, 2025: Implemented domain-based Coming Soon gate with hostname detection, preview bypass functionality, SEO protection (robots.txt and meta tags), and responsive design matching brand colors
+- November 21, 2025: Migrated image storage from ephemeral local disk to Replit Object Storage for production-ready persistence, ensuring uploaded images survive deployments and restarts with industry-standard cloud storage (99.999999999% durability)
 
 ## User Preferences
 
