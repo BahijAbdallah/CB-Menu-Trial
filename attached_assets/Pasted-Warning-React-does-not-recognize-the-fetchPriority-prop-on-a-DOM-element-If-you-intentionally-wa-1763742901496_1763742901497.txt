@@ -1,0 +1,40 @@
+Warning: React does not recognize the `fetchPriority` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `fetchpriority` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+    at img
+    at div
+    at div
+    at div
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-V54TMEDA.js?v=f27933dc:42:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YAPFW53C.js?v=f27933dc:59:7
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=f27933dc:79:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=f27933dc:56:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-V54TMEDA.js?v=f27933dc:42:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-3TFGXUFA.js?v=f27933dc:29:5
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=f27933dc:233:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=f27933dc:156:58
+    at Presence (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BKU5K62D.js?v=f27933dc:24:11)
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=f27933dc:147:64
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=f27933dc:79:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js?v=f27933dc:56:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-V54TMEDA.js?v=f27933dc:42:13
+    at https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YAPFW53C.js?v=f27933dc:258:22
+    at Presence (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BKU5K62D.js?v=f27933dc:24:11)
+    at Provider (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-M3NVYRND.js?v=f27933dc:48:15)
+    at DialogPortal (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=f27933dc:109:11)
+    at _c3 (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/src/components/ui/dialog.tsx:52:12)
+    at Provider (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-M3NVYRND.js?v=f27933dc:48:15)
+    at Dialog (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=f27933dc:50:5)
+    at MenuItemWithImage (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/src/components/menu-category.tsx:118:30)
+    at ul
+    at section
+    at MenuCategory (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/src/components/menu-category.tsx:399:40)
+    at section
+    at div
+    at div
+    at MenuPage (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/src/pages/menu.tsx:81:23)
+    at Route (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f27933dc:323:16)
+    at Switch (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f27933dc:379:17)
+    at Router (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/src/App.tsx?v=f3pABagiojgW4RJZzc10a:35:20)
+    at Provider (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-M3NVYRND.js?v=f27933dc:48:15)
+    at TooltipProvider (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f27933dc:59:5)
+    at QueryClientProvider (https://de101bdc-b194-45b0-b672-d6af04c8d17d-00-2b7c1boiy67o6.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=f27933dc:2805:3)
+    at App
