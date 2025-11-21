@@ -389,7 +389,9 @@ export default function AdminPage() {
                           <td className="py-4 px-2">
                             <div className="flex items-center space-x-3">
                               <img
-                                src={`${item.imageUrl || getDefaultImageForItem(getCategorySlug(item.categoryId), index)}?v=${dataUpdatedAt}`}
+                                src={item.imageUrl?.startsWith('/api/storage') 
+                                  ? item.imageUrl 
+                                  : `${item.imageUrl || getDefaultImageForItem(getCategorySlug(item.categoryId), index)}?v=${dataUpdatedAt}`}
                                 alt={item.name}
                                 className="w-12 h-12 rounded-lg object-cover"
                                 key={`${item.id}-${dataUpdatedAt}`}
