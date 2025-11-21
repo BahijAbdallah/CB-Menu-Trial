@@ -10,7 +10,7 @@ import fs from "fs";
 import "./types";
 import { importExcelMenu } from "./import-excel";
 import imgProxy from "./img-proxy";
-import { storageClient, generateImageFilename, getContentType } from "./storage-client";
+import { storageClient, generateImageFilename, getContentType, getCachedImage } from "./storage-client";
 
 // Simple token store for demo purposes
 const activeTokens = new Map<string, number>(); // token -> userId
@@ -171,30 +171,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve images from Object Storage
+  // Serve images from Object Storage with in-memory caching
   app.get("/api/storage/menu-items/:filename", async (req, res) => {
     try {
       const filename = `menu-items/${req.params.filename}`;
       
-      console.log('[Storage] Fetching image:', filename);
+      const { ok, buffer, error } = await getCachedImage(filename);
       
-      const { ok, value, error } = await storageClient.downloadAsBytes(filename);
-      
-      if (!ok) {
+      if (!ok || !buffer) {
         console.error('[Storage] Image not found:', error);
         return res.status(404).json({ message: "Image not found" });
       }
-      
-      // Object Storage returns data in an array wrapper - extract the actual bytes
-      const imageData = Array.isArray(value) ? value[0] : value;
       
       // Set appropriate content type and cache headers
       const contentType = getContentType(filename);
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
       
-      // Send the binary data
-      res.end(Buffer.from(imageData));
+      // Send the cached buffer
+      res.end(buffer);
     } catch (error) {
       console.error('[Storage] Error retrieving image:', error);
       res.status(500).json({ message: "Failed to retrieve image" });
