@@ -185,14 +185,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Image not found" });
       }
       
+      // Object Storage returns data in an array wrapper - extract the actual bytes
+      const imageData = Array.isArray(value) ? value[0] : value;
+      
       // Set appropriate content type and cache headers
       const contentType = getContentType(filename);
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
       
-      // Convert to Buffer if it's an array
-      const buffer = Buffer.isBuffer(value) ? value : Buffer.from(value);
-      res.end(buffer);
+      // Send the binary data
+      res.end(Buffer.from(imageData));
     } catch (error) {
       console.error('[Storage] Error retrieving image:', error);
       res.status(500).json({ message: "Failed to retrieve image" });
