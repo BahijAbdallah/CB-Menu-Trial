@@ -171,6 +171,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve images from Object Storage
+  app.get("/api/storage/menu-items/:filename", async (req, res) => {
+    try {
+      const filename = `menu-items/${req.params.filename}`;
+      
+      console.log('[Storage] Fetching image:', filename);
+      
+      const { ok, value, error } = await storageClient.downloadAsBytes(filename);
+      
+      if (!ok) {
+        console.error('[Storage] Image not found:', error);
+        return res.status(404).json({ message: "Image not found" });
+      }
+      
+      // Set appropriate content type and cache headers
+      const contentType = getContentType(filename);
+      res.set('Content-Type', contentType);
+      res.set('Cache-Control', 'public, max-age=31536000'); // 1 year cache
+      res.send(value);
+    } catch (error) {
+      console.error('[Storage] Error retrieving image:', error);
+      res.status(500).json({ message: "Failed to retrieve image" });
+    }
+  });
+
   app.get("/api/auth/me", (req, res) => {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '') || (req.session as any)?.authToken;
