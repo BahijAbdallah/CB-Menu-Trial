@@ -187,9 +187,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Set appropriate content type and cache headers
       const contentType = getContentType(filename);
-      res.set('Content-Type', contentType);
-      res.set('Cache-Control', 'public, max-age=31536000'); // 1 year cache
-      res.send(value);
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
+      
+      // Convert to Buffer if it's an array
+      const buffer = Buffer.isBuffer(value) ? value : Buffer.from(value);
+      res.end(buffer);
     } catch (error) {
       console.error('[Storage] Error retrieving image:', error);
       res.status(500).json({ message: "Failed to retrieve image" });
