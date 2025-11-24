@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import type { MenuItem, Category } from "@shared/schema";
+import type { MenuItem, MenuItemWithCategories, Category } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -146,7 +146,7 @@ function SortableItemRow({
 }
 
 interface AdminSortableItemsProps {
-  items: MenuItem[];
+  items: MenuItemWithCategories[];
   categories: Category[];
   dataUpdatedAt: number;
   selectedCategory: string;
@@ -207,8 +207,13 @@ export default function AdminSortableItems({
   const groupedItems = filteredCategories.map(category => {
     const localItems = localItemsByCategory[category.id];
     const categoryItems = localItems || items
-      .filter(item => item.categoryId === category.id)
-      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      .filter(item => item.categories.some(cat => cat.categoryId === category.id))
+      .sort((a, b) => {
+        // Get the displayOrder for this specific category from the junction table
+        const aOrder = a.categories.find(cat => cat.categoryId === category.id)?.displayOrder ?? 0;
+        const bOrder = b.categories.find(cat => cat.categoryId === category.id)?.displayOrder ?? 0;
+        return aOrder - bOrder;
+      });
     
     return {
       category,
@@ -223,8 +228,12 @@ export default function AdminSortableItems({
       if (over && active.id !== over.id) {
         setLocalItemsByCategory(currentLocal => {
           const serverItems = items
-            .filter(item => item.categoryId === categoryId)
-            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+            .filter(item => item.categories.some(cat => cat.categoryId === categoryId))
+            .sort((a, b) => {
+              const aOrder = a.categories.find(cat => cat.categoryId === categoryId)?.displayOrder ?? 0;
+              const bOrder = b.categories.find(cat => cat.categoryId === categoryId)?.displayOrder ?? 0;
+              return aOrder - bOrder;
+            });
           
           const categoryItems = currentLocal[categoryId] ?? serverItems;
           
