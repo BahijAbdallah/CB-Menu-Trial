@@ -290,7 +290,18 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         itemId = editingItem.id;
       } else {
         const response = await apiRequest("POST", "/api/menu-items", payload);
-        const newItem = await response.json();
+        
+        let newItem;
+        try {
+          newItem = await response.json();
+        } catch (error) {
+          throw new Error("Failed to parse server response. Please try again.");
+        }
+        
+        if (!newItem?.id || !Number.isFinite(newItem.id)) {
+          throw new Error("Server did not return a valid item ID. Please try again.");
+        }
+        
         itemId = newItem.id;
       }
       
