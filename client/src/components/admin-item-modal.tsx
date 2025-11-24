@@ -289,7 +289,8 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         await apiRequest("PUT", `/api/menu-items/${editingItem.id}`, payload);
         itemId = editingItem.id;
       } else {
-        const newItem: any = await apiRequest("POST", "/api/menu-items", payload);
+        const response = await apiRequest("POST", "/api/menu-items", payload);
+        const newItem = await response.json();
         itemId = newItem.id;
       }
       
