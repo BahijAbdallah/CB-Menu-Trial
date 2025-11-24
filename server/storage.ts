@@ -2,6 +2,7 @@ import {
   users, 
   categories, 
   menuItems,
+  menuItemCategories,
   halalCertificates,
   settings,
   type User, 
@@ -10,13 +11,16 @@ import {
   type InsertCategory,
   type MenuItem,
   type InsertMenuItem,
+  type MenuItemCategory,
+  type InsertMenuItemCategory,
+  type MenuItemWithCategories,
   type HalalCertificate,
   type InsertHalalCertificate,
   type Setting,
   type InsertSetting
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, asc, sql } from "drizzle-orm";
+import { eq, asc, sql, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -31,7 +35,7 @@ export interface IStorage {
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<boolean>;
 
-  // Menu item methods
+  // Menu item methods (legacy - still needed for backward compatibility)
   getMenuItems(): Promise<MenuItem[]>;
   getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]>;
   getMenuItemById(id: number): Promise<MenuItem | undefined>;
@@ -40,6 +44,14 @@ export interface IStorage {
   deleteMenuItem(id: number): Promise<boolean>;
   toggleMenuItemAvailability(id: number): Promise<MenuItem | undefined>;
   updateItemsDisplayOrder(categoryId: number, orderedItemIds: number[]): Promise<void>;
+
+  // Menu item - category association methods (new many-to-many)
+  getMenuItemsWithCategories(): Promise<MenuItemWithCategories[]>;
+  getItemCategories(itemId: number): Promise<MenuItemCategory[]>;
+  addItemToCategory(itemId: number, categoryId: number, displayOrder?: number): Promise<void>;
+  removeItemFromCategory(itemId: number, categoryId: number): Promise<void>;
+  updateItemCategoryOrder(itemId: number, categoryId: number, displayOrder: number): Promise<void>;
+  setItemCategories(itemId: number, categoryIds: number[]): Promise<void>;
 
   // Bulk operations
   clearAllMenuItems(): Promise<void>;
@@ -265,6 +277,7 @@ export class MemStorage implements IStorage {
     const newItem: MenuItem = { 
       ...item, 
       id,
+      categoryId: item.categoryId || null,
       nameArabic: item.nameArabic || null,
       nameFrench: item.nameFrench || null,
       description: item.description || null,
@@ -272,7 +285,7 @@ export class MemStorage implements IStorage {
       descriptionFrench: item.descriptionFrench || null,
       imageUrl: item.imageUrl || null,
       order: item.order || 0,
-      displayOrder: item.displayOrder || null,
+      displayOrder: null, // Always null initially, managed via junction table
       isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
       outOfStock: item.outOfStock || false,
       allergens: item.allergens || null
@@ -418,6 +431,31 @@ export class MemStorage implements IStorage {
     const current = await this.getItemOrderByCategory();
     delete current[categoryId];
     this.settings.set('itemOrderByCategory', JSON.stringify(current));
+  }
+
+  // Many-to-many category association methods - stub implementations for MemStorage
+  async getMenuItemsWithCategories(): Promise<MenuItemWithCategories[]> {
+    throw new Error("getMenuItemsWithCategories not implemented in MemStorage");
+  }
+
+  async getItemCategories(itemId: number): Promise<MenuItemCategory[]> {
+    throw new Error("getItemCategories not implemented in MemStorage");
+  }
+
+  async addItemToCategory(itemId: number, categoryId: number, displayOrder?: number): Promise<void> {
+    throw new Error("addItemToCategory not implemented in MemStorage");
+  }
+
+  async removeItemFromCategory(itemId: number, categoryId: number): Promise<void> {
+    throw new Error("removeItemFromCategory not implemented in MemStorage");
+  }
+
+  async updateItemCategoryOrder(itemId: number, categoryId: number, displayOrder: number): Promise<void> {
+    throw new Error("updateItemCategoryOrder not implemented in MemStorage");
+  }
+
+  async setItemCategories(itemId: number, categoryIds: number[]): Promise<void> {
+    throw new Error("setItemCategories not implemented in MemStorage");
   }
 }
 
@@ -654,6 +692,111 @@ export class DatabaseStorage implements IStorage {
     const current = await this.getItemOrderByCategory();
     delete current[categoryId];
     await this.setSetting('itemOrderByCategory', JSON.stringify(current));
+  }
+
+  // Many-to-many category association methods
+  async getMenuItemsWithCategories(): Promise<MenuItemWithCategories[]> {
+    // Get all menu items
+    const items = await db.select().from(menuItems).orderBy(
+      sql`${menuItems.displayOrder} NULLS LAST`,
+      asc(menuItems.order)
+    );
+
+    // Get all category associations
+    const associations = await db.select().from(menuItemCategories).orderBy(menuItemCategories.displayOrder);
+
+    // Group associations by itemId
+    const associationsByItem = new Map<number, Array<{ categoryId: number; displayOrder: number }>>();
+    for (const assoc of associations) {
+      if (!associationsByItem.has(assoc.itemId)) {
+        associationsByItem.set(assoc.itemId, []);
+      }
+      associationsByItem.get(assoc.itemId)!.push({
+        categoryId: assoc.categoryId,
+        displayOrder: assoc.displayOrder
+      });
+    }
+
+    // Combine items with their categories
+    return items.map(item => ({
+      ...item,
+      categories: associationsByItem.get(item.id) || []
+    }));
+  }
+
+  async getItemCategories(itemId: number): Promise<MenuItemCategory[]> {
+    return await db
+      .select()
+      .from(menuItemCategories)
+      .where(eq(menuItemCategories.itemId, itemId))
+      .orderBy(menuItemCategories.displayOrder);
+  }
+
+  async addItemToCategory(itemId: number, categoryId: number, displayOrder?: number): Promise<void> {
+    try {
+      await db
+        .insert(menuItemCategories)
+        .values({
+          itemId,
+          categoryId,
+          displayOrder: displayOrder ?? 0
+        });
+    } catch (error) {
+      // Handle duplicate entry error
+      if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
+        throw new Error(`Item ${itemId} is already associated with category ${categoryId}`);
+      }
+      throw error;
+    }
+  }
+
+  async removeItemFromCategory(itemId: number, categoryId: number): Promise<void> {
+    const result = await db
+      .delete(menuItemCategories)
+      .where(
+        and(
+          eq(menuItemCategories.itemId, itemId),
+          eq(menuItemCategories.categoryId, categoryId)
+        )
+      );
+    
+    if ((result.rowCount ?? 0) === 0) {
+      throw new Error(`No association found between item ${itemId} and category ${categoryId}`);
+    }
+  }
+
+  async updateItemCategoryOrder(itemId: number, categoryId: number, displayOrder: number): Promise<void> {
+    const result = await db
+      .update(menuItemCategories)
+      .set({ displayOrder })
+      .where(
+        and(
+          eq(menuItemCategories.itemId, itemId),
+          eq(menuItemCategories.categoryId, categoryId)
+        )
+      );
+    
+    if ((result.rowCount ?? 0) === 0) {
+      throw new Error(`No association found between item ${itemId} and category ${categoryId}`);
+    }
+  }
+
+  async setItemCategories(itemId: number, categoryIds: number[]): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Delete all existing associations for this item
+      await tx.delete(menuItemCategories).where(eq(menuItemCategories.itemId, itemId));
+      
+      // Insert new associations
+      if (categoryIds.length > 0) {
+        const values = categoryIds.map((categoryId, index) => ({
+          itemId,
+          categoryId,
+          displayOrder: index
+        }));
+        
+        await tx.insert(menuItemCategories).values(values);
+      }
+    });
   }
 }
 

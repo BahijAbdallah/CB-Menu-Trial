@@ -482,6 +482,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Multi-category endpoints
+  
+  // Get all menu items with their categories
+  app.get("/api/menu-items-with-categories", async (req, res) => {
+    try {
+      const items = await storage.getMenuItemsWithCategories();
+      res.json(items);
+    } catch (error) {
+      console.error('[Get Items With Categories] Error:', error);
+      res.status(500).json({ message: "Failed to fetch menu items with categories" });
+    }
+  });
+
+  // Get categories for a specific item
+  app.get("/api/menu-items/:id/categories", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const categories = await storage.getItemCategories(id);
+      res.json(categories);
+    } catch (error) {
+      console.error('[Get Item Categories] Error:', error);
+      res.status(500).json({ message: "Failed to fetch item categories" });
+    }
+  });
+
+  // Add item to category
+  app.post("/api/menu-items/:id/categories", requireAuth, async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const schema = z.object({
+        categoryId: z.number().int().positive(),
+        displayOrder: z.number().int().nonnegative().optional(),
+      });
+      
+      const { categoryId, displayOrder } = schema.parse(req.body);
+      await storage.addItemToCategory(itemId, categoryId, displayOrder);
+      
+      res.json({ message: "Item added to category successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      console.error('[Add Item To Category] Error:', error);
+      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to add item to category" });
+    }
+  });
+
+  // Remove item from category
+  app.delete("/api/menu-items/:id/categories/:categoryId", requireAuth, async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const categoryId = parseInt(req.params.categoryId);
+      
+      await storage.removeItemFromCategory(itemId, categoryId);
+      
+      res.json({ message: "Item removed from category successfully" });
+    } catch (error) {
+      console.error('[Remove Item From Category] Error:', error);
+      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to remove item from category" });
+    }
+  });
+
+  // Update item order within a category
+  app.patch("/api/menu-items/:id/categories/:categoryId/order", requireAuth, async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const categoryId = parseInt(req.params.categoryId);
+      const schema = z.object({
+        displayOrder: z.number().int().nonnegative(),
+      });
+      
+      const { displayOrder } = schema.parse(req.body);
+      await storage.updateItemCategoryOrder(itemId, categoryId, displayOrder);
+      
+      res.json({ message: "Item order updated successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      console.error('[Update Item Category Order] Error:', error);
+      res.status(500).json({ message: "Failed to update item order" });
+    }
+  });
+
+  // Set all categories for an item
+  app.put("/api/menu-items/:id/categories", requireAuth, async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const schema = z.object({
+        categoryIds: z.array(z.number().int().positive()),
+      });
+      
+      const { categoryIds } = schema.parse(req.body);
+      await storage.setItemCategories(itemId, categoryIds);
+      
+      res.json({ message: "Item categories updated successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      console.error('[Set Item Categories] Error:', error);
+      res.status(500).json({ message: "Failed to update item categories" });
+    }
+  });
+
   // Stats endpoint for admin dashboard
   app.get("/api/stats", requireAuth, async (req, res) => {
     try {

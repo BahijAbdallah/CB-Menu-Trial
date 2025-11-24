@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, varchar, timestamp, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -20,7 +20,7 @@ export const menuItems = pgTable("menu_items", {
   descriptionArabic: text("description_arabic"),
   descriptionFrench: text("description_french"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  categoryId: integer("category_id").notNull(),
+  categoryId: integer("category_id"), // Made nullable for backward compatibility during migration
   imageUrl: text("image_url"),
   isAvailable: boolean("is_available").notNull().default(true),
   outOfStock: boolean("out_of_stock").notNull().default(false),
@@ -29,11 +29,26 @@ export const menuItems = pgTable("menu_items", {
   allergens: text("allergens").default("[]"),
 });
 
+// Junction table for many-to-many relationship between menu items and categories
+export const menuItemCategories = pgTable("menu_item_categories", {
+  id: serial("id").primaryKey(),
+  itemId: integer("item_id").notNull(),
+  categoryId: integer("category_id").notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+}, (table) => ({
+  uniq: unique().on(table.itemId, table.categoryId),
+}));
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
 });
 
 export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
+  id: true,
+  displayOrder: true, // Managed by backend
+});
+
+export const insertMenuItemCategorySchema = createInsertSchema(menuItemCategories).omit({
   id: true,
 });
 
@@ -41,6 +56,13 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type MenuItem = typeof menuItems.$inferSelect;
+export type InsertMenuItemCategory = z.infer<typeof insertMenuItemCategorySchema>;
+export type MenuItemCategory = typeof menuItemCategories.$inferSelect;
+
+// Extended type for menu item with its categories
+export type MenuItemWithCategories = MenuItem & {
+  categories: Array<{ categoryId: number; displayOrder: number }>;
+};
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
