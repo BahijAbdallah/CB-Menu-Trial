@@ -383,6 +383,7 @@ export default function AdminPage() {
                     items={filteredItems}
                     categories={categories}
                     dataUpdatedAt={dataUpdatedAt}
+                    selectedCategory={selectedCategory}
                     onEdit={handleEdit}
                     onDuplicate={handleDuplicate}
                     onDelete={handleDelete}

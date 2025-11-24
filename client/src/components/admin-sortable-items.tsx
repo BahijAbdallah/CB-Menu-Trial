@@ -149,6 +149,7 @@ interface AdminSortableItemsProps {
   items: MenuItem[];
   categories: Category[];
   dataUpdatedAt: number;
+  selectedCategory: string;
   onEdit: (item: MenuItem) => void;
   onDuplicate: (item: MenuItem) => void;
   onDelete: (id: number) => void;
@@ -164,6 +165,7 @@ export default function AdminSortableItems({
   items,
   categories,
   dataUpdatedAt,
+  selectedCategory,
   onEdit,
   onDuplicate,
   onDelete,
@@ -197,7 +199,12 @@ export default function AdminSortableItems({
     })
   );
 
-  const groupedItems = categories.map(category => {
+  // Filter categories based on selectedCategory
+  const filteredCategories = selectedCategory === "all" 
+    ? categories 
+    : categories.filter(cat => cat.slug === selectedCategory);
+  
+  const groupedItems = filteredCategories.map(category => {
     const localItems = localItemsByCategory[category.id];
     const categoryItems = localItems || items
       .filter(item => item.categoryId === category.id)
@@ -252,7 +259,7 @@ export default function AdminSortableItems({
           reorderedItems.forEach(item => {
             allReorderedItems.push({
               id: item.id,
-              displayOrder: item.displayOrder
+              displayOrder: item.displayOrder ?? 0
             });
           });
         }
@@ -309,8 +316,8 @@ export default function AdminSortableItems({
   return (
     <div className="space-y-4">
       {hasDirtyChanges && (
-        <div className="sticky top-0 z-10 bg-amber-50 border border-amber-200 rounded-lg p-4 shadow-md">
-          <div className="flex items-center justify-between">
+        <div className="sticky top-0 z-50 bg-amber-50 border border-amber-200 rounded-lg p-4 shadow-lg mb-4 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
               <div className="bg-amber-500 rounded-full p-2">
                 <GripVertical className="h-5 w-5 text-white" />
@@ -335,7 +342,7 @@ export default function AdminSortableItems({
               <Button
                 onClick={handleSaveChanges}
                 disabled={isSaving}
-                className="bg-brand-green text-white hover:bg-brand-green/90"
+                className="bg-emerald-600 text-white hover:bg-emerald-700 shadow-md font-semibold"
               >
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
