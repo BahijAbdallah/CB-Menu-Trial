@@ -28,6 +28,7 @@ This is a full-stack restaurant menu management system built with React, Express
 ### Database Schema
 - **Categories Table**: Stores menu categories with bilingual names and ordering
 - **Menu Items Table**: Stores individual menu items with prices, descriptions, and availability
+- **Menu Item Categories Table**: Junction table for many-to-many relationship between items and categories (allows items to appear in multiple categories)
 - **Users Table**: Admin authentication with username/password
 
 ## Key Components
@@ -122,6 +123,10 @@ This is a full-stack restaurant menu management system built with React, Express
 - August 8, 2025: Updated 3 additional menu items with professional food photography: Chicken Breast (grilled with vegetables), Parmigiano Reggiano باذنجان (eggplant parmigiana), and Shrimps (grilled prawns with microgreens)
 - August 22, 2025: Implemented domain-based Coming Soon gate with hostname detection, preview bypass functionality, SEO protection (robots.txt and meta tags), and responsive design matching brand colors
 - November 21, 2025: Migrated image storage from ephemeral local disk to Replit Object Storage for production-ready persistence, ensuring uploaded images survive deployments and restarts with industry-standard cloud storage (99.999999999% durability)
+- November 24, 2025: Converted from single-category to many-to-many category system - menu items can now belong to multiple categories simultaneously
+- November 24, 2025: Created junction table (menu_item_categories) with per-category display ordering
+- November 24, 2025: Added new API endpoints for managing item-category associations (add, remove, reorder)
+- November 24, 2025: Implemented batch save UX for drag-and-drop reordering with sticky save banner and vibrant green save button
 
 ## User Preferences
 
