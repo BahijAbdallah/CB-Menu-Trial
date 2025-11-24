@@ -19,7 +19,7 @@ import AdminCategoryModal from "@/components/admin-category-modal";
 import AdminHalalCertificatesSection from "@/components/admin-halal-certificates-section";
 import AdminCategoryOrderSection from "@/components/admin-category-order-section";
 import AdminSortableItems from "@/components/admin-sortable-items";
-import type { Category, MenuItem } from "@shared/schema";
+import type { Category, MenuItem, MenuItemWithCategories } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -47,8 +47,9 @@ export default function AdminPage() {
     queryKey: ["/api/categories"],
   });
 
-  const { data: menuItems = [], isLoading, dataUpdatedAt } = useQuery<MenuItem[]>({
-    queryKey: ["/api/menu-items"],
+  // Fetch items with their category associations from junction table
+  const { data: menuItems = [], isLoading, dataUpdatedAt } = useQuery<MenuItemWithCategories[]>({
+    queryKey: ["/api/menu-items-with-categories"],
   });
 
   const toggleAvailabilityMutation = useMutation({
@@ -61,7 +62,7 @@ export default function AdminPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items-with-categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
@@ -86,7 +87,7 @@ export default function AdminPage() {
       if (!response.ok) throw new Error("Failed to delete item");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items-with-categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
@@ -116,7 +117,7 @@ export default function AdminPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items-with-categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
@@ -149,7 +150,7 @@ export default function AdminPage() {
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items-with-categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
@@ -176,8 +177,12 @@ export default function AdminPage() {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
+    // Check if item belongs to the selected category (using junction table data)
     const matchesCategory = selectedCategory === "all" || 
-                           categories.find(cat => cat.id === item.categoryId)?.slug === selectedCategory;
+                           item.categories.some(cat => {
+                             const category = categories.find(c => c.id === cat.categoryId);
+                             return category?.slug === selectedCategory;
+                           });
     
     const matchesStatus = selectedStatus === "all" ||
                          (selectedStatus === "available" && item.isAvailable) ||

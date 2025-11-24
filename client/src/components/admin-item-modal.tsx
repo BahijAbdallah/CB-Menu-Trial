@@ -313,7 +313,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       return { id: itemId };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/menu-items-with-categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
