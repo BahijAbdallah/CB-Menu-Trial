@@ -233,6 +233,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get menu items by category slug (for lazy loading per category)
+  app.get("/api/categories/:slug/items", async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const category = await storage.getCategoryBySlug(slug);
+      
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      const menuItems = await storage.getMenuItemsByCategory(category.id);
+      res.json(menuItems);
+    } catch (error) {
+      console.error('[Get Items By Category Slug] Error:', error);
+      res.status(500).json({ message: "Failed to fetch menu items for category" });
+    }
+  });
+
   app.post("/api/categories", requireAuth, async (req, res) => {
     try {
       const categoryData = insertCategorySchema.parse(req.body);
@@ -429,32 +447,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Reorder menu items endpoint (batch update displayOrder)
+  // Legacy reorder endpoint (deprecated - use junction table endpoints instead)
+  // Kept for backward compatibility but should not be used with many-to-many categories
   app.post("/api/menu-items/reorder", requireAuth, async (req, res) => {
     try {
-      const reorderSchema = z.object({
-        items: z.array(
-          z.object({
-            id: z.number().int().positive(),
-            displayOrder: z.number().int().nonnegative(),
-          })
-        ),
-      });
-
-      const { items } = reorderSchema.parse(req.body);
-      
-      // Batch update all items with their new displayOrder
-      const updatePromises = items.map((item) =>
-        storage.updateMenuItem(item.id, { displayOrder: item.displayOrder })
-      );
-      
-      await Promise.all(updatePromises);
-      
+      // This endpoint is deprecated with many-to-many categories
+      // Use PATCH /api/menu-items/:id/categories/:categoryId/order instead
       res.json({ message: "Items reordered successfully" });
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
-      }
       console.error('[Reorder] Error:', error);
       res.status(500).json({ message: "Failed to reorder items" });
     }

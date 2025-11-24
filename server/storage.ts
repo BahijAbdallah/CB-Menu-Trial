@@ -31,6 +31,7 @@ export interface IStorage {
   // Category methods
   getCategories(): Promise<Category[]>;
   getCategoryById(id: number): Promise<Category | undefined>;
+  getCategoryBySlug(slug: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<boolean>;
@@ -217,6 +218,10 @@ export class MemStorage implements IStorage {
 
   async getCategoryById(id: number): Promise<Category | undefined> {
     return this.categories.get(id);
+  }
+
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    return Array.from(this.categories.values()).find(cat => cat.slug === slug);
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
@@ -485,6 +490,11 @@ export class DatabaseStorage implements IStorage {
 
   async getCategoryById(id: number): Promise<Category | undefined> {
     const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
+  }
+
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.slug, slug));
     return category || undefined;
   }
 

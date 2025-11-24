@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 
@@ -83,13 +84,21 @@ export default function MenuPage() {
     refetchOnWindowFocus: true,
   });
 
+  // Fetch only active category items (lazy loading)
   const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
     MenuItem[]
   >({
-    queryKey: ["/api/menu-items"],
+    queryKey: ["/api/categories", activeCategory, "items"],
+    queryFn: async () => {
+      if (!activeCategory) return [];
+      const response = await fetch(`/api/categories/${activeCategory}/items`);
+      if (!response.ok) throw new Error("Failed to fetch menu items");
+      return response.json();
+    },
+    enabled: !!activeCategory, // Only fetch when we have an active category
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
-    staleTime: 0, // Always consider data stale to ensure fresh data
+    staleTime: 0,
   });
 
   // Apply category ordering based on settings
@@ -330,15 +339,8 @@ export default function MenuPage() {
     (cat) => cat.slug === activeCategory,
   );
   
-  // Filter items for active category - ordering is handled by backend
-  const categoryItems = useMemo(() => {
-    if (!activeCategoryData) return [];
-    
-    // Backend already returns items ordered by display_order ASC NULLS LAST, then order ASC
-    const filtered = menuItems.filter((item) => item.categoryId === activeCategoryData.id);
-    console.log(`[Menu] Category "${activeCategoryData.name}" has ${filtered.length} items:`, filtered.map(i => ({ id: i.id, name: i.name })));
-    return filtered;
-  }, [menuItems, activeCategoryData]);
+  // Items are already filtered by backend for active category
+  const categoryItems = menuItems;
 
   if (categoriesLoading || menuItemsLoading) {
     return (
@@ -452,10 +454,30 @@ export default function MenuPage() {
                 COLOR_CYCLE[i % COLOR_CYCLE.length];
               const isActive = category.slug === activeCategory;
 
+              const handleMouseEnter = () => {
+                // Prefetch this category's items when hovering (if not already loaded and not currently loading)
+                const queryKey = ["/api/categories", category.slug, "items"];
+                const cachedData = queryClient.getQueryData(queryKey);
+                
+                // Skip if already cached, already active, or categories still loading
+                if (!cachedData && category.slug !== activeCategory && !categoriesLoading) {
+                  queryClient.prefetchQuery({
+                    queryKey,
+                    queryFn: async () => {
+                      const response = await fetch(`/api/categories/${category.slug}/items`);
+                      if (!response.ok) throw new Error("Failed to prefetch menu items");
+                      return response.json();
+                    },
+                    staleTime: 30000, // Keep prefetched data for 30s
+                  });
+                }
+              };
+
               return (
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.slug)}
+                  onMouseEnter={handleMouseEnter}
                   className={`menu-tab variant-${tone} category-btn ${isActive ? "is-active" : ""}`}
                   data-category={category.slug}
                 >

@@ -26,6 +26,7 @@ import type { MenuItem, MenuItemWithCategories, Category } from "@shared/schema"
 import { cn } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import LazyImage from "@/components/lazy-image";
 
 interface SortableItemRowProps {
   item: MenuItem;
@@ -80,10 +81,13 @@ function SortableItemRow({
       </td>
       <td className="py-4 px-2">
         <div className="flex items-center space-x-3">
-          <img
+          <LazyImage
             src={imageUrl}
             alt={item.name}
-            className="w-12 h-12 rounded-lg object-cover"
+            className="w-full h-full object-cover"
+            wrapperClassName="w-12 h-12 rounded-lg"
+            width={48}
+            height={48}
           />
           <div>
             <p className="font-medium text-brand-green">{item.name}</p>
