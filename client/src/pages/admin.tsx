@@ -18,8 +18,10 @@ import AdminCategoriesSection from "@/components/admin-categories-section";
 import AdminCategoryModal from "@/components/admin-category-modal";
 import AdminHalalCertificatesSection from "@/components/admin-halal-certificates-section";
 import AdminCategoryOrderSection from "@/components/admin-category-order-section";
+import AdminSortableItems from "@/components/admin-sortable-items";
 import type { Category, MenuItem } from "@shared/schema";
 import { getDefaultImageForItem } from "@/lib/menu-data";
+import { apiRequest } from "@/lib/queryClient";
 
 
 
@@ -371,97 +373,26 @@ export default function AdminPage() {
                   </Select>
                 </div>
 
-                {/* Menu Items Management Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-brand-green/20">
-                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Item</th>
-                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Category</th>
-                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Price</th>
-                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Status</th>
-                        <th className="text-left py-4 px-2 font-semibold text-brand-green">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredItems.map((item, index) => (
-                        <tr key={item.id} className="border-b border-brand-green/10 hover:bg-brand-cream/30">
-                          <td className="py-4 px-2">
-                            <div className="flex items-center space-x-3">
-                              <img
-                                src={item.imageUrl?.startsWith('/api/storage') 
-                                  ? item.imageUrl 
-                                  : `${item.imageUrl || getDefaultImageForItem(getCategorySlug(item.categoryId), index)}?v=${dataUpdatedAt}`}
-                                alt={item.name}
-                                className="w-12 h-12 rounded-lg object-cover"
-                                key={`${item.id}-${dataUpdatedAt}`}
-                              />
-                              <div>
-                                <p className="font-medium text-brand-green">{item.name}</p>
-                                <p className="text-sm text-brand-green/70 line-clamp-1">
-                                  {item.description || "No description"}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-2">
-                            <Badge variant="secondary" className="bg-brand-coral/20 text-brand-coral">
-                              {getCategoryName(item.categoryId)}
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-2">
-                            <span className="font-semibold text-brand-green">${item.price}</span>
-                          </td>
-                          <td className="py-4 px-2">
-                            <Switch
-                              checked={item.isAvailable}
-                              onCheckedChange={() => toggleAvailabilityMutation.mutate(item.id)}
-                              disabled={toggleAvailabilityMutation.isPending}
-                            />
-                          </td>
-                          <td className="py-4 px-2">
-                            <div className="flex space-x-2">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleEdit(item)}
-                                className="text-brand-green hover:bg-brand-green/10"
-                                data-testid={`button-edit-${item.id}`}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDuplicate(item)}
-                                className="text-blue-600 hover:bg-blue-50"
-                                disabled={duplicateItemMutation.isPending}
-                                data-testid={`button-duplicate-${item.id}`}
-                              >
-                                Duplicate
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDelete(item.id)}
-                                className="text-brand-coral hover:bg-brand-coral/10"
-                                disabled={deleteItemMutation.isPending}
-                                data-testid={`button-delete-${item.id}`}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {filteredItems.length === 0 && (
+                {/* Drag-and-Drop Sortable Menu Items */}
+                {filteredItems.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-brand-green text-lg">No menu items found matching your criteria.</p>
                   </div>
+                ) : (
+                  <AdminSortableItems
+                    items={filteredItems}
+                    categories={categories}
+                    dataUpdatedAt={dataUpdatedAt}
+                    onEdit={handleEdit}
+                    onDuplicate={handleDuplicate}
+                    onDelete={handleDelete}
+                    onToggleAvailability={(id) => toggleAvailabilityMutation.mutate(id)}
+                    getCategoryName={getCategoryName}
+                    getDefaultImage={getDefaultImageForItem}
+                    isToggling={toggleAvailabilityMutation.isPending}
+                    isDuplicating={duplicateItemMutation.isPending}
+                    isDeleting={deleteItemMutation.isPending}
+                  />
                 )}
               </CardContent>
             </Card>
