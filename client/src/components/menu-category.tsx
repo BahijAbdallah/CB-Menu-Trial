@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import LazyImage from "@/components/lazy-image";
 
 // Helper function to safely encode image URLs for filenames with special characters
 function getEncodedImageUrl(imageUrl: string | null | undefined): string | null {
@@ -104,8 +105,17 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   const { t } = useTranslation();
   const locale = useLocale();
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Reset imageError only when the ORIGINAL image loads successfully (not the fallback)
+  // This prevents infinite retry loops while still allowing recovery from transient failures
+  const handleImageLoad = (loadedSrc: string) => {
+    const originalImageUrl = getEncodedImageUrl(item.imageUrl);
+    // Only clear error if the original image (not the fallback) loaded successfully
+    if (imageError && originalImageUrl && loadedSrc.includes(originalImageUrl)) {
+      setImageError(false);
+    }
+  };
   
   // Get translated content with fallback to English
   const itemName = getTranslatedItemName(item, locale);
@@ -114,17 +124,19 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
   
-  // Add cache-busting timestamp to prevent stale cached images
-  const cacheBuster = Date.now();
-  
+  // Use fallback image if imageError is true or no image URL provided
   const imageUrl = (item.imageUrl && !imageError) 
     ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) 
     : getDefaultImageForItem(category.slug, index);
   
-  // High-resolution image for modal - use original URL with high-res flag and cache-busting
-  const highResImageUrl = item.imageUrl 
-    ? `${getEncodedImageUrl(item.imageUrl) || imageUrl}?highres=true&t=${cacheBuster}`
-    : `${imageUrl}?highres=true&t=${cacheBuster}`;
+  // High-resolution image for modal - use stable cache key based on item ID
+  // Falls back to default image if imageError is true
+  const highResImageUrl = useMemo(() => {
+    const baseUrl = (item.imageUrl && !imageError)
+      ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index))
+      : getDefaultImageForItem(category.slug, index);
+    return `${baseUrl}?highres=true&item=${item.id}`;
+  }, [item.id, item.imageUrl, imageError, category.slug, index]);
   
   return (
     <>
@@ -134,23 +146,15 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
         data-testid={`menu-card-${item.id}`}
       >
       <div className="thumb-wrap">
-        {!imageLoaded && (
-          <div className="menu-thumb bg-gray-200 animate-pulse flex items-center justify-center">
-            <div className="text-gray-500 text-xs">Loading...</div>
-          </div>
-        )}
-        <img 
-          className={`menu-thumb ${!imageLoaded ? 'hidden' : ''}`}
+        <LazyImage
           src={imageUrl}
           alt={itemName}
-          loading="lazy"
-          width="176"
-          height="152"
-          onLoad={() => setImageLoaded(true)}
-          onError={() => {
-            setImageError(true);
-            setImageLoaded(true);
-          }}
+          className="menu-thumb"
+          wrapperClassName="rounded-lg"
+          width={176}
+          height={152}
+          onLoad={handleImageLoad}
+          onError={() => setImageError(true)}
         />
       </div>
       <div className="menu-meta">
@@ -198,14 +202,11 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
           <div className="grid md:grid-cols-2 gap-0">
             {/* Left side - Large High-Resolution Image */}
             <div className="relative h-[400px] md:h-[500px] bg-white">
-              <img 
+              <LazyImage
                 src={highResImageUrl}
                 alt={itemName}
                 className="w-full h-full object-cover"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                wrapperClassName="w-full h-full"
               />
             </div>
 
