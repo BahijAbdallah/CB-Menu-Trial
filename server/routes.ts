@@ -429,7 +429,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Sort items endpoint for reordering
+  // Reorder menu items endpoint (batch update displayOrder)
+  app.post("/api/menu-items/reorder", requireAuth, async (req, res) => {
+    try {
+      const reorderSchema = z.object({
+        items: z.array(
+          z.object({
+            id: z.number().int().positive(),
+            displayOrder: z.number().int().nonnegative(),
+          })
+        ),
+      });
+
+      const { items } = reorderSchema.parse(req.body);
+      
+      // Batch update all items with their new displayOrder
+      const updatePromises = items.map((item) =>
+        storage.updateMenuItem(item.id, { displayOrder: item.displayOrder })
+      );
+      
+      await Promise.all(updatePromises);
+      
+      res.json({ message: "Items reordered successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      console.error('[Reorder] Error:', error);
+      res.status(500).json({ message: "Failed to reorder items" });
+    }
+  });
+
+  // Sort items endpoint for reordering (legacy - kept for compatibility)
   app.post("/api/items/sort", requireAuth, async (req, res) => {
     try {
       const sortSchema = z.object({
