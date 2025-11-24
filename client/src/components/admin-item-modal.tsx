@@ -25,7 +25,7 @@ const formSchema = z.object({
   descriptionArabic: z.string().optional(),
   descriptionFrench: z.string().optional(),
   price: z.string().min(1, "Price is required").regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
-  categoryId: z.number().min(1, "Category is required"),
+  categoryIds: z.array(z.number()).min(1, "At least one category is required"),
   imageUrl: z.string().optional(),
   isAvailable: z.boolean().default(true),
   outOfStock: z.boolean().default(false),
@@ -46,6 +46,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [itemCategoryIds, setItemCategoryIds] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -59,7 +60,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       descriptionArabic: "",
       descriptionFrench: "",
       price: "",
-      categoryId: 0,
+      categoryIds: [],
       imageUrl: "",
       isAvailable: true,
       outOfStock: false,
@@ -69,55 +70,104 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
   });
 
   useEffect(() => {
-    if (editingItem) {
-      // Parse allergens from JSON string or use array directly
-      let allergens: AllergenSlug[] = [];
-      if (editingItem.allergens) {
-        if (typeof editingItem.allergens === 'string') {
-          try {
-            allergens = JSON.parse(editingItem.allergens);
-          } catch {
-            allergens = [];
+    const loadItemCategories = async () => {
+      if (editingItem) {
+        try {
+          const response = await fetch(`/api/menu-items/${editingItem.id}/categories`);
+          if (response.ok) {
+            const categoryData = await response.json();
+            const categoryIds = categoryData.map((c: any) => c.categoryId);
+            setItemCategoryIds(categoryIds);
+            
+            // Parse allergens from JSON string or use array directly
+            let allergens: AllergenSlug[] = [];
+            if (editingItem.allergens) {
+              if (typeof editingItem.allergens === 'string') {
+                try {
+                  allergens = JSON.parse(editingItem.allergens);
+                } catch {
+                  allergens = [];
+                }
+              } else {
+                allergens = editingItem.allergens;
+              }
+            }
+            
+            form.reset({
+              name: editingItem.name,
+              nameArabic: editingItem.nameArabic || "",
+              nameFrench: editingItem.nameFrench || "",
+              description: editingItem.description || "",
+              descriptionArabic: editingItem.descriptionArabic || "",
+              descriptionFrench: editingItem.descriptionFrench || "",
+              price: editingItem.price,
+              categoryIds: categoryIds,
+              imageUrl: editingItem.imageUrl || "",
+              isAvailable: editingItem.isAvailable,
+              outOfStock: editingItem.outOfStock || false,
+              displayOrder: editingItem.displayOrder ? editingItem.displayOrder.toString() : "",
+              allergens: allergens,
+            });
+            setImagePreview(editingItem.imageUrl || "");
           }
-        } else {
-          allergens = editingItem.allergens;
+        } catch (error) {
+          console.error('Failed to load item categories:', error);
+          // Fallback to legacy categoryId if available
+          const categoryIds = editingItem.categoryId ? [editingItem.categoryId] : [];
+          setItemCategoryIds(categoryIds);
+          
+          let allergens: AllergenSlug[] = [];
+          if (editingItem.allergens) {
+            if (typeof editingItem.allergens === 'string') {
+              try {
+                allergens = JSON.parse(editingItem.allergens);
+              } catch {
+                allergens = [];
+              }
+            } else {
+              allergens = editingItem.allergens;
+            }
+          }
+          
+          form.reset({
+            name: editingItem.name,
+            nameArabic: editingItem.nameArabic || "",
+            nameFrench: editingItem.nameFrench || "",
+            description: editingItem.description || "",
+            descriptionArabic: editingItem.descriptionArabic || "",
+            descriptionFrench: editingItem.descriptionFrench || "",
+            price: editingItem.price,
+            categoryIds: categoryIds,
+            imageUrl: editingItem.imageUrl || "",
+            isAvailable: editingItem.isAvailable,
+            outOfStock: editingItem.outOfStock || false,
+            displayOrder: editingItem.displayOrder ? editingItem.displayOrder.toString() : "",
+            allergens: allergens,
+          });
+          setImagePreview(editingItem.imageUrl || "");
         }
+      } else {
+        setItemCategoryIds([]);
+        form.reset({
+          name: "",
+          nameArabic: "",
+          nameFrench: "",
+          description: "",
+          descriptionArabic: "",
+          descriptionFrench: "",
+          price: "",
+          categoryIds: [],
+          imageUrl: "",
+          isAvailable: true,
+          outOfStock: false,
+          displayOrder: "",
+          allergens: [],
+        });
+        setImagePreview("");
       }
-      
-      form.reset({
-        name: editingItem.name,
-        nameArabic: editingItem.nameArabic || "",
-        nameFrench: editingItem.nameFrench || "",
-        description: editingItem.description || "",
-        descriptionArabic: editingItem.descriptionArabic || "",
-        descriptionFrench: editingItem.descriptionFrench || "",
-        price: editingItem.price,
-        categoryId: editingItem.categoryId,
-        imageUrl: editingItem.imageUrl || "",
-        isAvailable: editingItem.isAvailable,
-        outOfStock: editingItem.outOfStock || false,
-        displayOrder: editingItem.displayOrder ? editingItem.displayOrder.toString() : "",
-        allergens: allergens,
-      });
-      setImagePreview(editingItem.imageUrl || "");
-    } else {
-      form.reset({
-        name: "",
-        nameArabic: "",
-        nameFrench: "",
-        description: "",
-        descriptionArabic: "",
-        descriptionFrench: "",
-        price: "",
-        categoryId: 0,
-        imageUrl: "",
-        isAvailable: true,
-        outOfStock: false,
-        displayOrder: "",
-        allergens: [],
-      });
-      setImagePreview("");
-    }
+    };
+    
+    loadItemCategories();
   }, [editingItem, form]);
 
   // Image upload functionality
@@ -127,10 +177,17 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       const formData = new FormData();
       formData.append('image', file);
       
+      const token = localStorage.getItem('token');
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers,
       });
       
       if (!response.ok) {
@@ -208,6 +265,7 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
         descriptionFrench: data.descriptionFrench || null,
         displayOrder: displayOrder,
         allergens: JSON.stringify(data.allergens),
+        categoryId: data.categoryIds.length > 0 ? data.categoryIds[0] : null, // For backward compatibility
       };
 
       // Handle imageUrl properly - only include when changed
@@ -225,11 +283,22 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
       }
       // If editing and no imageUrl change, don't include it in payload (preserve existing)
 
+      let itemId: number;
+      
       if (editingItem) {
-        return apiRequest("PUT", `/api/menu-items/${editingItem.id}`, payload);
+        await apiRequest("PUT", `/api/menu-items/${editingItem.id}`, payload);
+        itemId = editingItem.id;
       } else {
-        return apiRequest("POST", "/api/menu-items", payload);
+        const newItem: any = await apiRequest("POST", "/api/menu-items", payload);
+        itemId = newItem.id;
       }
+      
+      // Update categories using the junction table API
+      await apiRequest("PUT", `/api/menu-items/${itemId}/categories`, {
+        categoryIds: data.categoryIds,
+      });
+      
+      return { id: itemId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
@@ -443,35 +512,46 @@ export default function AdminItemModal({ isOpen, onClose, editingItem, categorie
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      value={field.value.toString()}
-                      onValueChange={(value) => field.onChange(parseInt(value))}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Categories Multi-Select */}
+            <FormField
+              control={form.control}
+              name="categoryIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-semibold">Categories</FormLabel>
+                  <div className="text-sm text-gray-600 mb-3">
+                    Select all categories where this item should appear
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {categories.map((category) => (
+                      <label
+                        key={category.id}
+                        className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                          field.value.includes(category.id)
+                            ? 'bg-brand-green/10 border-brand-green'
+                            : 'bg-white border-gray-200 hover:border-brand-green/50'
+                        }`}
+                      >
+                        <Checkbox
+                          checked={field.value.includes(category.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange([...field.value, category.id]);
+                            } else {
+                              field.onChange(field.value.filter((id) => id !== category.id));
+                            }
+                          }}
+                        />
+                        <span className="text-sm font-medium">{category.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <div className="grid md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="price"

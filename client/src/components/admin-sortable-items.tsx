@@ -411,11 +411,11 @@ export default function AdminSortableItems({
                           <SortableItemRow
                             key={item.id}
                             item={item}
-                            categoryName={getCategoryName(item.categoryId)}
+                            categoryName={getCategoryName(item.categoryId || 0)}
                             imageUrl={
                               item.imageUrl?.startsWith('/api/storage')
                                 ? item.imageUrl
-                                : `${item.imageUrl || getDefaultImage(getCategorySlug(item.categoryId), index)}?v=${dataUpdatedAt}`
+                                : `${item.imageUrl || getDefaultImage(getCategorySlug(item.categoryId || 0), index)}?v=${dataUpdatedAt}`
                             }
                             onEdit={onEdit}
                             onDuplicate={onDuplicate}
