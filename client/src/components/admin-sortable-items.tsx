@@ -259,31 +259,31 @@ export default function AdminSortableItems({
   const handleSaveChanges = async () => {
     setIsSaving(true);
     try {
-      // Flatten all reordered items from all dirty categories into a single array
-      const allReorderedItems: Array<{id: number, displayOrder: number}> = [];
+      let totalUpdates = 0;
       
-      Array.from(dirtyCategories).forEach(categoryId => {
+      // Update display order in junction table for each category
+      for (const categoryId of Array.from(dirtyCategories)) {
         const reorderedItems = localItemsByCategory[categoryId];
         if (reorderedItems) {
-          reorderedItems.forEach(item => {
-            allReorderedItems.push({
-              id: item.id,
-              displayOrder: item.displayOrder ?? 0
-            });
-          });
+          // Update each item's display order within this specific category
+          for (const item of reorderedItems) {
+            await apiRequest(
+              'PATCH', 
+              `/api/menu-items/${item.id}/categories/${categoryId}/order`,
+              { displayOrder: item.displayOrder ?? 0 }
+            );
+            totalUpdates++;
+          }
         }
-      });
+      }
       
-      // Send all updates in a single request to avoid race conditions
-      if (allReorderedItems.length > 0) {
-        await apiRequest('POST', '/api/menu-items/reorder', { items: allReorderedItems });
-        
-        // Invalidate cache once after successful batch save
-        await queryClient.invalidateQueries({ queryKey: ['/api/menu-items'] });
+      // Invalidate cache once after all updates
+      if (totalUpdates > 0) {
+        await queryClient.invalidateQueries({ queryKey: ['/api/menu-items-with-categories'] });
         
         toast({
           title: "Changes saved",
-          description: `Successfully updated ${allReorderedItems.length} item${allReorderedItems.length === 1 ? '' : 's'} across ${dirtyCategories.size} categor${dirtyCategories.size === 1 ? 'y' : 'ies'}`,
+          description: `Successfully updated ${totalUpdates} item${totalUpdates === 1 ? '' : 's'} across ${dirtyCategories.size} categor${dirtyCategories.size === 1 ? 'y' : 'ies'}`,
         });
       }
       
