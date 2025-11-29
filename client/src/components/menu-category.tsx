@@ -39,85 +39,58 @@ function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProp
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [needsTruncation, setNeedsTruncation] = useState(false);
-  const [isMeasured, setIsMeasured] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLParagraphElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
   
   useEffect(() => {
-    // Reset measurement when text changes
-    setIsMeasured(false);
-    setNeedsTruncation(false);
+    // Reset state when text changes
     setIsExpanded(false);
+    setNeedsTruncation(false);
   }, [text]);
 
   useEffect(() => {
-    if (isMeasured || !measureRef.current || !containerRef.current) return;
+    // Only measure when collapsed - don't re-measure when expanded
+    if (isExpanded) return;
     
-    const measureTruncation = () => {
-      const measureEl = measureRef.current;
-      if (!measureEl) return;
-      
-      // Get line height from computed styles
-      const computedStyle = window.getComputedStyle(measureEl);
-      const lineHeight = parseFloat(computedStyle.lineHeight) || 20;
-      const maxHeight = lineHeight * maxLines;
-      
-      // Measure actual content height
-      const actualHeight = measureEl.scrollHeight;
-      
-      // Need truncation if content exceeds max lines
-      const shouldTruncate = actualHeight > maxHeight + 4; // 4px tolerance
-      
-      setNeedsTruncation(shouldTruncate);
-      setIsMeasured(true);
+    const textEl = textRef.current;
+    if (!textEl) return;
+    
+    const checkTruncation = () => {
+      // Compare scrollHeight vs clientHeight to detect overflow
+      // When clamped, scrollHeight > clientHeight means content is truncated
+      const isTruncated = textEl.scrollHeight > textEl.clientHeight + 2;
+      setNeedsTruncation(isTruncated);
     };
     
-    // Small delay to ensure fonts are loaded and layout is stable
-    const timeoutId = setTimeout(measureTruncation, 50);
-    
-    // Also re-measure on resize
-    const resizeObserver = new ResizeObserver(() => {
-      setIsMeasured(false);
+    // Check after fonts load and layout stabilizes
+    const frameId = requestAnimationFrame(() => {
+      setTimeout(checkTruncation, 100);
     });
     
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
+    // Re-check on resize (only when collapsed)
+    const resizeObserver = new ResizeObserver(() => {
+      if (!isExpanded) {
+        checkTruncation();
+      }
+    });
+    resizeObserver.observe(textEl);
     
     return () => {
-      clearTimeout(timeoutId);
+      cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
     };
-  }, [text, maxLines, isMeasured]);
+  }, [text, maxLines, isExpanded]);
 
   const handleToggle = (e: { stopPropagation: () => void }) => {
-    e.stopPropagation(); // Prevent card click when clicking toggle
+    e.stopPropagation();
     setIsExpanded(!isExpanded);
   };
   
   return (
-    <div ref={containerRef} className="expandable-description">
-      {/* Hidden element for measurement */}
+    <div className="expandable-description">
       <p 
-        ref={measureRef}
+        ref={textRef}
         className="menu-desc"
-        style={{
-          position: 'absolute',
-          visibility: 'hidden',
-          height: 'auto',
-          width: containerRef.current?.offsetWidth || 'auto',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-        }}
-        aria-hidden="true"
-      >
-        {text}
-      </p>
-      
-      {/* Visible element */}
-      <p 
-        className={`menu-desc ${needsTruncation && !isExpanded ? 'line-clamped' : ''}`}
-        style={needsTruncation && !isExpanded ? {
+        style={!isExpanded ? {
           display: '-webkit-box',
           WebkitLineClamp: maxLines,
           WebkitBoxOrient: 'vertical',
@@ -202,9 +175,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
           src={imageUrl}
           alt={itemName}
           className="menu-thumb"
-          wrapperClassName="rounded-lg"
-          width={176}
-          height={152}
+          wrapperClassName="thumb-inner"
           onLoad={handleImageLoad}
           onError={() => setImageError(true)}
         />
