@@ -39,52 +39,104 @@ function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProp
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [needsTruncation, setNeedsTruncation] = useState(false);
-  const textRef = useRef<HTMLParagraphElement>(null);
+  const [isMeasured, setIsMeasured] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLParagraphElement>(null);
   
   useEffect(() => {
-    if (textRef.current) {
-      // Temporarily remove line clamp to measure full height
-      const element = textRef.current;
-      element.style.webkitLineClamp = 'unset';
-      element.style.display = 'block';
-      const fullHeight = element.scrollHeight;
+    // Reset measurement when text changes
+    setIsMeasured(false);
+    setNeedsTruncation(false);
+    setIsExpanded(false);
+  }, [text]);
+
+  useEffect(() => {
+    if (isMeasured || !measureRef.current || !containerRef.current) return;
+    
+    const measureTruncation = () => {
+      const measureEl = measureRef.current;
+      if (!measureEl) return;
       
-      // Set to 2 lines and measure clamped height
-      element.style.webkitLineClamp = maxLines.toString();
-      element.style.display = '-webkit-box';
-      const clampedHeight = element.scrollHeight;
+      // Get line height from computed styles
+      const computedStyle = window.getComputedStyle(measureEl);
+      const lineHeight = parseFloat(computedStyle.lineHeight) || 20;
+      const maxHeight = lineHeight * maxLines;
       
-      // If full height is greater than clamped height, we need truncation
-      setNeedsTruncation(fullHeight > clampedHeight);
+      // Measure actual content height
+      const actualHeight = measureEl.scrollHeight;
       
-      // Reset to appropriate state
-      if (!needsTruncation || isExpanded) {
-        element.style.webkitLineClamp = 'unset';
-        element.style.display = 'block';
-      }
+      // Need truncation if content exceeds max lines
+      const shouldTruncate = actualHeight > maxHeight + 4; // 4px tolerance
+      
+      setNeedsTruncation(shouldTruncate);
+      setIsMeasured(true);
+    };
+    
+    // Small delay to ensure fonts are loaded and layout is stable
+    const timeoutId = setTimeout(measureTruncation, 50);
+    
+    // Also re-measure on resize
+    const resizeObserver = new ResizeObserver(() => {
+      setIsMeasured(false);
+    });
+    
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
     }
-  }, [text, maxLines, isExpanded, needsTruncation]);
-  
-  if (!needsTruncation) {
-    return <p ref={textRef} className="menu-desc">{text}</p>;
-  }
+    
+    return () => {
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+    };
+  }, [text, maxLines, isMeasured]);
+
+  const handleToggle = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation(); // Prevent card click when clicking toggle
+    setIsExpanded(!isExpanded);
+  };
   
   return (
-    <div className="expandable-description">
+    <div ref={containerRef} className="expandable-description">
+      {/* Hidden element for measurement */}
       <p 
-        ref={textRef}
-        className={`menu-desc ${!isExpanded ? 'line-clamped' : 'expanded'}`}
+        ref={measureRef}
+        className="menu-desc"
+        style={{
+          position: 'absolute',
+          visibility: 'hidden',
+          height: 'auto',
+          width: containerRef.current?.offsetWidth || 'auto',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+        }}
+        aria-hidden="true"
       >
         {text}
       </p>
-      <button
-        className="view-more-toggle"
-        onClick={() => setIsExpanded(!isExpanded)}
-        aria-expanded={isExpanded}
-        data-testid={`toggle-description-${isExpanded ? 'less' : 'more'}`}
+      
+      {/* Visible element */}
+      <p 
+        className={`menu-desc ${needsTruncation && !isExpanded ? 'line-clamped' : ''}`}
+        style={needsTruncation && !isExpanded ? {
+          display: '-webkit-box',
+          WebkitLineClamp: maxLines,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        } : undefined}
       >
-        {isExpanded ? t('menu.viewLess', 'View Less') : t('menu.viewMore', 'View More')}
-      </button>
+        {text}
+      </p>
+      
+      {needsTruncation && (
+        <button
+          className="view-more-toggle"
+          onClick={handleToggle}
+          aria-expanded={isExpanded}
+          data-testid={`toggle-description-${isExpanded ? 'less' : 'more'}`}
+        >
+          {isExpanded ? t('menu.viewLess', 'View Less') : t('menu.viewMore', 'View More')}
+        </button>
+      )}
     </div>
   );
 }
