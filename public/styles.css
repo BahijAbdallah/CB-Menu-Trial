@@ -320,6 +320,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
 /* Expandable description styles - desktop */
 .expandable-description {
   margin: 0;
+  position: relative; /* Required for hidden measurement element */
 }
 
 .view-more-toggle {
@@ -541,6 +542,7 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   /* Expandable description styles */
   .expandable-description {
     margin: 0 !important;
+    position: relative !important; /* Required for hidden measurement element */
   }
   
   .view-more-toggle {
