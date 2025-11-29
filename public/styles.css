@@ -364,7 +364,8 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
   border-radius:14px; box-shadow:0 2px 0 rgba(0,0,0,.03);
   min-height:152px;
 }
-.thumb-wrap{ position:relative; align-self:stretch; width:176px; border-radius:14px; overflow:hidden; }
+.thumb-wrap{ position:relative; align-self:stretch; width:176px; height:152px; border-radius:14px; overflow:hidden; }
+.thumb-inner{ position:absolute; inset:0; width:100%; height:100%; }
 .menu-thumb{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 .menu-meta{ align-self:center; min-width:0; }
 .menu-title{ font-family:'Billmake',sans-serif; font-weight:700; font-size:32px; line-height:1.15; margin:0 0 10px; color:var(--olive,#3b4b30); overflow-wrap:anywhere; }
@@ -459,6 +460,13 @@ body, main, .page { padding-top: 0 !important; margin-top: 0 !important; }
     border-radius: 8px !important;
     overflow: hidden !important;
     flex-shrink: 0 !important;
+  }
+  
+  .menu-card .thumb-inner {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
   }
   
   .menu-card .menu-thumb {
@@ -856,10 +864,16 @@ header[role="banner"]{
   }
 
   /* small left thumbnail */
-  .menu-card .thumb-wrap, 
-  .menu-card .menu-thumb {
+  .menu-card .thumb-wrap {
     flex:0 0 88px; width:88px; height:88px;
-    object-fit:cover; border-radius:12px;
+    border-radius:12px; position:relative; overflow:hidden;
+  }
+  .menu-card .thumb-inner {
+    position:absolute; inset:0; width:100%; height:100%;
+  }
+  .menu-card .menu-thumb {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; border-radius:0;
   }
 
   .menu-card .menu-meta { flex:1 1 auto; }
