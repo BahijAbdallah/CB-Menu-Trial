@@ -528,14 +528,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
-    return await db
-      .select()
+    // Join with menu_item_categories to get items in this category
+    // Order by the junction table's display_order for per-category ordering
+    const results = await db
+      .select({
+        id: menuItems.id,
+        name: menuItems.name,
+        nameArabic: menuItems.nameArabic,
+        nameFrench: menuItems.nameFrench,
+        description: menuItems.description,
+        descriptionArabic: menuItems.descriptionArabic,
+        descriptionFrench: menuItems.descriptionFrench,
+        price: menuItems.price,
+        imageUrl: menuItems.imageUrl,
+        categoryId: menuItems.categoryId,
+        order: menuItems.order,
+        isAvailable: menuItems.isAvailable,
+        allergens: menuItems.allergens,
+        outOfStock: menuItems.outOfStock,
+        junctionDisplayOrder: menuItemCategories.displayOrder,
+      })
       .from(menuItems)
-      .where(eq(menuItems.categoryId, categoryId))
+      .innerJoin(
+        menuItemCategories,
+        eq(menuItems.id, menuItemCategories.itemId)
+      )
+      .where(eq(menuItemCategories.categoryId, categoryId))
       .orderBy(
-        sql`${menuItems.displayOrder} NULLS LAST`,
+        asc(menuItemCategories.displayOrder),
         asc(menuItems.order)
       );
+    
+    // Map results back to MenuItem type, using junction displayOrder
+    return results.map(({ junctionDisplayOrder, ...item }) => ({
+      ...item,
+      displayOrder: junctionDisplayOrder, // Use per-category order from junction table
+    }));
   }
 
   async getMenuItemById(id: number): Promise<MenuItem | undefined> {
