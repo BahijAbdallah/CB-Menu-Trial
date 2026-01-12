@@ -617,21 +617,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateItemsDisplayOrder(categoryId: number, orderedItemIds: number[]): Promise<void> {
-    // Validate that all items belong to the category
-    for (const itemId of orderedItemIds) {
-      const [item] = await db.select().from(menuItems).where(eq(menuItems.id, itemId));
-      if (!item || item.categoryId !== categoryId) {
-        throw new Error(`Item ${itemId} does not belong to category ${categoryId}`);
-      }
-    }
-    
-    // Update display_order for each item in a transaction
+    // Update display_order in the junction table for per-category ordering
+    // This allows items to have different orders in different categories
     await db.transaction(async (tx) => {
       for (let i = 0; i < orderedItemIds.length; i++) {
+        const itemId = orderedItemIds[i];
+        // Update the junction table's display_order for this item in this category
         await tx
-          .update(menuItems)
-          .set({ displayOrder: i + 1 })
-          .where(eq(menuItems.id, orderedItemIds[i]));
+          .update(menuItemCategories)
+          .set({ displayOrder: i })
+          .where(
+            and(
+              eq(menuItemCategories.itemId, itemId),
+              eq(menuItemCategories.categoryId, categoryId)
+            )
+          );
       }
     });
   }
