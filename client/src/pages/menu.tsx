@@ -74,17 +74,17 @@ export default function MenuPage() {
     Category[]
   >({
     queryKey: ["/api/categories"],
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes - data won't refetch unless stale
+    refetchOnWindowFocus: false,
   });
 
   const { data: categoryOrderData } = useQuery<{ categoryOrder: string[] }>({
     queryKey: ["/api/settings/category-order"],
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch only active category items (lazy loading)
+  // Fetch active category items with proper caching
   const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
     MenuItem[]
   >({
@@ -95,11 +95,33 @@ export default function MenuPage() {
       if (!response.ok) throw new Error("Failed to fetch menu items");
       return response.json();
     },
-    enabled: !!activeCategory, // Only fetch when we have an active category
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    staleTime: 0,
+    enabled: !!activeCategory,
+    staleTime: 5 * 60 * 1000, // 5 minutes - keep data fresh, no refetch
+    refetchOnWindowFocus: false,
   });
+
+  // Prefetch all categories in background after initial load
+  useEffect(() => {
+    if (categories.length > 0 && !categoriesLoading) {
+      // Prefetch all category items in background for instant navigation
+      categories.forEach((category) => {
+        const queryKey = ["/api/categories", category.slug, "items"];
+        const cachedData = queryClient.getQueryData(queryKey);
+        
+        if (!cachedData) {
+          queryClient.prefetchQuery({
+            queryKey,
+            queryFn: async () => {
+              const response = await fetch(`/api/categories/${category.slug}/items`);
+              if (!response.ok) throw new Error("Failed to prefetch");
+              return response.json();
+            },
+            staleTime: 5 * 60 * 1000,
+          });
+        }
+      });
+    }
+  }, [categories, categoriesLoading]);
 
   // Apply category ordering based on settings
   const sortedCategories = useMemo(() => {
@@ -455,35 +477,11 @@ export default function MenuPage() {
                 COLOR_CYCLE[i % COLOR_CYCLE.length];
               const isActive = category.slug === activeCategory;
 
-              const handleMouseEnter = () => {
-                // Prefetch this category's items when hovering (if not already loaded and not currently loading)
-                const queryKey = ["/api/categories", category.slug, "items"];
-                const cachedData = queryClient.getQueryData(queryKey);
-                
-                // Skip if already cached, already active, or categories still loading
-                if (!cachedData && category.slug !== activeCategory && !categoriesLoading) {
-                  queryClient.prefetchQuery({
-                    queryKey,
-                    queryFn: async () => {
-                      const response = await fetch(`/api/categories/${category.slug}/items`);
-                      if (!response.ok) throw new Error("Failed to prefetch menu items");
-                      return response.json();
-                    },
-                    staleTime: 30000, // Keep prefetched data for 30s
-                  });
-                }
-              };
-
               return (
                 <button
                   type="button"
                   key={category.id}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setActiveCategory(category.slug);
-                  }}
-                  onMouseEnter={handleMouseEnter}
+                  onClick={() => setActiveCategory(category.slug)}
                   className={`menu-tab variant-${tone} category-btn ${isActive ? "is-active" : ""}`}
                   data-category={category.slug}
                 >
