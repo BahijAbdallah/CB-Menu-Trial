@@ -475,8 +475,13 @@ export default function MenuPage() {
 
               return (
                 <button
+                  type="button"
                   key={category.id}
-                  onClick={() => setActiveCategory(category.slug)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActiveCategory(category.slug);
+                  }}
                   onMouseEnter={handleMouseEnter}
                   className={`menu-tab variant-${tone} category-btn ${isActive ? "is-active" : ""}`}
                   data-category={category.slug}
