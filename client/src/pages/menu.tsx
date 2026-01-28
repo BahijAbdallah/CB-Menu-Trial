@@ -342,7 +342,8 @@ export default function MenuPage() {
   // Items are already filtered by backend for active category
   const categoryItems = menuItems;
 
-  if (categoriesLoading || menuItemsLoading) {
+  // Only show full page loading for initial categories load
+  if (categoriesLoading) {
     return (
       <div className="min-h-screen bg-light-cream flex items-center justify-center">
         <div className="text-center">
@@ -495,9 +496,16 @@ export default function MenuPage() {
 
         {/* Menu Items Display */}
         <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
-          {activeCategoryData && (
+          {menuItemsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green mx-auto mb-3"></div>
+                <p className="text-brand-green text-sm">{t("common.loading")}</p>
+              </div>
+            </div>
+          ) : activeCategoryData ? (
             <MenuCategory category={activeCategoryData} items={categoryItems} />
-          )}
+          ) : null}
         </section>
       </div>
     </div>
