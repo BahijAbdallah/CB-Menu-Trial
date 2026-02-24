@@ -1,3 +1,4 @@
+import { pathToFileURL } from "url";
 import { db } from "./db";
 import { users, categories, menuItems } from "@shared/schema";
 
@@ -89,7 +90,7 @@ async function initializeDatabase() {
 export { initializeDatabase };
 
 // Run initialization if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   initializeDatabase()
     .then(() => {
       console.log("Database initialization complete!");
