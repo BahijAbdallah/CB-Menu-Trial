@@ -364,6 +364,8 @@ export default function MenuPage() {
   // Items are already filtered by backend for active category
   const categoryItems = menuItems;
 
+  console.log("category items : ", menuItems);
+
   // Only show full page loading for initial categories load
   if (categoriesLoading) {
     return (

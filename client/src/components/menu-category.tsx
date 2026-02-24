@@ -295,7 +295,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
 
 export default function MenuCategory({ category, items }: MenuCategoryProps) {
   const { t } = useTranslation();
-  
+  console.log("items : ", items)
   return (
     <section className="container">
       {/* Responsive menu list: desktop layout scaled down for mobile */}
