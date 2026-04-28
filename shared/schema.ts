@@ -45,7 +45,6 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
 
 export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
   id: true,
-  displayOrder: true, // Managed by backend
 });
 
 export const insertMenuItemCategorySchema = createInsertSchema(menuItemCategories).omit({

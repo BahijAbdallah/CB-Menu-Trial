@@ -260,6 +260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const categories = await storage.getCategories();
       res.json(categories);
     } catch (error) {
+      console.error("[Get Categories] Error:", error);
       res.status(500).json({ message: "Failed to fetch categories" });
     }
   });
@@ -353,6 +354,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(menuItems);
     } catch (error) {
+      console.error("[Get Menu Items] Error:", error);
       res.status(500).json({ message: "Failed to fetch menu items" });
     }
   });

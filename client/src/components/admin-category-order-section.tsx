@@ -35,6 +35,7 @@ export default function AdminCategoryOrderSection() {
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/settings/category-order"] });
       setHasChanges(false);
       toast({
@@ -56,13 +57,19 @@ export default function AdminCategoryOrderSection() {
     if (categories.length > 0) {
       const categoryOrder = categoryOrderData?.categoryOrder || [];
       
-      // Sort categories based on saved order
       const pos = (slug: string) => {
         const index = categoryOrder.indexOf(slug);
         return index === -1 ? Number.MAX_SAFE_INTEGER : index;
       };
       
-      const sorted = [...categories].sort((a, b) => pos(a.slug) - pos(b.slug));
+      const sorted = [...categories].sort((a, b) => {
+        const posA = pos(a.slug);
+        const posB = pos(b.slug);
+        if (posA === posB) {
+          return (a.order ?? 0) - (b.order ?? 0);
+        }
+        return posA - posB;
+      });
       setOrderedCategories(sorted);
     }
   }, [categories, categoryOrderData]);

@@ -226,14 +226,26 @@ export class MemStorage implements IStorage {
 
   async createCategory(category: InsertCategory): Promise<Category> {
     const id = this.currentCategoryId++;
+    const insertAtTop = !category.order || category.order <= 0;
+    if (insertAtTop) {
+      Array.from(this.categories.values()).forEach(existing => {
+        this.categories.set(existing.id, { ...existing, order: existing.order + 1 });
+      });
+    }
     const newCategory: Category = { 
       ...category, 
       id,
       nameArabic: category.nameArabic || null,
       nameFrench: category.nameFrench || null,
-      order: category.order || 0
+      order: insertAtTop ? 1 : category.order ?? 1
     };
     this.categories.set(id, newCategory);
+    if (insertAtTop) {
+      const categoryOrder = Array.from(this.categories.values())
+        .sort((a, b) => a.order - b.order)
+        .map(cat => cat.slug);
+      this.settings.set('categoryOrder', JSON.stringify(categoryOrder));
+    }
     return newCategory;
   }
 
@@ -247,7 +259,19 @@ export class MemStorage implements IStorage {
   }
 
   async deleteCategory(id: number): Promise<boolean> {
-    return this.categories.delete(id);
+    const deleted = this.categories.delete(id);
+    if (!deleted) return false;
+
+    const reorderedCategories = Array.from(this.categories.values())
+      .sort((a, b) => a.order - b.order)
+      .map((category, index) => ({ ...category, order: index + 1 }));
+
+    reorderedCategories.forEach(category => {
+      this.categories.set(category.id, category);
+    });
+    this.settings.set('categoryOrder', JSON.stringify(reorderedCategories.map(cat => cat.slug)));
+
+    return true;
   }
 
   // Menu item methods
@@ -413,6 +437,12 @@ export class MemStorage implements IStorage {
   }
 
   async setCategoryOrder(categoryOrder: string[]): Promise<void> {
+    categoryOrder.forEach((slug, index) => {
+      const category = Array.from(this.categories.values()).find(cat => cat.slug === slug);
+      if (category) {
+        this.categories.set(category.id, { ...category, order: index + 1 });
+      }
+    });
     this.settings.set('categoryOrder', JSON.stringify(categoryOrder));
   }
 
@@ -499,11 +529,41 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
-    const [newCategory] = await db
-      .insert(categories)
-      .values(category)
-      .returning();
-    return newCategory;
+    const insertAtTop = !category.order || category.order <= 0;
+
+    return await db.transaction(async (tx) => {
+      if (insertAtTop) {
+        await tx
+          .update(categories)
+          .set({ order: sql`${categories.order} + 1` });
+      }
+
+      const [newCategory] = await tx
+        .insert(categories)
+        .values({
+          ...category,
+          order: insertAtTop ? 1 : category.order
+        })
+        .returning();
+
+      if (insertAtTop) {
+        const orderedCategories = await tx
+          .select()
+          .from(categories)
+          .orderBy(categories.order);
+        const categoryOrder = orderedCategories.map(cat => cat.slug);
+
+        await tx
+          .insert(settings)
+          .values({ key: 'categoryOrder', value: JSON.stringify(categoryOrder) })
+          .onConflictDoUpdate({
+            target: settings.key,
+            set: { value: JSON.stringify(categoryOrder), updatedAt: new Date() }
+          });
+      }
+
+      return newCategory;
+    });
   }
 
   async updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined> {
@@ -516,8 +576,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteCategory(id: number): Promise<boolean> {
-    const result = await db.delete(categories).where(eq(categories.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return await db.transaction(async (tx) => {
+      const result = await tx.delete(categories).where(eq(categories.id, id));
+      if ((result.rowCount ?? 0) === 0) return false;
+
+      const remainingCategories = await tx
+        .select()
+        .from(categories)
+        .orderBy(categories.order);
+
+      for (let i = 0; i < remainingCategories.length; i++) {
+        await tx
+          .update(categories)
+          .set({ order: i + 1 })
+          .where(eq(categories.id, remainingCategories[i].id));
+      }
+
+      const categoryOrder = remainingCategories.map(cat => cat.slug);
+      await tx
+        .insert(settings)
+        .values({ key: 'categoryOrder', value: JSON.stringify(categoryOrder) })
+        .onConflictDoUpdate({
+          target: settings.key,
+          set: { value: JSON.stringify(categoryOrder), updatedAt: new Date() }
+        });
+
+      return true;
+    });
   }
 
   async getMenuItems(): Promise<MenuItem[]> {
@@ -572,9 +657,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMenuItem(item: InsertMenuItem): Promise<MenuItem> {
+    const displayOrder = item.displayOrder && item.displayOrder > 0 ? item.displayOrder : 1;
     const [newItem] = await db
       .insert(menuItems)
-      .values(item)
+      .values({
+        ...item,
+        displayOrder
+      })
       .returning();
     return newItem;
   }
@@ -585,7 +674,8 @@ export class DatabaseStorage implements IStorage {
     if (!existing) return undefined;
 
     // Preserve imageUrl only when undefined or empty string (null = explicit clear)
-    const updateData = { ...item };
+    const displayOrder = item.displayOrder && item.displayOrder > 0 ? item.displayOrder : existing.displayOrder ?? 1;
+    const updateData = { ...item, displayOrder };
     if (item.imageUrl === undefined || item.imageUrl === '') {
       updateData.imageUrl = existing.imageUrl; // Preserve existing image
     }
@@ -596,12 +686,37 @@ export class DatabaseStorage implements IStorage {
       .set(updateData)
       .where(eq(menuItems.id, id))
       .returning();
+
+    const itemCategories = await db
+      .select()
+      .from(menuItemCategories)
+      .where(eq(menuItemCategories.itemId, id));
+
+    for (const itemCategory of itemCategories) {
+      await this.moveItemInCategory(id, itemCategory.categoryId, displayOrder);
+    }
+
     return updated || undefined;
   }
 
   async deleteMenuItem(id: number): Promise<boolean> {
-    const result = await db.delete(menuItems).where(eq(menuItems.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return await db.transaction(async (tx) => {
+      const associations = await tx
+        .select()
+        .from(menuItemCategories)
+        .where(eq(menuItemCategories.itemId, id));
+      const affectedCategoryIds = new Set(associations.map(assoc => assoc.categoryId));
+
+      await tx.delete(menuItemCategories).where(eq(menuItemCategories.itemId, id));
+      const result = await tx.delete(menuItems).where(eq(menuItems.id, id));
+      if ((result.rowCount ?? 0) === 0) return false;
+
+      for (const categoryId of Array.from(affectedCategoryIds)) {
+        await this.compactItemCategoryOrder(tx, categoryId);
+      }
+
+      return true;
+    });
   }
 
   async toggleMenuItemAvailability(id: number): Promise<MenuItem | undefined> {
@@ -625,7 +740,7 @@ export class DatabaseStorage implements IStorage {
         // Update the junction table's display_order for this item in this category
         await tx
           .update(menuItemCategories)
-          .set({ displayOrder: i })
+          .set({ displayOrder: i + 1 })
           .where(
             and(
               eq(menuItemCategories.itemId, itemId),
@@ -707,7 +822,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async setCategoryOrder(categoryOrder: string[]): Promise<void> {
-    await this.setSetting('categoryOrder', JSON.stringify(categoryOrder));
+    await db.transaction(async (tx) => {
+      for (let i = 0; i < categoryOrder.length; i++) {
+        await tx
+          .update(categories)
+          .set({ order: i + 1 })
+          .where(eq(categories.slug, categoryOrder[i]));
+      }
+
+      await tx
+        .insert(settings)
+        .values({ key: 'categoryOrder', value: JSON.stringify(categoryOrder) })
+        .onConflictDoUpdate({
+          target: settings.key,
+          set: { value: JSON.stringify(categoryOrder), updatedAt: new Date() }
+        });
+    });
   }
 
   async getItemOrderByCategory(): Promise<Record<string, string[]>> {
@@ -772,13 +902,9 @@ export class DatabaseStorage implements IStorage {
 
   async addItemToCategory(itemId: number, categoryId: number, displayOrder?: number): Promise<void> {
     try {
-      await db
-        .insert(menuItemCategories)
-        .values({
-          itemId,
-          categoryId,
-          displayOrder: displayOrder ?? 0
-        });
+      await db.transaction(async (tx) => {
+        await this.insertItemInCategoryAtOrder(tx, itemId, categoryId, displayOrder && displayOrder > 0 ? displayOrder : 1);
+      });
     } catch (error) {
       // Handle duplicate entry error
       if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
@@ -789,52 +915,125 @@ export class DatabaseStorage implements IStorage {
   }
 
   async removeItemFromCategory(itemId: number, categoryId: number): Promise<void> {
-    const result = await db
-      .delete(menuItemCategories)
-      .where(
-        and(
-          eq(menuItemCategories.itemId, itemId),
-          eq(menuItemCategories.categoryId, categoryId)
-        )
-      );
-    
-    if ((result.rowCount ?? 0) === 0) {
-      throw new Error(`No association found between item ${itemId} and category ${categoryId}`);
-    }
+    await db.transaction(async (tx) => {
+      const result = await tx
+        .delete(menuItemCategories)
+        .where(
+          and(
+            eq(menuItemCategories.itemId, itemId),
+            eq(menuItemCategories.categoryId, categoryId)
+          )
+        );
+      
+      if ((result.rowCount ?? 0) === 0) {
+        throw new Error(`No association found between item ${itemId} and category ${categoryId}`);
+      }
+
+      await this.compactItemCategoryOrder(tx, categoryId);
+    });
   }
 
   async updateItemCategoryOrder(itemId: number, categoryId: number, displayOrder: number): Promise<void> {
-    const result = await db
-      .update(menuItemCategories)
-      .set({ displayOrder })
-      .where(
-        and(
-          eq(menuItemCategories.itemId, itemId),
-          eq(menuItemCategories.categoryId, categoryId)
-        )
-      );
-    
-    if ((result.rowCount ?? 0) === 0) {
-      throw new Error(`No association found between item ${itemId} and category ${categoryId}`);
-    }
+    await this.moveItemInCategory(itemId, categoryId, displayOrder);
   }
 
   async setItemCategories(itemId: number, categoryIds: number[]): Promise<void> {
     await db.transaction(async (tx) => {
-      // Delete all existing associations for this item
+      const [item] = await tx.select().from(menuItems).where(eq(menuItems.id, itemId));
+      const itemOrder = item?.displayOrder && item.displayOrder > 0 ? item.displayOrder : 1;
+      const existingAssociations = await tx
+        .select()
+        .from(menuItemCategories)
+        .where(eq(menuItemCategories.itemId, itemId));
+      const isNewItem = existingAssociations.length === 0;
+      const nextCategoryIds = new Set(categoryIds);
+      const removedCategoryIds = existingAssociations
+        .filter(assoc => !nextCategoryIds.has(assoc.categoryId))
+        .map(assoc => assoc.categoryId);
+
       await tx.delete(menuItemCategories).where(eq(menuItemCategories.itemId, itemId));
       
-      // Insert new associations
       if (categoryIds.length > 0) {
-        const values = categoryIds.map((categoryId, index) => ({
-          itemId,
-          categoryId,
-          displayOrder: index
-        }));
-        
-        await tx.insert(menuItemCategories).values(values);
+        for (const categoryId of categoryIds) {
+          const wasExisting = existingAssociations.some(assoc => assoc.categoryId === categoryId);
+          const targetOrder = isNewItem || !wasExisting ? 1 : itemOrder;
+          await this.insertItemInCategoryAtOrder(tx, itemId, categoryId, targetOrder);
+        }
+      }
+
+      const affectedCategoryIds = new Set([
+        ...categoryIds,
+        ...removedCategoryIds
+      ]);
+
+      for (const categoryId of Array.from(affectedCategoryIds)) {
+        await this.compactItemCategoryOrder(tx, categoryId);
       }
     });
+  }
+
+  private async moveItemInCategory(itemId: number, categoryId: number, displayOrder: number): Promise<void> {
+    await db.transaction(async (tx) => {
+      const targetOrder = displayOrder > 0 ? displayOrder : 1;
+      const result = await tx
+        .delete(menuItemCategories)
+        .where(
+          and(
+            eq(menuItemCategories.itemId, itemId),
+            eq(menuItemCategories.categoryId, categoryId)
+          )
+        );
+
+      if ((result.rowCount ?? 0) === 0) {
+        throw new Error(`No association found between item ${itemId} and category ${categoryId}`);
+      }
+
+      await this.insertItemInCategoryAtOrder(tx, itemId, categoryId, targetOrder);
+    });
+  }
+
+  private async insertItemInCategoryAtOrder(
+    tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+    itemId: number,
+    categoryId: number,
+    displayOrder: number
+  ): Promise<void> {
+    const targetOrder = displayOrder > 0 ? displayOrder : 1;
+
+    await this.compactItemCategoryOrder(tx, categoryId);
+
+    await tx
+      .update(menuItemCategories)
+      .set({ displayOrder: sql`${menuItemCategories.displayOrder} + 1` })
+      .where(
+        and(
+          eq(menuItemCategories.categoryId, categoryId),
+          sql`${menuItemCategories.displayOrder} >= ${targetOrder}`
+        )
+      );
+
+    await tx.insert(menuItemCategories).values({
+      itemId,
+      categoryId,
+      displayOrder: targetOrder
+    });
+
+    await this.compactItemCategoryOrder(tx, categoryId);
+  }
+
+  private async compactItemCategoryOrder(tx: Parameters<Parameters<typeof db.transaction>[0]>[0], categoryId: number): Promise<void> {
+    const associations = await tx
+      .select()
+      .from(menuItemCategories)
+      .where(eq(menuItemCategories.categoryId, categoryId))
+      .orderBy(menuItemCategories.displayOrder, menuItemCategories.id);
+
+    for (let i = 0; i < associations.length; i++) {
+      await tx
+        .update(menuItemCategories)
+        .set({ displayOrder: i + 1 })
+        .where(eq(menuItemCategories.id, associations[i].id));
+    }
   }
 }
 

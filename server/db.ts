@@ -10,4 +10,16 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+pool.query(`
+  SELECT 
+    current_database(), 
+    current_schema(), 
+    to_regclass('public.categories') AS categories_table
+`).then((result) => {
+  console.log("[DB CHECK]", result.rows);
+}).catch((err) => {
+  console.error("[DB CHECK ERROR]", err);
+});
+
 export const db = drizzle({ client: pool, schema });

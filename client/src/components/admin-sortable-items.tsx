@@ -246,7 +246,7 @@ export default function AdminSortableItems({
           
           const reorderedItems = arrayMove(categoryItems, oldIndex, newIndex).map((item, index) => ({
             ...item,
-            displayOrder: index
+            displayOrder: index + 1
           }));
           
           return {
@@ -284,6 +284,7 @@ export default function AdminSortableItems({
       // Invalidate cache once after all updates
       if (totalUpdates > 0) {
         await queryClient.invalidateQueries({ queryKey: ['/api/menu-items-with-categories'] });
+        await queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
         
         toast({
           title: "Changes saved",

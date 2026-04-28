@@ -35,6 +35,7 @@ export default function AdminCategoriesSection() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/category-order"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
@@ -64,6 +65,7 @@ export default function AdminCategoriesSection() {
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/settings/category-order"] });
       setHasChanges(false);
       toast({

@@ -75,6 +75,7 @@ export default function AdminCategoryModal({ isOpen, onClose, editingCategory }:
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/category-order"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
