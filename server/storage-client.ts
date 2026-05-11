@@ -2,7 +2,8 @@ import path from "path";
 import fs from "fs";
 import { LRUCache } from "lru-cache";
 
-const UPLOAD_ROOT = path.join(process.cwd(), "uploads"); // root uploads folder
+const UPLOAD_ROOT =
+  process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads"); // root render disk space, fall back uploads folder
 const MENU_ITEMS_ROOT = path.join(UPLOAD_ROOT, "menu-items"); // uploads/menu-items
 
 // Ensure directories exist
@@ -42,7 +43,7 @@ export function getContentType(filename: string): string {
  */
 export async function uploadImage(
   filename: string,
-  buffer: Buffer
+  buffer: Buffer,
 ): Promise<{ ok: boolean; error?: any }> {
   try {
     // filename is like "menu-items/xxx.jpg"
@@ -61,7 +62,7 @@ export async function uploadImage(
 }
 
 export async function getCachedImage(
-  filename: string
+  filename: string,
 ): Promise<{ ok: boolean; buffer?: Buffer; error?: any }> {
   const cached = imageCache.get(filename);
   if (cached) {
