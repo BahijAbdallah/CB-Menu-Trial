@@ -105,6 +105,7 @@ export default function LazyImage({
           onLoad={handleLoad}
           onError={handleError}
           loading="lazy" // Browser-level lazy loading as fallback
+          decoding="async"
         />
       )}
     </div>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 
@@ -43,6 +42,8 @@ export default function MenuPage() {
   const { t, i18n } = useTranslation();
   const locale = useLocale();
   const [activeCategory, setActiveCategory] = useState<string>("");
+  const [itemsByCategory, setItemsByCategory] = useState<Record<string, MenuItem[]>>({});
+  const [menuItemsLoading, setMenuItemsLoading] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const categoryStripRef = useRef<HTMLElement>(null);
@@ -84,44 +85,43 @@ export default function MenuPage() {
     refetchOnWindowFocus: false,
   });
 
-  // Fetch active category items with proper caching
-  const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery<
-    MenuItem[]
-  >({
-    queryKey: ["/api/categories", activeCategory, "items"],
-    queryFn: async () => {
-      if (!activeCategory) return [];
-      const response = await fetch(`/api/categories/${activeCategory}/items`);
-      if (!response.ok) throw new Error("Failed to fetch menu items");
-      return response.json();
-    },
-    enabled: !!activeCategory,
-    staleTime: 5 * 60 * 1000, // 5 minutes - keep data fresh, no refetch
-    refetchOnWindowFocus: false,
-  });
-
-  // Prefetch all categories in background after initial load
+  // Fetch only the active category and keep visited categories in memory.
   useEffect(() => {
-    if (categories.length > 0 && !categoriesLoading) {
-      // Prefetch all category items in background for instant navigation
-      categories.forEach((category) => {
-        const queryKey = ["/api/categories", category.slug, "items"];
-        const cachedData = queryClient.getQueryData(queryKey);
-        
-        if (!cachedData) {
-          queryClient.prefetchQuery({
-            queryKey,
-            queryFn: async () => {
-              const response = await fetch(`/api/categories/${category.slug}/items`);
-              if (!response.ok) throw new Error("Failed to prefetch");
-              return response.json();
-            },
-            staleTime: 5 * 60 * 1000,
-          });
+    if (!activeCategory) return;
+    if (itemsByCategory[activeCategory]) {
+      setMenuItemsLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setMenuItemsLoading(true);
+
+    fetch(`/api/categories/${activeCategory}/items`, {
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch menu items");
+        return response.json() as Promise<MenuItem[]>;
+      })
+      .then((items) => {
+        setItemsByCategory((current) => ({
+          ...current,
+          [activeCategory]: items,
+        }));
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.error("[Menu] Failed to fetch category items:", error);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setMenuItemsLoading(false);
         }
       });
-    }
-  }, [categories, categoriesLoading]);
+
+    return () => controller.abort();
+  }, [activeCategory, itemsByCategory]);
 
   // Apply category ordering based on settings
   const sortedCategories = useMemo(() => {
@@ -362,9 +362,7 @@ export default function MenuPage() {
   );
   
   // Items are already filtered by backend for active category
-  const categoryItems = menuItems;
-
-  console.log("category items : ", menuItems);
+  const categoryItems = activeCategory ? itemsByCategory[activeCategory] ?? [] : [];
 
   // Only show full page loading for initial categories load
   if (categoriesLoading) {

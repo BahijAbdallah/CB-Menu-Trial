@@ -50,6 +50,8 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
             setImageError(true);
             setImageLoaded(true);
           }}
+          loading="lazy"
+          decoding="async"
         />
       </div>
       <div className="p-6">

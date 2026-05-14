@@ -11,6 +11,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import sharp from "sharp";
 import "./types";
 import { importExcelMenu } from "./import-excel";
 import imgProxy from "./img-proxy";
@@ -71,7 +72,7 @@ const upload = multer({
 const uploadImageMulter = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 6 * 1024 * 1024, // 6MB limit
   },
   fileFilter: (req, file, cb) => {
     // Only allow image files
@@ -173,9 +174,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Generate unique filename
         const filename = generateImageFilename(req.file.originalname);
 
-        console.log("[Upload] Saving to local storage:", filename);
+        const compressedBuffer = await sharp(req.file.buffer)
+          .webp({ quality: 72 })
+          .toBuffer();
 
-        const { ok, error } = await saveImage(filename, req.file.buffer);
+        console.log("[Upload] Saving compressed WebP to local storage:", filename);
+
+        const { ok, error } = await saveImage(filename, compressedBuffer);
 
         if (!ok) {
           console.error("[Upload] Failed to save image:", error);

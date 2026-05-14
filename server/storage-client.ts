@@ -11,9 +11,9 @@ fs.mkdirSync(MENU_ITEMS_ROOT, { recursive: true });
 export function generateImageFilename(originalName: string): string {
   const timestamp = Date.now();
   const random = Math.round(Math.random() * 1e9);
-  const ext = path.extname(originalName) || ".jpg";
-  // keep the same format your app expects
-  return `menu-items/${timestamp}-${random}${ext}`;
+  const baseName = path.basename(originalName, path.extname(originalName));
+  const safeBaseName = baseName.replace(/[^a-zA-Z0-9_-]/g, "-");
+  return `menu-items/${safeBaseName}-${timestamp}-${random}.webp`;
 }
 
 export function getContentType(filename: string): string {
