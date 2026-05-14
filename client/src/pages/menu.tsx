@@ -11,6 +11,8 @@ import { useLocale, getTranslatedCategoryName } from "@/utils/translation";
 
 import islam from "@assets/islam.png";
 
+const MENU_ITEM_BATCH_SIZE = 6;
+
 // Allergens Legend Component
 function AllergensLegend() {
   const { t } = useTranslation();
@@ -44,9 +46,11 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [itemsByCategory, setItemsByCategory] = useState<Record<string, MenuItem[]>>({});
   const [menuItemsLoading, setMenuItemsLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(MENU_ITEM_BATCH_SIZE);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const categoryStripRef = useRef<HTMLElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -156,6 +160,10 @@ export default function MenuPage() {
       setActiveCategory(sortedCategories[0].slug);
     }
   }, [sortedCategories, activeCategory]);
+
+  useEffect(() => {
+    setVisibleCount(MENU_ITEM_BATCH_SIZE);
+  }, [activeCategory]);
 
   // Auto-scroll active chip into view on desktop
   useEffect(() => {
@@ -363,6 +371,32 @@ export default function MenuPage() {
   
   // Items are already filtered by backend for active category
   const categoryItems = activeCategory ? itemsByCategory[activeCategory] ?? [] : [];
+  const visibleCategoryItems = categoryItems.slice(0, visibleCount);
+  const hasMoreItems = visibleCount < categoryItems.length;
+
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!sentinel || !hasMoreItems || menuItemsLoading) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        setVisibleCount((current) =>
+          Math.min(current + MENU_ITEM_BATCH_SIZE, categoryItems.length),
+        );
+      },
+      {
+        root: null,
+        rootMargin: "300px 0px",
+        threshold: 0.1,
+      },
+    );
+
+    observer.observe(sentinel);
+
+    return () => observer.disconnect();
+  }, [categoryItems.length, hasMoreItems, menuItemsLoading, visibleCount]);
 
   // Only show full page loading for initial categories load
   if (categoriesLoading) {
@@ -502,7 +536,18 @@ export default function MenuPage() {
               </div>
             </div>
           ) : activeCategoryData ? (
-            <MenuCategory category={activeCategoryData} items={categoryItems} />
+            <>
+              <MenuCategory category={activeCategoryData} items={visibleCategoryItems} />
+              {hasMoreItems && (
+                <div
+                  ref={loadMoreRef}
+                  className="flex items-center justify-center py-8"
+                  aria-hidden="true"
+                >
+                  <div className="h-6 w-6 rounded-full border-2 border-brand-green/30 border-b-brand-green animate-spin" />
+                </div>
+              )}
+            </>
           ) : null}
         </section>
       </div>
