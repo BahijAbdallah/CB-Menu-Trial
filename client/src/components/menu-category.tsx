@@ -117,6 +117,8 @@ function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProp
 interface MenuCategoryProps {
   category: Category;
   items: MenuItem[];
+  allowedImageIds?: Set<number>;
+  onImageComplete?: (itemId: number) => void;
 }
 
 interface MenuItemWithImageProps {
@@ -124,21 +126,35 @@ interface MenuItemWithImageProps {
   category: Category;
   index: number;
   allergens: AllergenSlug[];
+  canLoadImage: boolean;
+  onImageComplete?: (itemId: number) => void;
 }
 
-function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithImageProps) {
+function MenuItemWithImage({
+  item,
+  category,
+  index,
+  allergens,
+  canLoadImage,
+  onImageComplete,
+}: MenuItemWithImageProps) {
   const { t } = useTranslation();
   const locale = useLocale();
   const [imageError, setImageError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const fallbackImage = getDefaultImageForItem(category.slug, index);
+  const originalImageUrl = getEncodedImageUrl(item.imageUrl);
+  const shouldLoadOriginalImage = Boolean(originalImageUrl && canLoadImage && !imageError);
   
   // Reset imageError only when the ORIGINAL image loads successfully (not the fallback)
   // This prevents infinite retry loops while still allowing recovery from transient failures
   const handleImageLoad = (loadedSrc: string) => {
-    const originalImageUrl = getEncodedImageUrl(item.imageUrl);
     // Only clear error if the original image (not the fallback) loaded successfully
     if (imageError && originalImageUrl && loadedSrc.includes(originalImageUrl)) {
       setImageError(false);
+    }
+    if (shouldLoadOriginalImage) {
+      onImageComplete?.(item.id);
     }
   };
   
@@ -149,19 +165,22 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
   
-  // Use fallback image if imageError is true or no image URL provided
-  const imageUrl = (item.imageUrl && !imageError) 
-    ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) 
-    : getDefaultImageForItem(category.slug, index);
+  const handleImageError = () => {
+    if (shouldLoadOriginalImage) {
+      onImageComplete?.(item.id);
+    }
+    setImageError(true);
+  };
+  
+  // Use fallback image while the original image is waiting for its queue slot.
+  const imageUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
   
   // High-resolution image for modal - use stable cache key based on item ID
   // Falls back to default image if imageError is true
   const highResImageUrl = useMemo(() => {
-    const baseUrl = (item.imageUrl && !imageError)
-      ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index))
-      : getDefaultImageForItem(category.slug, index);
+    const baseUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
     return `${baseUrl}?highres=true&item=${item.id}`;
-  }, [item.id, item.imageUrl, imageError, category.slug, index]);
+  }, [item.id, shouldLoadOriginalImage, originalImageUrl, fallbackImage]);
   
   return (
     <>
@@ -177,7 +196,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
           className="menu-thumb"
           wrapperClassName="thumb-inner"
           onLoad={handleImageLoad}
-          onError={() => setImageError(true)}
+          onError={handleImageError}
         />
       </div>
       <div className="menu-meta">
@@ -230,7 +249,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
                 alt={itemName}
                 className="w-full h-full object-cover"
                 wrapperClassName="w-full h-full"
-                onError={() => setImageError(true)}
+                onError={handleImageError}
               />
             </div>
 
@@ -294,7 +313,12 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
   );
 }
 
-export default function MenuCategory({ category, items }: MenuCategoryProps) {
+export default function MenuCategory({
+  category,
+  items,
+  allowedImageIds,
+  onImageComplete,
+}: MenuCategoryProps) {
   const { t } = useTranslation();
   console.log("items : ", items)
   return (
@@ -323,6 +347,8 @@ export default function MenuCategory({ category, items }: MenuCategoryProps) {
               category={category} 
               index={index} 
               allergens={allergens}
+              canLoadImage={!item.imageUrl || allowedImageIds?.has(item.id) === true}
+              onImageComplete={onImageComplete}
             />
           );
         })}

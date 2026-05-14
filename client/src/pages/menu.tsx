@@ -11,7 +11,7 @@ import { useLocale, getTranslatedCategoryName } from "@/utils/translation";
 
 import islam from "@assets/islam.png";
 
-const MENU_ITEM_BATCH_SIZE = 6;
+const MENU_IMAGE_BATCH_SIZE = 6;
 
 // Allergens Legend Component
 function AllergensLegend() {
@@ -46,11 +46,11 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [itemsByCategory, setItemsByCategory] = useState<Record<string, MenuItem[]>>({});
   const [menuItemsLoading, setMenuItemsLoading] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(MENU_ITEM_BATCH_SIZE);
+  const [allowedImageCount, setAllowedImageCount] = useState(MENU_IMAGE_BATCH_SIZE);
+  const [completedImageIds, setCompletedImageIds] = useState<Set<number>>(() => new Set());
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const categoryStripRef = useRef<HTMLElement>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -162,7 +162,8 @@ export default function MenuPage() {
   }, [sortedCategories, activeCategory]);
 
   useEffect(() => {
-    setVisibleCount(MENU_ITEM_BATCH_SIZE);
+    setAllowedImageCount(MENU_IMAGE_BATCH_SIZE);
+    setCompletedImageIds(new Set());
   }, [activeCategory]);
 
   // Auto-scroll active chip into view on desktop
@@ -371,32 +372,44 @@ export default function MenuPage() {
   
   // Items are already filtered by backend for active category
   const categoryItems = activeCategory ? itemsByCategory[activeCategory] ?? [] : [];
-  const visibleCategoryItems = categoryItems.slice(0, visibleCount);
-  const hasMoreItems = visibleCount < categoryItems.length;
+  const imageQueueItems = useMemo(
+    () => categoryItems.filter((item) => Boolean(item.imageUrl)),
+    [categoryItems],
+  );
+  const allowedImageIds = useMemo(
+    () =>
+      new Set(
+        imageQueueItems
+          .slice(0, allowedImageCount)
+          .map((item) => item.id),
+      ),
+    [imageQueueItems, allowedImageCount],
+  );
 
   useEffect(() => {
-    const sentinel = loadMoreRef.current;
-    if (!sentinel || !hasMoreItems || menuItemsLoading) return;
+    if (imageQueueItems.length === 0) return;
+    if (allowedImageCount >= imageQueueItems.length) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-
-        setVisibleCount((current) =>
-          Math.min(current + MENU_ITEM_BATCH_SIZE, categoryItems.length),
-        );
-      },
-      {
-        root: null,
-        rootMargin: "300px 0px",
-        threshold: 0.1,
-      },
+    const allowedBatch = imageQueueItems.slice(0, allowedImageCount);
+    const allowedBatchComplete = allowedBatch.every((item) =>
+      completedImageIds.has(item.id),
     );
 
-    observer.observe(sentinel);
+    if (allowedBatchComplete) {
+      setAllowedImageCount((current) =>
+        Math.min(current + MENU_IMAGE_BATCH_SIZE, imageQueueItems.length),
+      );
+    }
+  }, [allowedImageCount, completedImageIds, imageQueueItems]);
 
-    return () => observer.disconnect();
-  }, [categoryItems.length, hasMoreItems, menuItemsLoading, visibleCount]);
+  const handleMenuImageComplete = (itemId: number) => {
+    setCompletedImageIds((current) => {
+      if (current.has(itemId)) return current;
+      const next = new Set(current);
+      next.add(itemId);
+      return next;
+    });
+  };
 
   // Only show full page loading for initial categories load
   if (categoriesLoading) {
@@ -536,18 +549,12 @@ export default function MenuPage() {
               </div>
             </div>
           ) : activeCategoryData ? (
-            <>
-              <MenuCategory category={activeCategoryData} items={visibleCategoryItems} />
-              {hasMoreItems && (
-                <div
-                  ref={loadMoreRef}
-                  className="flex items-center justify-center py-8"
-                  aria-hidden="true"
-                >
-                  <div className="h-6 w-6 rounded-full border-2 border-brand-green/30 border-b-brand-green animate-spin" />
-                </div>
-              )}
-            </>
+            <MenuCategory
+              category={activeCategoryData}
+              items={categoryItems}
+              allowedImageIds={allowedImageIds}
+              onImageComplete={handleMenuImageComplete}
+            />
           ) : null}
         </section>
       </div>
