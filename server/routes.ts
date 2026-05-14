@@ -206,30 +206,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve images from Render Disk. Browser caching handles repeat requests.
   app.get("/api/storage/menu-items/:filename", (req, res) => {
+    const startedAt = Date.now();
+    const filename = path.basename(req.params.filename);
+
     try {
       const UPLOAD_ROOT =
         process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
-      const filename = path.basename(req.params.filename);
       const filePath = path.join(UPLOAD_ROOT, "menu-items", filename);
 
-      console.log("[IMAGE REQUEST]", filename);
+      console.log("[IMAGE REQUEST START]", { filename });
 
       if (!fs.existsSync(filePath)) {
-        console.error("[Storage] Image not found:", { filename, filePath });
+        console.error("[IMAGE REQUEST ERROR]", {
+          filename,
+          durationMs: Date.now() - startedAt,
+          code: "ENOENT",
+          message: "Image not found",
+          filePath,
+        });
         return res.status(404).json({ message: "Image not found" });
       }
+
+      const stats = fs.statSync(filePath);
+      console.log("[IMAGE REQUEST START]", {
+        filename,
+        filePath,
+        size: stats.size,
+      });
 
       res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
 
       res.sendFile(filePath, (error) => {
-        if (error && !res.headersSent) {
-          console.error("[Storage] Error sending image:", error);
-          res.status(500).json({ message: "Failed to retrieve image" });
+        const durationMs = Date.now() - startedAt;
+
+        if (error) {
+          console.error("[IMAGE REQUEST ERROR]", {
+            filename,
+            durationMs,
+            code: (error as NodeJS.ErrnoException).code,
+            message: error.message,
+          });
+
+          if (!res.headersSent) {
+            res.status(500).json({ message: "Failed to retrieve image" });
+          }
+          return;
         }
+
+        console.log("[IMAGE REQUEST DONE]", { filename, durationMs });
       });
     } catch (error) {
-      console.error("[Storage] Error retrieving image:", error);
-      res.status(500).json({ message: "Failed to retrieve image" });
+      console.error("[IMAGE REQUEST ERROR]", {
+        filename,
+        durationMs: Date.now() - startedAt,
+        code: (error as NodeJS.ErrnoException).code,
+        message: error instanceof Error ? error.message : String(error),
+      });
+
+      if (!res.headersSent) {
+        res.status(500).json({ message: "Failed to retrieve image" });
+      }
     }
   });
 
