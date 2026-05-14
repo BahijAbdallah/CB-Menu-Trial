@@ -16,8 +16,6 @@ import { importExcelMenu } from "./import-excel";
 import imgProxy from "./img-proxy";
 import {
   generateImageFilename,
-  getContentType,
-  getCachedImage,
   uploadImage as saveImage,
 } from "./storage-client";
 
@@ -198,25 +196,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // Serve images from Object Storage with in-memory caching
-  app.get("/api/storage/menu-items/:filename", async (req, res) => {
+  // Serve images from Render Disk. Browser caching handles repeat requests.
+  app.get("/api/storage/menu-items/:filename", (req, res) => {
     try {
-      const filename = `menu-items/${req.params.filename}`;
+      const UPLOAD_ROOT =
+        process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
+      const filename = path.basename(req.params.filename);
+      const filePath = path.join(UPLOAD_ROOT, "menu-items", filename);
 
-      const { ok, buffer, error } = await getCachedImage(filename);
-
-      if (!ok || !buffer) {
-        console.error("[Storage] Image not found:", error);
+      if (!fs.existsSync(filePath)) {
+        console.error("[Storage] Image not found:", { filename, filePath });
         return res.status(404).json({ message: "Image not found" });
       }
 
-      // Set appropriate content type and cache headers
-      const contentType = getContentType(filename);
-      res.setHeader("Content-Type", contentType);
-      res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year cache
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
 
-      // Send the cached buffer
-      res.end(buffer);
+      res.sendFile(filePath, (error) => {
+        if (error && !res.headersSent) {
+          console.error("[Storage] Error sending image:", error);
+          res.status(500).json({ message: "Failed to retrieve image" });
+        }
+      });
     } catch (error) {
       console.error("[Storage] Error retrieving image:", error);
       res.status(500).json({ message: "Failed to retrieve image" });

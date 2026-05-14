@@ -230,6 +230,7 @@ function MenuItemWithImage({ item, category, index, allergens }: MenuItemWithIma
                 alt={itemName}
                 className="w-full h-full object-cover"
                 wrapperClassName="w-full h-full"
+                onError={() => setImageError(true)}
               />
             </div>
 
