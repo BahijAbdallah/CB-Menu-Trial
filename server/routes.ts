@@ -178,7 +178,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .webp({ quality: 72 })
           .toBuffer();
 
-        console.log("[Upload] Saving compressed WebP to local storage:", filename);
+        console.log(
+          "[Upload] Saving compressed WebP to local storage:",
+          filename,
+        );
 
         const { ok, error } = await saveImage(filename, compressedBuffer);
 
@@ -208,6 +211,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
       const filename = path.basename(req.params.filename);
       const filePath = path.join(UPLOAD_ROOT, "menu-items", filename);
+
+      console.log("[IMAGE REQUEST]", filename);
 
       if (!fs.existsSync(filePath)) {
         console.error("[Storage] Image not found:", { filename, filePath });
@@ -540,14 +545,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .status(400)
           .json({ message: "Invalid sort data", errors: error.errors });
       } else {
-        res
-          .status(500)
-          .json({
-            message:
-              error instanceof Error
-                ? error.message
-                : "Failed to update item order",
-          });
+        res.status(500).json({
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to update item order",
+        });
       }
     }
   });
@@ -599,14 +602,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .json({ message: "Invalid request data", errors: error.errors });
       }
       console.error("[Add Item To Category] Error:", error);
-      res
-        .status(500)
-        .json({
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to add item to category",
-        });
+      res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to add item to category",
+      });
     }
   });
 
@@ -624,14 +625,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ message: "Item removed from category successfully" });
       } catch (error) {
         console.error("[Remove Item From Category] Error:", error);
-        res
-          .status(500)
-          .json({
-            message:
-              error instanceof Error
-                ? error.message
-                : "Failed to remove item from category",
-          });
+        res.status(500).json({
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to remove item from category",
+        });
       }
     },
   );
