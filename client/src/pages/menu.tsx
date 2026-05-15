@@ -20,7 +20,9 @@ function AllergensLegend() {
   return (
     <section className="allergens-legend pt-[50px] pb-[50px]">
       <div className="container">
-        <h4 className="text-[18px] font-semibold">{t("allergens.title", "ALLERGENS")}</h4>
+        <h4 className="text-[18px] font-semibold">
+          {t("allergens.title", "ALLERGENS")}
+        </h4>
         <p>
           {t(
             "allergens.description",
@@ -44,13 +46,50 @@ export default function MenuPage() {
   const { t, i18n } = useTranslation();
   const locale = useLocale();
   const [activeCategory, setActiveCategory] = useState<string>("");
-  const [itemsByCategory, setItemsByCategory] = useState<Record<string, MenuItem[]>>({});
+  const [itemsByCategory, setItemsByCategory] = useState<
+    Record<string, MenuItem[]>
+  >({});
   const [menuItemsLoading, setMenuItemsLoading] = useState(false);
-  const [allowedImageCount, setAllowedImageCount] = useState(MENU_IMAGE_BATCH_SIZE);
-  const [completedImageIds, setCompletedImageIds] = useState<Set<number>>(() => new Set());
+
+  const [imageStateByCategory, setImageStateByCategory] = useState<
+    Record<string, { allowedCount: number; completedIds: Set<number> }>
+  >({});
+
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const categoryStripRef = useRef<HTMLElement>(null);
+
+  const currentImageState = imageStateByCategory[activeCategory] ?? {
+    allowedCount: MENU_IMAGE_BATCH_SIZE,
+    completedIds: new Set<number>(),
+  };
+
+  const allowedImageCount = currentImageState.allowedCount;
+  const completedImageIds = currentImageState.completedIds;
+
+  const setAllowedImageCount = (
+    updater: number | ((current: number) => number),
+  ) => {
+    if (!activeCategory) return;
+
+    setImageStateByCategory((prev) => {
+      const current = prev[activeCategory] ?? {
+        allowedCount: MENU_IMAGE_BATCH_SIZE,
+        completedIds: new Set<number>(),
+      };
+
+      const newCount =
+        typeof updater === "function" ? updater(current.allowedCount) : updater;
+
+      return {
+        ...prev,
+        [activeCategory]: {
+          ...current,
+          allowedCount: newCount,
+        },
+      };
+    });
+  };
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -130,19 +169,19 @@ export default function MenuPage() {
   // Apply category ordering based on settings
   const sortedCategories = useMemo(() => {
     if (!categories.length) return categories;
-    
+
     const order = categoryOrderData?.categoryOrder || [];
-    
+
     if (order.length === 0) {
       // No saved order, use database order
       return [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
-    
-    const pos = (slug: string) => { 
-      const i = order.indexOf(slug); 
-      return i === -1 ? 999 : i; 
+
+    const pos = (slug: string) => {
+      const i = order.indexOf(slug);
+      return i === -1 ? 999 : i;
     };
-    
+
     return [...categories].sort((a, b) => {
       const posA = pos(a.slug);
       const posB = pos(b.slug);
@@ -161,20 +200,15 @@ export default function MenuPage() {
     }
   }, [sortedCategories, activeCategory]);
 
-  useEffect(() => {
-    setAllowedImageCount(MENU_IMAGE_BATCH_SIZE);
-    setCompletedImageIds(new Set());
-  }, [activeCategory]);
-
   // Auto-scroll active chip into view on desktop
   useEffect(() => {
     if (activeCategory && window.innerWidth >= 1024) {
       const activeButton = document.querySelector(`.menu-tab.is-active`);
       if (activeButton) {
-        activeButton.scrollIntoView({ 
-          inline: 'center', 
-          block: 'nearest', 
-          behavior: 'instant' 
+        activeButton.scrollIntoView({
+          inline: "center",
+          block: "nearest",
+          behavior: "instant",
         });
       }
     }
@@ -188,52 +222,54 @@ export default function MenuPage() {
     // Event handlers
     const wheelHandler = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault(); 
+        e.preventDefault();
         el.scrollLeft += e.deltaY;
       }
     };
 
-    let down = false, startX = 0, sl = 0;
-    const pointerDownHandler = (e: PointerEvent) => { 
+    let down = false,
+      startX = 0,
+      sl = 0;
+    const pointerDownHandler = (e: PointerEvent) => {
       // Only handle mouse events, let touch events use native scrolling
-      if (e.pointerType !== 'mouse') return;
-      
-      down = true; 
-      startX = e.pageX; 
-      sl = el.scrollLeft; 
-      el.setPointerCapture(e.pointerId); 
+      if (e.pointerType !== "mouse") return;
+
+      down = true;
+      startX = e.pageX;
+      sl = el.scrollLeft;
+      el.setPointerCapture(e.pointerId);
     };
-    
-    const pointerMoveHandler = (e: PointerEvent) => { 
+
+    const pointerMoveHandler = (e: PointerEvent) => {
       // Only handle mouse events
-      if (e.pointerType !== 'mouse' || !down) return;
-      el.scrollLeft = sl - (e.pageX - startX); 
+      if (e.pointerType !== "mouse" || !down) return;
+      el.scrollLeft = sl - (e.pageX - startX);
     };
-    
-    const pointerEndHandler = () => { 
-      down = false; 
+
+    const pointerEndHandler = () => {
+      down = false;
     };
 
     // Add event listeners
-    el.addEventListener('wheel', wheelHandler, { passive: false });
-    el.addEventListener('pointerdown', pointerDownHandler);
-    el.addEventListener('pointermove', pointerMoveHandler);
-    el.addEventListener('pointerup', pointerEndHandler);
-    el.addEventListener('pointercancel', pointerEndHandler);
-    el.addEventListener('pointerleave', pointerEndHandler);
-    el.style.touchAction = 'pan-x'; // allow horizontal pan
+    el.addEventListener("wheel", wheelHandler, { passive: false });
+    el.addEventListener("pointerdown", pointerDownHandler);
+    el.addEventListener("pointermove", pointerMoveHandler);
+    el.addEventListener("pointerup", pointerEndHandler);
+    el.addEventListener("pointercancel", pointerEndHandler);
+    el.addEventListener("pointerleave", pointerEndHandler);
+    el.style.touchAction = "pan-x"; // allow horizontal pan
 
     // Unblock any parent that hides horizontal overflow - more aggressive for mobile
     let p = el.parentElement;
-    while(p && p !== document.body){
+    while (p && p !== document.body) {
       const cs = getComputedStyle(p);
-      if(cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
-        p.style.overflowX = 'visible';
+      if (cs.overflowX === "hidden" || cs.overflowX === "clip") {
+        p.style.overflowX = "visible";
       }
       // On mobile, ensure width doesn't constrain scrolling
-      if(window.innerWidth <= 1024) {
-        if(cs.maxWidth && cs.maxWidth !== 'none') {
-          p.style.maxWidth = '100vw';
+      if (window.innerWidth <= 1024) {
+        if (cs.maxWidth && cs.maxWidth !== "none") {
+          p.style.maxWidth = "100vw";
         }
       }
       p = p.parentElement;
@@ -243,24 +279,31 @@ export default function MenuPage() {
     const ensureEndsReachable = () => {
       const before = { w: el.scrollWidth, c: el.clientWidth };
       // try full right then full left
-      el.scrollTo({ left: el.scrollWidth, behavior: 'auto' });
-      const atEnd = Math.abs(el.scrollLeft - (el.scrollWidth - el.clientWidth)) <= 1;
-      el.scrollTo({ left: 0, behavior: 'auto' });
+      el.scrollTo({ left: el.scrollWidth, behavior: "auto" });
+      const atEnd =
+        Math.abs(el.scrollLeft - (el.scrollWidth - el.clientWidth)) <= 1;
+      el.scrollTo({ left: 0, behavior: "auto" });
       const atStart = el.scrollLeft === 0;
 
       // If either end is blocked, remove clip from nearest sticky ancestor
-      if(!atEnd || !atStart){
+      if (!atEnd || !atStart) {
         let a = el.parentElement;
-        while(a){
+        while (a) {
           const cs = getComputedStyle(a);
-          if(cs.position === 'sticky' || cs.overflow === 'hidden' || cs.overflowX === 'hidden' || cs.overflowX === 'clip'){
-            a.style.overflowX = 'visible';
-            a.style.overflow = cs.overflowY === 'hidden' ? 'visible hidden' : 'visible';
+          if (
+            cs.position === "sticky" ||
+            cs.overflow === "hidden" ||
+            cs.overflowX === "hidden" ||
+            cs.overflowX === "clip"
+          ) {
+            a.style.overflowX = "visible";
+            a.style.overflow =
+              cs.overflowY === "hidden" ? "visible hidden" : "visible";
           }
           a = a.parentElement;
         }
       }
-      console.log('categories widths', before, 'scrollLeft', el.scrollLeft);
+      console.log("categories widths", before, "scrollLeft", el.scrollLeft);
     };
 
     // Run once and after a frame (in case of fonts/layout)
@@ -268,100 +311,121 @@ export default function MenuPage() {
     const rafId = requestAnimationFrame(ensureEndsReachable);
 
     // Center active pill if present
-    const active = el.querySelector('.active, .is-active, [aria-current="true"]');
-    if(active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+    const active = el.querySelector(
+      '.active, .is-active, [aria-current="true"]',
+    );
+    if (active)
+      active.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
 
     // Verify we can reach ends (console only)
-    console.log('category pills:', el.querySelectorAll('button,a,[role="tab"]').length);
-    console.log('strip widths:', {clientWidth: el.clientWidth, scrollWidth: el.scrollWidth});
+    console.log(
+      "category pills:",
+      el.querySelectorAll('button,a,[role="tab"]').length,
+    );
+    console.log("strip widths:", {
+      clientWidth: el.clientWidth,
+      scrollWidth: el.scrollWidth,
+    });
 
     // Cleanup function
     return () => {
-      el.removeEventListener('wheel', wheelHandler);
-      el.removeEventListener('pointerdown', pointerDownHandler);
-      el.removeEventListener('pointermove', pointerMoveHandler);
-      el.removeEventListener('pointerup', pointerEndHandler);
-      el.removeEventListener('pointercancel', pointerEndHandler);
-      el.removeEventListener('pointerleave', pointerEndHandler);
+      el.removeEventListener("wheel", wheelHandler);
+      el.removeEventListener("pointerdown", pointerDownHandler);
+      el.removeEventListener("pointermove", pointerMoveHandler);
+      el.removeEventListener("pointerup", pointerEndHandler);
+      el.removeEventListener("pointercancel", pointerEndHandler);
+      el.removeEventListener("pointerleave", pointerEndHandler);
       cancelAnimationFrame(rafId);
     };
   }, []); // Empty dependency array - only run once, stable
 
   // Description clamp with toggle functionality - stable dependencies
   useEffect(() => {
-    const cards = document.querySelectorAll('.menu-item-card, .item-card');
-    if(!cards.length) return;
+    const cards = document.querySelectorAll(".menu-item-card, .item-card");
+    if (!cards.length) return;
 
-    console.log('Debug: Found', cards.length, 'cards with selector .menu-item-card, .item-card');
-    
-    const getDesc = (card: Element)=>{
-      return card.querySelector('.desc, .description, [data-desc]');
+    console.log(
+      "Debug: Found",
+      cards.length,
+      "cards with selector .menu-item-card, .item-card",
+    );
+
+    const getDesc = (card: Element) => {
+      return card.querySelector(".desc, .description, [data-desc]");
     };
 
-    const clickHandlers: Array<{btn: HTMLElement, handler: () => void}> = [];
+    const clickHandlers: Array<{ btn: HTMLElement; handler: () => void }> = [];
 
-    cards.forEach((card: Element)=>{
+    cards.forEach((card: Element) => {
       const desc = getDesc(card) as HTMLElement;
-      if(!desc) { 
-        console.log('Debug: No desc found in card', card); 
-        return; 
+      if (!desc) {
+        console.log("Debug: No desc found in card", card);
+        return;
       }
-      if(desc.dataset.clamped === '1') return;
+      if (desc.dataset.clamped === "1") return;
 
       // Apply initial 2-line clamp
-      desc.classList.add('desc--clamp-2');
-      desc.dataset.clamped = '1';
+      desc.classList.add("desc--clamp-2");
+      desc.dataset.clamped = "1";
 
       // Check if overflow exists; only then add toggle
       const probe = desc.cloneNode(true) as HTMLElement;
-      probe.style.cssText = 'position:absolute;visibility:hidden;height:auto;display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:unset;';
+      probe.style.cssText =
+        "position:absolute;visibility:hidden;height:auto;display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:unset;";
       document.body.appendChild(probe);
       const fullH = probe.scrollHeight;
       document.body.removeChild(probe);
       const collapsedH = desc.getBoundingClientRect().height;
       const isOverflowing = fullH > collapsedH + 1;
-      if(!isOverflowing) return;
+      if (!isOverflowing) return;
 
       // Create toggle
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'desc-toggle';
-      btn.textContent = 'View more';
-      btn.setAttribute('aria-expanded','false');
-      btn.setAttribute('aria-controls', (desc.id ||= 'desc_' + Math.random().toString(36).slice(2)));
-      desc.insertAdjacentElement('afterend', btn);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "desc-toggle";
+      btn.textContent = "View more";
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute(
+        "aria-controls",
+        (desc.id ||= "desc_" + Math.random().toString(36).slice(2)),
+      );
+      desc.insertAdjacentElement("afterend", btn);
 
       // Toggle behavior
       const clickHandler = () => {
-        const expanded = btn.getAttribute('aria-expanded') === 'true';
-        if(expanded){
+        const expanded = btn.getAttribute("aria-expanded") === "true";
+        if (expanded) {
           // Collapse
-          desc.classList.add('desc--clamp-2');
-          btn.textContent = 'View more';
-          btn.setAttribute('aria-expanded','false');
-          card.classList.remove('expanded');
+          desc.classList.add("desc--clamp-2");
+          btn.textContent = "View more";
+          btn.setAttribute("aria-expanded", "false");
+          card.classList.remove("expanded");
           // keep list compact again
-        }else{
+        } else {
           // Expand this card only
-          desc.classList.remove('desc--clamp-2');
-          btn.textContent = 'View less';
-          btn.setAttribute('aria-expanded','true');
-          card.classList.add('expanded');
+          desc.classList.remove("desc--clamp-2");
+          btn.textContent = "View less";
+          btn.setAttribute("aria-expanded", "true");
+          card.classList.add("expanded");
           // Ensure expanded text is fully visible
-          card.scrollIntoView({behavior:'smooth', block:'nearest'});
+          card.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
       };
 
-      btn.addEventListener('click', clickHandler);
-      clickHandlers.push({btn, handler: clickHandler});
+      btn.addEventListener("click", clickHandler);
+      clickHandlers.push({ btn, handler: clickHandler });
     });
 
-    console.log('Description clamp initialized on', cards.length, 'nodes');
+    console.log("Description clamp initialized on", cards.length, "nodes");
 
     // Cleanup function
     return () => {
-      clickHandlers.forEach(({btn, handler}) => {
-        btn.removeEventListener('click', handler);
+      clickHandlers.forEach(({ btn, handler }) => {
+        btn.removeEventListener("click", handler);
       });
     };
   }, []); // Empty dependency - runs only when component mounts
@@ -369,9 +433,11 @@ export default function MenuPage() {
   const activeCategoryData = sortedCategories.find(
     (cat) => cat.slug === activeCategory,
   );
-  
+
   // Items are already filtered by backend for active category
-  const categoryItems = activeCategory ? itemsByCategory[activeCategory] ?? [] : [];
+  const categoryItems = activeCategory
+    ? (itemsByCategory[activeCategory] ?? [])
+    : [];
   const imageQueueItems = useMemo(
     () => categoryItems.filter((item) => Boolean(item.imageUrl)),
     [categoryItems],
@@ -379,9 +445,7 @@ export default function MenuPage() {
   const allowedImageIds = useMemo(
     () =>
       new Set(
-        imageQueueItems
-          .slice(0, allowedImageCount)
-          .map((item) => item.id),
+        imageQueueItems.slice(0, allowedImageCount).map((item) => item.id),
       ),
     [imageQueueItems, allowedImageCount],
   );
@@ -403,11 +467,26 @@ export default function MenuPage() {
   }, [allowedImageCount, completedImageIds, imageQueueItems]);
 
   const handleMenuImageComplete = (itemId: number) => {
-    setCompletedImageIds((current) => {
-      if (current.has(itemId)) return current;
-      const next = new Set(current);
-      next.add(itemId);
-      return next;
+    if (!activeCategory) return;
+
+    setImageStateByCategory((prev) => {
+      const current = prev[activeCategory] ?? {
+        allowedCount: MENU_IMAGE_BATCH_SIZE,
+        completedIds: new Set<number>(),
+      };
+
+      if (current.completedIds.has(itemId)) return prev;
+
+      const nextCompletedIds = new Set(current.completedIds);
+      nextCompletedIds.add(itemId);
+
+      return {
+        ...prev,
+        [activeCategory]: {
+          ...current,
+          completedIds: nextCompletedIds,
+        },
+      };
     });
   };
 
@@ -439,30 +518,42 @@ export default function MenuPage() {
                 className="pill lang-trigger"
                 aria-haspopup="menu"
                 aria-expanded={langOpen}
-                onClick={() => setLangOpen(v => !v)}
+                onClick={() => setLangOpen((v) => !v)}
               >
-                {i18n.language?.toUpperCase() || 'EN'}
+                {i18n.language?.toUpperCase() || "EN"}
               </button>
 
-              <div className={`lang-menu ${langOpen ? "is-open" : ""}`} role="menu">
-                <button 
-                  role="menuitem" 
-                  onClick={() => { i18n.changeLanguage('en'); setLangOpen(false); }} 
-                  className={i18n.language === 'en' ? 'is-active' : ''}
+              <div
+                className={`lang-menu ${langOpen ? "is-open" : ""}`}
+                role="menu"
+              >
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    i18n.changeLanguage("en");
+                    setLangOpen(false);
+                  }}
+                  className={i18n.language === "en" ? "is-active" : ""}
                 >
                   EN
                 </button>
-                <button 
-                  role="menuitem" 
-                  onClick={() => { i18n.changeLanguage('fr'); setLangOpen(false); }}
-                  className={i18n.language === 'fr' ? 'is-active' : ''}
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    i18n.changeLanguage("fr");
+                    setLangOpen(false);
+                  }}
+                  className={i18n.language === "fr" ? "is-active" : ""}
                 >
                   FR
                 </button>
-                <button 
-                  role="menuitem" 
-                  onClick={() => { i18n.changeLanguage('ar'); setLangOpen(false); }}
-                  className={i18n.language === 'ar' ? 'is-active' : ''}
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    i18n.changeLanguage("ar");
+                    setLangOpen(false);
+                  }}
+                  className={i18n.language === "ar" ? "is-active" : ""}
                 >
                   AR
                 </button>
@@ -470,7 +561,11 @@ export default function MenuPage() {
             </div>
 
             {/* Halal Certification with mosque icon */}
-            <Link href="/halal" className="pill halal-btn" aria-label="Halal Certification">
+            <Link
+              href="/halal"
+              className="pill halal-btn"
+              aria-label="Halal Certification"
+            >
               <img className="icon" src={islam} alt="" />
               <span className="halal-text">Halal Certification</span>
             </Link>
@@ -504,18 +599,25 @@ export default function MenuPage() {
             data-category-scroll
           >
             {sortedCategories.map((category, i) => {
-              const COLOR_CYCLE = ["olive", "coral", "taupe", "yellow"] as const; // repeats
-              const COLOR_BY_SLUG: Record<string, (typeof COLOR_CYCLE)[number]> =
-                {
-                  "breakfast items": "olive",
-                  salads: "coral",
-                  "hot appetizers": "taupe",
-                  "cold appetizers": "yellow",
-                  "main course": "taupe", // stays taupe when active
-                  "sandwiches & burgers": "olive",
-                  "plat du jour": "yellow",
-                  desserts: "coral",
-                };
+              const COLOR_CYCLE = [
+                "olive",
+                "coral",
+                "taupe",
+                "yellow",
+              ] as const; // repeats
+              const COLOR_BY_SLUG: Record<
+                string,
+                (typeof COLOR_CYCLE)[number]
+              > = {
+                "breakfast items": "olive",
+                salads: "coral",
+                "hot appetizers": "taupe",
+                "cold appetizers": "yellow",
+                "main course": "taupe", // stays taupe when active
+                "sandwiches & burgers": "olive",
+                "plat du jour": "yellow",
+                desserts: "coral",
+              };
               const norm = (s: string) => s.toLowerCase().trim();
 
               const categoryName = getTranslatedCategoryName(category, locale);
@@ -545,7 +647,9 @@ export default function MenuPage() {
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green mx-auto mb-3"></div>
-                <p className="text-brand-green text-sm">{t("common.loading")}</p>
+                <p className="text-brand-green text-sm">
+                  {t("common.loading")}
+                </p>
               </div>
             </div>
           ) : activeCategoryData ? (
