@@ -3,6 +3,8 @@
     if (!img || img.dataset.optimized) return;
     const src = img.getAttribute("src");
     if (!src || src.startsWith("/img?")) return;
+    if (src.startsWith("/src/")) return;
+    if (src.startsWith("/api/storage/menu-items/")) return;
 
     const w = Math.ceil(img.getBoundingClientRect().width || 900);
     img.loading = img.loading || "lazy";
