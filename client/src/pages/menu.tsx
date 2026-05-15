@@ -11,7 +11,7 @@ import { useLocale, getTranslatedCategoryName } from "@/utils/translation";
 
 import islam from "@assets/islam.png";
 
-const MENU_IMAGE_BATCH_SIZE = 6;
+const MENU_IMAGE_BATCH_SIZE = 18;
 
 // Allergens Legend Component
 function AllergensLegend() {

@@ -3,7 +3,11 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
 import { getDefaultImageForItem } from "@/lib/menu-data";
-import { useLocale, getTranslatedItemName, getTranslatedItemDescription } from "@/utils/translation";
+import {
+  useLocale,
+  getTranslatedItemName,
+  getTranslatedItemDescription,
+} from "@/utils/translation";
 import {
   Dialog,
   DialogContent,
@@ -13,20 +17,22 @@ import {
 import LazyImage from "@/components/lazy-image";
 
 // Helper function to safely encode image URLs for filenames with special characters
-function getEncodedImageUrl(imageUrl: string | null | undefined): string | null {
+function getEncodedImageUrl(
+  imageUrl: string | null | undefined,
+): string | null {
   if (!imageUrl) return null;
-  
+
   // If it's already a full URL (starts with http), return as-is
-  if (imageUrl.startsWith('http')) return imageUrl;
-  
+  if (imageUrl.startsWith("http")) return imageUrl;
+
   // If it's a path starting with /, extract the filename and encode it
-  if (imageUrl.startsWith('/')) {
-    const parts = imageUrl.split('/');
+  if (imageUrl.startsWith("/")) {
+    const parts = imageUrl.split("/");
     const filename = parts[parts.length - 1];
-    const pathWithoutFilename = parts.slice(0, -1).join('/');
-    return pathWithoutFilename + '/' + encodeURIComponent(filename);
+    const pathWithoutFilename = parts.slice(0, -1).join("/");
+    return pathWithoutFilename + "/" + encodeURIComponent(filename);
   }
-  
+
   return imageUrl;
 }
 
@@ -35,12 +41,15 @@ interface ExpandableDescriptionProps {
   maxLines?: number;
 }
 
-function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProps) {
+function ExpandableDescription({
+  text,
+  maxLines = 2,
+}: ExpandableDescriptionProps) {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [needsTruncation, setNeedsTruncation] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
-  
+
   useEffect(() => {
     // Reset state when text changes
     setIsExpanded(false);
@@ -50,22 +59,22 @@ function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProp
   useEffect(() => {
     // Only measure when collapsed - don't re-measure when expanded
     if (isExpanded) return;
-    
+
     const textEl = textRef.current;
     if (!textEl) return;
-    
+
     const checkTruncation = () => {
       // Compare scrollHeight vs clientHeight to detect overflow
       // When clamped, scrollHeight > clientHeight means content is truncated
       const isTruncated = textEl.scrollHeight > textEl.clientHeight + 2;
       setNeedsTruncation(isTruncated);
     };
-    
+
     // Check after fonts load and layout stabilizes
     const frameId = requestAnimationFrame(() => {
       setTimeout(checkTruncation, 100);
     });
-    
+
     // Re-check on resize (only when collapsed)
     const resizeObserver = new ResizeObserver(() => {
       if (!isExpanded) {
@@ -73,7 +82,7 @@ function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProp
       }
     });
     resizeObserver.observe(textEl);
-    
+
     return () => {
       cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
@@ -84,30 +93,36 @@ function ExpandableDescription({ text, maxLines = 2 }: ExpandableDescriptionProp
     e.stopPropagation();
     setIsExpanded(!isExpanded);
   };
-  
+
   return (
     <div className="expandable-description">
-      <p 
+      <p
         ref={textRef}
         className="menu-desc"
-        style={!isExpanded ? {
-          display: '-webkit-box',
-          WebkitLineClamp: maxLines,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-        } : undefined}
+        style={
+          !isExpanded
+            ? {
+                display: "-webkit-box",
+                WebkitLineClamp: maxLines,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }
+            : undefined
+        }
       >
         {text}
       </p>
-      
+
       {needsTruncation && (
         <button
           className="view-more-toggle"
           onClick={handleToggle}
           aria-expanded={isExpanded}
-          data-testid={`toggle-description-${isExpanded ? 'less' : 'more'}`}
+          data-testid={`toggle-description-${isExpanded ? "less" : "more"}`}
         >
-          {isExpanded ? t('menu.viewLess', 'View Less') : t('menu.viewMore', 'View More')}
+          {isExpanded
+            ? t("menu.viewLess", "View Less")
+            : t("menu.viewMore", "View More")}
         </button>
       )}
     </div>
@@ -144,98 +159,120 @@ function MenuItemWithImage({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fallbackImage = getDefaultImageForItem(category.slug, index);
   const originalImageUrl = getEncodedImageUrl(item.imageUrl);
-  const shouldLoadOriginalImage = Boolean(originalImageUrl && canLoadImage && !imageError);
-  
+  const shouldLoadOriginalImage = Boolean(
+    originalImageUrl && canLoadImage && !imageError,
+  );
+
   // Reset imageError only when the ORIGINAL image loads successfully (not the fallback)
   // This prevents infinite retry loops while still allowing recovery from transient failures
   const handleImageLoad = (loadedSrc: string) => {
     // Only clear error if the original image (not the fallback) loaded successfully
-    if (imageError && originalImageUrl && loadedSrc.includes(originalImageUrl)) {
+    if (
+      imageError &&
+      originalImageUrl &&
+      loadedSrc.includes(originalImageUrl)
+    ) {
       setImageError(false);
     }
     if (shouldLoadOriginalImage) {
       onImageComplete?.(item.id);
     }
   };
-  
+
   // Get translated content with fallback to English
   const itemName = getTranslatedItemName(item, locale);
   const itemDescription = getTranslatedItemDescription(item, locale);
-  
+
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
-  
+
   const handleImageError = () => {
     if (shouldLoadOriginalImage) {
       onImageComplete?.(item.id);
     }
     setImageError(true);
   };
-  
+
   // Use fallback image while the original image is waiting for its queue slot.
   const imageUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
-  
+
   // High-resolution image for modal - use stable cache key based on item ID
   // Falls back to default image if imageError is true
   const highResImageUrl = useMemo(() => {
-    const baseUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
-    return `${baseUrl}?highres=true&item=${item.id}`;
-  }, [item.id, shouldLoadOriginalImage, originalImageUrl, fallbackImage]);
-  
+    if (originalImageUrl && !imageError) {
+      return `${originalImageUrl}?highres=true&item=${item.id}`;
+    }
+
+    return fallbackImage;
+  }, [item.id, originalImageUrl, imageError, fallbackImage]);
+
   return (
     <>
-      <li 
+      <li
         className="menu-card cursor-pointer hover:shadow-lg transition-shadow"
         onClick={() => setIsModalOpen(true)}
         data-testid={`menu-card-${item.id}`}
       >
-      <div className="thumb-wrap">
-        <LazyImage
-          src={imageUrl}
-          alt={itemName}
-          className="menu-thumb"
-          wrapperClassName="thumb-inner"
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-        />
-      </div>
-      <div className="menu-meta">
-        <h3 className="menu-title">{itemName}</h3>
-        <ExpandableDescription text={itemDescription} />
-        
-        {/* Allergy badges under description */}
-        {allergens.length > 0 && (
-          <div className="allergen-badges" role="list" aria-label={t('menu.allergens', 'Contains allergens')}>
-            {allergens.map((slug: AllergenSlug) => {
-              const a = ALLERGENS_MAP[slug];
-              if (!a) {
-                console.warn(`Unknown allergen: ${slug}`);
-                return null;
-              }
-              return (
-                <span 
-                  key={slug} 
-                  className="allergen-badge"
-                  role="listitem"
-                  aria-label={`${t('menu.allergen', 'Allergen')}: ${a.label}`}
-                  title={a.label}
-                >
-                  <img src={a.icon} alt={a.label} aria-hidden="true" />
-                  <span className="allergen-label">{a.label}</span>
-                </span>
-              );
-            }).filter(Boolean)}
-          </div>
-        )}
-      </div>
-      <div className="menu-price">
-        <div>{`${parseFloat(item.price).toFixed(2)} $`}</div>
-        {isOutOfStock && (
-          <p style={{ color: '#B91C1C', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
-            {t('menu.outOfStock')}
-          </p>
-        )}
-      </div>
+        <div className="thumb-wrap">
+          <LazyImage
+            src={imageUrl}
+            alt={itemName}
+            className="menu-thumb"
+            wrapperClassName="thumb-inner"
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+          />
+        </div>
+        <div className="menu-meta">
+          <h3 className="menu-title">{itemName}</h3>
+          <ExpandableDescription text={itemDescription} />
+
+          {/* Allergy badges under description */}
+          {allergens.length > 0 && (
+            <div
+              className="allergen-badges"
+              role="list"
+              aria-label={t("menu.allergens", "Contains allergens")}
+            >
+              {allergens
+                .map((slug: AllergenSlug) => {
+                  const a = ALLERGENS_MAP[slug];
+                  if (!a) {
+                    console.warn(`Unknown allergen: ${slug}`);
+                    return null;
+                  }
+                  return (
+                    <span
+                      key={slug}
+                      className="allergen-badge"
+                      role="listitem"
+                      aria-label={`${t("menu.allergen", "Allergen")}: ${a.label}`}
+                      title={a.label}
+                    >
+                      <img src={a.icon} alt={a.label} aria-hidden="true" />
+                      <span className="allergen-label">{a.label}</span>
+                    </span>
+                  );
+                })
+                .filter(Boolean)}
+            </div>
+          )}
+        </div>
+        <div className="menu-price">
+          <div>{`${parseFloat(item.price).toFixed(2)} $`}</div>
+          {isOutOfStock && (
+            <p
+              style={{
+                color: "#B91C1C",
+                fontWeight: "bold",
+                fontSize: "14px",
+                marginTop: "4px",
+              }}
+            >
+              {t("menu.outOfStock")}
+            </p>
+          )}
+        </div>
       </li>
 
       {/* Modal Dialog */}
@@ -256,20 +293,29 @@ function MenuItemWithImage({
             {/* Right side - Item Details */}
             <div className="p-8 flex flex-col">
               <DialogHeader>
-                <DialogTitle className="text-3xl font-bold text-[#3b4b30] mb-4" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                <DialogTitle
+                  className="text-3xl font-bold text-[#3b4b30] mb-4"
+                  style={{ fontFamily: "Billmake, sans-serif" }}
+                >
                   {itemName}
                 </DialogTitle>
               </DialogHeader>
 
               {/* Description */}
               <div className="flex-1 mb-6">
-                <div className="text-[#6d756f] text-base leading-relaxed whitespace-pre-line" style={{ fontFamily: 'Billmake, sans-serif' }}>
+                <div
+                  className="text-[#6d756f] text-base leading-relaxed whitespace-pre-line"
+                  style={{ fontFamily: "Billmake, sans-serif" }}
+                >
                   {itemDescription}
                 </div>
               </div>
 
               {/* Price */}
-              <div className="text-2xl font-bold text-[#efa25f] mb-4" style={{ fontFamily: 'Billmake, sans-serif' }}>
+              <div
+                className="text-2xl font-bold text-[#efa25f] mb-4"
+                style={{ fontFamily: "Billmake, sans-serif" }}
+              >
                 ${parseFloat(item.price).toFixed(2)}
               </div>
 
@@ -277,22 +323,31 @@ function MenuItemWithImage({
               {allergens.length > 0 && (
                 <div className="mb-4">
                   <div className="flex flex-wrap gap-3">
-                    {allergens.map((slug: AllergenSlug) => {
-                      const a = ALLERGENS_MAP[slug];
-                      if (!a) return null;
-                      return (
-                        <div 
-                          key={slug} 
-                          className="flex items-center gap-2 px-3 py-2 bg-white/70 rounded-full border border-[#3b4b30]/20"
-                          title={a.label}
-                        >
-                          <img src={a.icon} alt={a.label} className="w-5 h-5" />
-                          <span className="text-sm font-semibold text-[#3b4b30]" style={{ fontFamily: 'Billmake, sans-serif' }}>
-                            {a.label}
-                          </span>
-                        </div>
-                      );
-                    }).filter(Boolean)}
+                    {allergens
+                      .map((slug: AllergenSlug) => {
+                        const a = ALLERGENS_MAP[slug];
+                        if (!a) return null;
+                        return (
+                          <div
+                            key={slug}
+                            className="flex items-center gap-2 px-3 py-2 bg-white/70 rounded-full border border-[#3b4b30]/20"
+                            title={a.label}
+                          >
+                            <img
+                              src={a.icon}
+                              alt={a.label}
+                              className="w-5 h-5"
+                            />
+                            <span
+                              className="text-sm font-semibold text-[#3b4b30]"
+                              style={{ fontFamily: "Billmake, sans-serif" }}
+                            >
+                              {a.label}
+                            </span>
+                          </div>
+                        );
+                      })
+                      .filter(Boolean)}
                   </div>
                 </div>
               )}
@@ -300,8 +355,11 @@ function MenuItemWithImage({
               {/* Out of Stock Badge */}
               {isOutOfStock && (
                 <div className="mt-2 px-4 py-2 bg-red-100 border border-red-300 rounded-lg">
-                  <p className="text-red-700 font-bold text-center" style={{ fontFamily: 'Billmake, sans-serif' }}>
-                    {t('menu.outOfStock', 'Out of Stock')}
+                  <p
+                    className="text-red-700 font-bold text-center"
+                    style={{ fontFamily: "Billmake, sans-serif" }}
+                  >
+                    {t("menu.outOfStock", "Out of Stock")}
                   </p>
                 </div>
               )}
@@ -320,7 +378,7 @@ export default function MenuCategory({
   onImageComplete,
 }: MenuCategoryProps) {
   const { t } = useTranslation();
-  console.log("items : ", items)
+  console.log("items : ", items);
   return (
     <section className="container">
       {/* Responsive menu list: desktop layout scaled down for mobile */}
@@ -329,7 +387,7 @@ export default function MenuCategory({
           // Parse allergens from JSON string or use array directly
           let allergens: AllergenSlug[] = [];
           if (item.allergens) {
-            if (typeof item.allergens === 'string') {
+            if (typeof item.allergens === "string") {
               try {
                 allergens = JSON.parse(item.allergens);
               } catch {
@@ -339,24 +397,26 @@ export default function MenuCategory({
               allergens = item.allergens;
             }
           }
-          
+
           return (
-            <MenuItemWithImage 
-              key={item.id} 
-              item={item} 
-              category={category} 
-              index={index} 
+            <MenuItemWithImage
+              key={item.id}
+              item={item}
+              category={category}
+              index={index}
               allergens={allergens}
-              canLoadImage={!item.imageUrl || allowedImageIds?.has(item.id) === true}
+              canLoadImage={
+                !item.imageUrl || allowedImageIds?.has(item.id) === true
+              }
               onImageComplete={onImageComplete}
             />
           );
         })}
       </ul>
-      
+
       {items.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted">{t('common.noItems')}</p>
+          <p className="text-muted">{t("common.noItems")}</p>
         </div>
       )}
     </section>

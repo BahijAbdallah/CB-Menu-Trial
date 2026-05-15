@@ -13,13 +13,24 @@ const MIME: Record<string, string> = {
 };
 
 function resolveLocalPath(src: string): string | null {
-  if (/^https?:\/\//i.test(src)) return null;
+  // Allow same-origin absolute URLs by converting them to local paths.
+  // Example:
+  // https://menu.chez-beyrouth.com/images/hero.jpg
+  // becomes:
+  // /images/hero.jpg
+  if (/^https?:\/\//i.test(src)) {
+    try {
+      const url = new URL(src);
+      return resolveLocalPath(url.pathname + url.search);
+    } catch {
+      return null;
+    }
+  }
 
-  // *** FIX FOR ISSUE 2 (clicking on an item to view displays error and no image): strip query params before any path resolution ***
+  // Strip query params before resolving path.
   const srcPath = src.split("?")[0];
   const clean = srcPath.replace(/^\/+/, "").replace(/\.\.(\/|\\|$)/g, "");
 
-  // Route 1: menu item images → Render Disk
   if (clean.startsWith("api/storage/menu-items/")) {
     const filename = path.basename(clean);
     const UPLOAD_ROOT =
@@ -27,16 +38,12 @@ function resolveLocalPath(src: string): string | null {
     return path.join(UPLOAD_ROOT, "menu-items", filename);
   }
 
-  // Route 2: check source public/ first
   const publicPath = path.join(process.cwd(), "public", clean);
   if (fs.existsSync(publicPath)) return publicPath;
 
-  // *** FIX FOR ISSUE 1: fall back to dist/public for Vite-built assets ***
-  // (logo, halal icon, and any asset imported via `import x from "@assets/..."`)
   const distPath = path.join(process.cwd(), "dist", "public", clean);
   if (fs.existsSync(distPath)) return distPath;
 
-  // Return the public path anyway so the caller can log the correct 404
   return publicPath;
 }
 
@@ -47,9 +54,6 @@ export default function imgProxy() {
 
       if (!src || typeof src !== "string") {
         return res.status(400).send("Missing src");
-      }
-      if (/^https?:\/\//i.test(src)) {
-        return res.status(403).send("External URLs not allowed");
       }
 
       const filePath = resolveLocalPath(src);
