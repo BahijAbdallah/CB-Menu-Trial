@@ -179,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const compressedBuffer = await sharp(req.file.buffer)
           .webp({
-            quality: 88, // was 72 — meaningful visual improvement on food images
+            quality: 80, // was 72 — meaningful visual improvement on food images
             effort: 4, // default sharpening pass, no extra memory cost
             smartSubsample: true, // better color accuracy at high quality
           })

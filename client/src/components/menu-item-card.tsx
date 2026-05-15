@@ -2,23 +2,26 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { getDefaultImageForItem } from "@/lib/menu-data";
 import { useState } from "react";
+import { DEFAULT_ITEM_IMAGE } from "@/lib/default-image";
 import type { Category, MenuItem } from "@shared/schema";
 
 // Helper function to safely encode image URLs for filenames with special characters
-function getEncodedImageUrl(imageUrl: string | null | undefined): string | null {
+function getEncodedImageUrl(
+  imageUrl: string | null | undefined,
+): string | null {
   if (!imageUrl) return null;
-  
+
   // If it's already a full URL (starts with http), return as-is
-  if (imageUrl.startsWith('http')) return imageUrl;
-  
+  if (imageUrl.startsWith("http")) return imageUrl;
+
   // If it's a path starting with /, extract the filename and encode it
-  if (imageUrl.startsWith('/')) {
-    const parts = imageUrl.split('/');
+  if (imageUrl.startsWith("/")) {
+    const parts = imageUrl.split("/");
     const filename = parts[parts.length - 1];
-    const pathWithoutFilename = parts.slice(0, -1).join('/');
-    return pathWithoutFilename + '/' + encodeURIComponent(filename);
+    const pathWithoutFilename = parts.slice(0, -1).join("/");
+    return pathWithoutFilename + "/" + encodeURIComponent(filename);
   }
-  
+
   return imageUrl;
 }
 
@@ -28,11 +31,20 @@ interface MenuItemCardProps {
   index: number;
 }
 
-export default function MenuItemCard({ item, category, index }: MenuItemCardProps) {
+export default function MenuItemCard({
+  item,
+  category,
+  index,
+}: MenuItemCardProps) {
   const { t } = useTranslation();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  
+
+  const imgSrc =
+    item.imageUrl && !imageError
+      ? (getEncodedImageUrl(item.imageUrl) ?? DEFAULT_ITEM_IMAGE)
+      : DEFAULT_ITEM_IMAGE;
+
   return (
     <div className="menu-item-card bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 relative">
       <div className="relative overflow-hidden">
@@ -42,9 +54,9 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
           </div>
         )}
         <img
-          src={(item.imageUrl && !imageError) ? (getEncodedImageUrl(item.imageUrl) || getDefaultImageForItem(category.slug, index)) : getDefaultImageForItem(category.slug, index)}
+          src={imgSrc}
           alt={item.name}
-          className={`w-full h-48 object-cover ${!imageLoaded ? 'hidden' : ''}`}
+          className={`w-full h-48 object-cover ${!imageLoaded ? "hidden" : ""}`}
           onLoad={() => setImageLoaded(true)}
           onError={() => {
             setImageError(true);
@@ -69,8 +81,15 @@ export default function MenuItemCard({ item, category, index }: MenuItemCardProp
               $ {item.price}
             </span>
             {item.outOfStock && (
-              <p style={{ color: '#B91C1C', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
-                {t('menu.outOfStock')}
+              <p
+                style={{
+                  color: "#B91C1C",
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  marginTop: "4px",
+                }}
+              >
+                {t("menu.outOfStock")}
               </p>
             )}
           </div>

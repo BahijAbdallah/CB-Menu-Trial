@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { DEFAULT_ITEM_IMAGE } from "@/lib/default-image";
 
 interface LazyImageProps {
   src: string;
@@ -7,6 +8,7 @@ interface LazyImageProps {
   wrapperClassName?: string; // Applied to the wrapper div
   width?: string | number;
   height?: string | number;
+  fallbackSrc?: string;
   onLoad?: (loadedSrc: string) => void; // Passes the successful src
   onError?: () => void;
 }
@@ -18,6 +20,7 @@ export default function LazyImage({
   wrapperClassName = "",
   width,
   height,
+  fallbackSrc = DEFAULT_ITEM_IMAGE,
   onLoad,
   onError,
 }: LazyImageProps) {
@@ -91,10 +94,14 @@ export default function LazyImage({
       )}
 
       {/* Error placeholder - shown when image fails to load */}
-      {hasError && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-          <div className="text-gray-400 text-xs">⚠️</div>
-        </div>
+      {hasError && fallbackSrc && (
+        <img
+          src={fallbackSrc}
+          alt={alt}
+          className={`${className} opacity-100`}
+          width={width}
+          height={height}
+        />
       )}
 
       {/* Actual image - only loaded when in viewport */}
