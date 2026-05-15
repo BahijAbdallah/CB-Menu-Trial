@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 interface LazyImageProps {
   src: string;
@@ -14,8 +14,8 @@ interface LazyImageProps {
 export default function LazyImage({
   src,
   alt,
-  className = '',
-  wrapperClassName = '',
+  className = "",
+  wrapperClassName = "",
   width,
   height,
   onLoad,
@@ -33,7 +33,6 @@ export default function LazyImage({
       setIsLoaded(false);
       setHasError(false);
       setCurrentSrc(src);
-      setIsInView(false); // Reset to trigger intersection check again
     }
   }, [src, currentSrc]);
 
@@ -51,9 +50,9 @@ export default function LazyImage({
         });
       },
       {
-        rootMargin: '100px', // Start loading 100px before image enters viewport
+        rootMargin: "100px", // Start loading 100px before image enters viewport
         threshold: 0.01,
-      }
+      },
     );
 
     observer.observe(wrapperRef.current);
@@ -79,27 +78,31 @@ export default function LazyImage({
   const wrapperStyle = width || height ? { width, height } : undefined;
 
   return (
-    <div ref={wrapperRef} className={`relative overflow-hidden ${wrapperClassName}`} style={wrapperStyle}>
+    <div
+      ref={wrapperRef}
+      className={`relative overflow-hidden ${wrapperClassName}`}
+      style={wrapperStyle}
+    >
       {/* Blur placeholder - shown while loading */}
       {!isLoaded && !hasError && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
           <div className="text-gray-400 text-xs">Loading...</div>
         </div>
       )}
-      
+
       {/* Error placeholder - shown when image fails to load */}
       {hasError && (
         <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
           <div className="text-gray-400 text-xs">⚠️</div>
         </div>
       )}
-      
+
       {/* Actual image - only loaded when in viewport */}
       {isInView && !hasError && (
         <img
           src={currentSrc}
           alt={alt}
-          className={`${className} ${!isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          className={`${className} ${!isLoaded ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}
           width={width}
           height={height}
           onLoad={handleLoad}

@@ -245,6 +245,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
 
+      res.setHeader("ETag", `${stats.size}-${stats.mtimeMs}`);
+      res.setHeader("Last-Modified", stats.mtime.toUTCString());
+
       res.sendFile(filePath, (error) => {
         const durationMs = Date.now() - startedAt;
 

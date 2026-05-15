@@ -163,17 +163,19 @@ function MenuItemWithImage({
     originalImageUrl && canLoadImage && !imageError,
   );
 
+  const [hasLoadedOriginalImage, setHasLoadedOriginalImage] = useState(false);
+
   // Reset imageError only when the ORIGINAL image loads successfully (not the fallback)
   // This prevents infinite retry loops while still allowing recovery from transient failures
   const handleImageLoad = (loadedSrc: string) => {
-    // Only clear error if the original image (not the fallback) loaded successfully
-    if (
-      imageError &&
-      originalImageUrl &&
-      loadedSrc.includes(originalImageUrl)
-    ) {
-      setImageError(false);
+    if (originalImageUrl && loadedSrc.includes(originalImageUrl)) {
+      setHasLoadedOriginalImage(true);
+
+      if (imageError) {
+        setImageError(false);
+      }
     }
+
     if (shouldLoadOriginalImage) {
       onImageComplete?.(item.id);
     }
@@ -194,13 +196,17 @@ function MenuItemWithImage({
   };
 
   // Use fallback image while the original image is waiting for its queue slot.
-  const imageUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
+  // const imageUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
+  const imageUrl =
+    hasLoadedOriginalImage || shouldLoadOriginalImage
+      ? originalImageUrl!
+      : fallbackImage;
 
   // High-resolution image for modal - use stable cache key based on item ID
   // Falls back to default image if imageError is true
   const highResImageUrl = useMemo(() => {
     if (originalImageUrl && !imageError) {
-      return `${originalImageUrl}?highres=true&item=${item.id}`;
+      return originalImageUrl;
     }
 
     return fallbackImage;
