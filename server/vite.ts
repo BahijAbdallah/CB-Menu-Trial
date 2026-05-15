@@ -23,7 +23,13 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true,
+    allowedHosts: [
+      "https://cb-menu-trial.onrender.com.",
+      "menu.chezbeyrouth.com",
+      "menu.chez-beyrouth.com",
+      "localhost",
+      "127.0.0.1",
+    ],
   };
 
   const vite = await createViteServer({

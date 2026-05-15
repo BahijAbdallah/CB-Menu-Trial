@@ -3,11 +3,16 @@ import path from "path";
 import sharp from "sharp";
 import { Request, Response } from "express";
 
+// Prevent libvips from consuming hundreds of MB of native memory.
+// These must be called before any sharp() operation.
+sharp.cache(false); // disable the native operation cache (~100 MB saved)
+sharp.concurrency(1); // one thread instead of one-per-core
+
 export default function imgProxy() {
   return async (req: Request, res: Response) => {
     try {
       const { src, w } = req.query;
-      if (!src || typeof src !== 'string') {
+      if (!src || typeof src !== "string") {
         return res.status(400).send("Missing src");
       }
 
@@ -17,17 +22,26 @@ export default function imgProxy() {
       const quality = fmt === "avif" ? 55 : 70;
 
       // Parse and constrain width
-      const width = Math.min(1200, Math.max(320, parseInt((w as string) || "720", 10) || 720));
+      const width = Math.min(
+        1200,
+        Math.max(320, parseInt((w as string) || "720", 10) || 720),
+      );
 
       // Resolve URL - handle both absolute and relative
       const isAbsolute = /^https?:\/\//i.test(src);
-      const resolvedUrl = isAbsolute ? src : `${req.protocol}://${req.get("host")}${src}`;
+      const resolvedUrl = isAbsolute
+        ? src
+        : `${req.protocol}://${req.get("host")}${src}`;
 
       // Set up cache
-      const cacheDir = path.join(process.cwd(), ".img-cache");
+      const UPLOAD_ROOT =
+        process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
+      const cacheDir = path.join(UPLOAD_ROOT, ".img-cache");
       await fs.promises.mkdir(cacheDir, { recursive: true });
-      
-      const cacheKey = Buffer.from(`${resolvedUrl}|${fmt}|q${quality}|w${width}`).toString("hex");
+
+      const cacheKey = Buffer.from(
+        `${resolvedUrl}|${fmt}|q${quality}|w${width}`,
+      ).toString("hex");
       const outFile = path.join(cacheDir, `${cacheKey}.${fmt}`);
 
       // Generate optimized image if not cached
@@ -36,12 +50,16 @@ export default function imgProxy() {
 
         // If local file under /public, read from disk (faster, avoids recursion)
         if (!isAbsolute) {
-          const publicPath = path.join(process.cwd(), "public", src.replace(/^\/+/, ""));
+          const publicPath = path.join(
+            process.cwd(),
+            "public",
+            src.replace(/^\/+/, ""),
+          );
           if (fs.existsSync(publicPath)) {
             inputBuffer = await fs.promises.readFile(publicPath);
           }
         }
-        
+
         // If we don't have the buffer yet, fetch it
         if (!inputBuffer!) {
           const response = await fetch(resolvedUrl);
@@ -55,15 +73,16 @@ export default function imgProxy() {
         // Process image with Sharp
         let pipeline = sharp(inputBuffer)
           .rotate() // auto-orient
-          .resize({ 
-            width, 
-            withoutEnlargement: true 
+          .resize({
+            width,
+            withoutEnlargement: true,
           });
-        
-        pipeline = fmt === "avif" 
-          ? pipeline.avif({ quality }) 
-          : pipeline.webp({ quality });
-        
+
+        pipeline =
+          fmt === "avif"
+            ? pipeline.avif({ quality })
+            : pipeline.webp({ quality });
+
         await pipeline.toFile(outFile);
       }
 
@@ -71,9 +90,8 @@ export default function imgProxy() {
       res.setHeader("Content-Type", `image/${fmt}`);
       res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
       res.setHeader("Vary", "Accept");
-      
+
       fs.createReadStream(outFile).pipe(res);
-      
     } catch (error) {
       // Fallback to original on any error
       const originalSrc = req.query.src as string;

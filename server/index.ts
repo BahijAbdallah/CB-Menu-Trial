@@ -85,7 +85,8 @@ app.use("/attached_assets", express.static("attached_assets"));
 // Session configuration
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+    secret:
+      process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: true,
     saveUninitialized: true,
     store: new memoryStore({
@@ -141,14 +142,21 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+  server.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
+    log(`serving on port ${port}`);
+
+    // Baseline memory after startup — should be under 100 MB RSS with NODE_ENV=production
+    setTimeout(() => {
+      const m = process.memoryUsage();
+      console.log("[STARTUP BASELINE]", {
+        rss: `${Math.round(m.rss / 1024 / 1024)}MB`,
+        heapUsed: `${Math.round(m.heapUsed / 1024 / 1024)}MB`,
+        external: `${Math.round(m.external / 1024 / 1024)}MB`,
+        note:
+          process.env.NODE_ENV === "production"
+            ? "prod mode ✓"
+            : "⚠ NOT production mode",
+      });
+    }, 4000);
+  });
 })();

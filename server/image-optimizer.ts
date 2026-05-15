@@ -3,6 +3,11 @@ import path from "path";
 import sharp from "sharp";
 import type { Request, Response, NextFunction } from "express";
 
+// Prevent libvips from consuming hundreds of MB of native memory.
+// These must be called before any sharp() operation.
+sharp.cache(false); // disable the native operation cache (~100 MB saved)
+sharp.concurrency(1); // one thread instead of one-per-core
+
 export default function imageOptimizer({ root = "public" } = {}) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,9 +31,11 @@ export default function imageOptimizer({ root = "public" } = {}) {
       const quality = fmt === "avif" ? 75 : 90;
 
       // Check if high-res is requested via query param
-      const highResParam = Array.isArray(req.query.highres) ? req.query.highres[0] : req.query.highres;
-      const highRes = highResParam === 'true';
-      
+      const highResParam = Array.isArray(req.query.highres)
+        ? req.query.highres[0]
+        : req.query.highres;
+      const highRes = highResParam === "true";
+
       // For high-res images (modal), ALWAYS use maximum resolution regardless of viewport
       let w: number;
       if (highRes) {
@@ -38,29 +45,40 @@ export default function imageOptimizer({ root = "public" } = {}) {
         // Normal responsive behavior for thumbnails
         const chWidthHeader = req.headers["sec-ch-width"];
         const dprHeader = req.headers["dpr"];
-        const chWidthStr = Array.isArray(chWidthHeader) ? chWidthHeader[0] : chWidthHeader;
+        const chWidthStr = Array.isArray(chWidthHeader)
+          ? chWidthHeader[0]
+          : chWidthHeader;
         const dprStr = Array.isArray(dprHeader) ? dprHeader[0] : dprHeader;
         const chWidth = parseInt(chWidthStr || "", 10);
         const dpr = parseFloat(dprStr || "1");
-        const cssWidth = Number.isFinite(chWidth) && chWidth > 0 ? chWidth : 1200;
-        const target = Math.min(1200, Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)));
+        const cssWidth =
+          Number.isFinite(chWidth) && chWidth > 0 ? chWidth : 1200;
+        const target = Math.min(
+          1200,
+          Math.ceil(cssWidth * (Number.isFinite(dpr) ? dpr : 1)),
+        );
         const widths = [320, 640, 960, 1200];
-        w = widths.find(x => x >= target) || 1200;
+        w = widths.find((x) => x >= target) || 1200;
       }
 
       // Build cache key (same logic as prewarm script)
       const stat = fs.statSync(abs);
+      if (stat.size > 4 * 1024 * 1024) {
+        return next(); // too large, serve as-is
+      }
       const cacheKey = [
         abs,
         Math.floor(stat.mtimeMs),
         fmt,
         quality,
-        `w${w}`
+        `w${w}`,
       ].join("|");
 
-      const cacheDir = path.join(process.cwd(), ".img-cache");
+      const UPLOAD_ROOT =
+        process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
+      const cacheDir = path.join(UPLOAD_ROOT, ".img-cache");
       await fs.promises.mkdir(cacheDir, { recursive: true });
-      
+
       const cacheName = Buffer.from(cacheKey).toString("hex") + "." + fmt;
       const out = path.join(cacheDir, cacheName);
 
@@ -70,13 +88,14 @@ export default function imageOptimizer({ root = "public" } = {}) {
           .rotate() // auto-orient
           .resize({
             width: w,
-            withoutEnlargement: true
+            withoutEnlargement: true,
           });
-        
-        pipeline = fmt === "avif"
-          ? pipeline.avif({ quality })
-          : pipeline.webp({ quality });
-        
+
+        pipeline =
+          fmt === "avif"
+            ? pipeline.avif({ quality })
+            : pipeline.webp({ quality });
+
         await pipeline.toFile(out);
       }
 
@@ -88,7 +107,6 @@ export default function imageOptimizer({ root = "public" } = {}) {
 
       // Stream the optimized image
       fs.createReadStream(out).pipe(res);
-      
     } catch (error) {
       // On error, fall back to normal static handling
       next();

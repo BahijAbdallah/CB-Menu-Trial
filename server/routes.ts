@@ -11,7 +11,6 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import sharp from "sharp";
 import "./types";
 import { importExcelMenu } from "./import-excel";
 import imgProxy from "./img-proxy";
@@ -174,6 +173,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Generate unique filename
         const filename = generateImageFilename(req.file.originalname);
 
+        const { default: sharp } = await import("sharp");
+        sharp.cache(false);
+        sharp.concurrency(1);
         const compressedBuffer = await sharp(req.file.buffer)
           .webp({ quality: 72 })
           .toBuffer();
