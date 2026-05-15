@@ -13,7 +13,7 @@ import path from "path";
 import fs from "fs";
 import "./types";
 import { importExcelMenu } from "./import-excel";
-// import imgProxy from "./img-proxy";
+import imgProxy from "./img-proxy";
 import {
   generateImageFilename,
   uploadImage as saveImage,
@@ -99,7 +99,7 @@ function requireAuth(req: any, res: any, next: any) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Image proxy route for dynamic optimization (BEFORE any other routes)
-  // app.use("/img", imgProxy());
+  app.use("/img", imgProxy());
 
   // Serve uploaded files statically
   app.use(

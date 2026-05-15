@@ -1,104 +1,68 @@
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 import { Request, Response } from "express";
 
-// Prevent libvips from consuming hundreds of MB of native memory.
-// These must be called before any sharp() operation.
-sharp.cache(false); // disable the native operation cache (~100 MB saved)
-sharp.concurrency(1); // one thread instead of one-per-core
+const MIME: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+};
+
+function resolveLocalPath(src: string): string | null {
+  // Block anything that looks external
+  if (/^https?:\/\//i.test(src)) return null;
+
+  // Normalize: remove leading slashes, block path traversal
+  const clean = src.replace(/^\/+/, "").replace(/\.\.(\/|\\|$)/g, "");
+
+  // Route 1: /api/storage/menu-items/<filename> → Render Disk
+  const storagePrefix = "api/storage/menu-items/";
+  if (clean.startsWith(storagePrefix)) {
+    const filename = path.basename(clean); // extra safety
+    const UPLOAD_ROOT =
+      process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
+    return path.join(UPLOAD_ROOT, "menu-items", filename);
+  }
+
+  // Route 2: everything else → public/ directory
+  return path.join(process.cwd(), "public", clean);
+}
 
 export default function imgProxy() {
-  return async (req: Request, res: Response) => {
+  return (req: Request, res: Response) => {
     try {
-      const { src, w } = req.query;
+      const src = req.query.src as string;
+
       if (!src || typeof src !== "string") {
         return res.status(400).send("Missing src");
       }
 
-      // Decide format from Accept header
-      const accept = req.headers.accept || "";
-      const fmt = accept.includes("image/avif") ? "avif" : "webp";
-      const quality = fmt === "avif" ? 55 : 70;
+      const filePath = resolveLocalPath(src);
 
-      // Parse and constrain width
-      const width = Math.min(
-        1200,
-        Math.max(320, parseInt((w as string) || "720", 10) || 720),
-      );
-
-      // Resolve URL - handle both absolute and relative
-      const isAbsolute = /^https?:\/\//i.test(src);
-      const resolvedUrl = isAbsolute
-        ? src
-        : `${req.protocol}://${req.get("host")}${src}`;
-
-      // Set up cache
-      const UPLOAD_ROOT =
-        process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
-      const cacheDir = path.join(UPLOAD_ROOT, ".img-cache");
-      await fs.promises.mkdir(cacheDir, { recursive: true });
-
-      const cacheKey = Buffer.from(
-        `${resolvedUrl}|${fmt}|q${quality}|w${width}`,
-      ).toString("hex");
-      const outFile = path.join(cacheDir, `${cacheKey}.${fmt}`);
-
-      // Generate optimized image if not cached
-      if (!fs.existsSync(outFile)) {
-        let inputBuffer: Buffer;
-
-        // If local file under /public, read from disk (faster, avoids recursion)
-        if (!isAbsolute) {
-          const publicPath = path.join(
-            process.cwd(),
-            "public",
-            src.replace(/^\/+/, ""),
-          );
-          if (fs.existsSync(publicPath)) {
-            inputBuffer = await fs.promises.readFile(publicPath);
-          }
-        }
-
-        // If we don't have the buffer yet, fetch it
-        if (!inputBuffer!) {
-          const response = await fetch(resolvedUrl);
-          if (!response.ok) {
-            return res.redirect(resolvedUrl);
-          }
-          const arrayBuffer = await response.arrayBuffer();
-          inputBuffer = Buffer.from(arrayBuffer);
-        }
-
-        // Process image with Sharp
-        let pipeline = sharp(inputBuffer)
-          .rotate() // auto-orient
-          .resize({
-            width,
-            withoutEnlargement: true,
-          });
-
-        pipeline =
-          fmt === "avif"
-            ? pipeline.avif({ quality })
-            : pipeline.webp({ quality });
-
-        await pipeline.toFile(outFile);
+      if (!filePath) {
+        return res.status(403).send("External URLs not allowed");
       }
 
-      // Serve the optimized image
-      res.setHeader("Content-Type", `image/${fmt}`);
+      if (!fs.existsSync(filePath)) {
+        console.warn("[IMG PROXY] Not found:", filePath);
+        return res.status(404).send("Not found");
+      }
+
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = MIME[ext] || "application/octet-stream";
+
+      res.setHeader("Content-Type", contentType);
       res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-      res.setHeader("Vary", "Accept");
 
-      fs.createReadStream(outFile).pipe(res);
-    } catch (error) {
-      // Fallback to original on any error
-      const originalSrc = req.query.src as string;
-      if (originalSrc) {
-        return res.redirect(originalSrc);
-      }
-      res.status(500).end();
+      // Stream directly — no sharp, no buffering, no memory spike
+      fs.createReadStream(filePath).pipe(res);
+    } catch (err) {
+      console.error("[IMG PROXY] Error:", err);
+      if (!res.headersSent) res.status(500).send("Error");
     }
   };
 }
