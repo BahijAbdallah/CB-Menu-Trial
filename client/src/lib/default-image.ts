@@ -1,3 +1,1 @@
-import defaultItemImage from "./Default.webp";
-
-export const DEFAULT_ITEM_IMAGE = defaultItemImage;
+export const DEFAULT_ITEM_IMAGE = "/Default.webp";

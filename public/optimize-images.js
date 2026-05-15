@@ -3,6 +3,7 @@
     if (!img || img.dataset.optimized) return;
     const src = img.getAttribute("src");
     if (!src || src.startsWith("/img?")) return;
+    if (src === "/Default.webp") return;
     if (src.startsWith("/src/")) return;
     if (src.startsWith("/api/storage/menu-items/")) return;
 
