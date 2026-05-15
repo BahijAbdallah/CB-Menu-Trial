@@ -35,7 +35,18 @@ function resolveLocalPath(src: string): string | null {
     const filename = path.basename(clean);
     const UPLOAD_ROOT =
       process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
-    return path.join(UPLOAD_ROOT, "menu-items", filename);
+    const filePath = path.join(UPLOAD_ROOT, "menu-items", filename);
+
+    if (fs.existsSync(filePath)) return filePath;
+
+    // Fall back to the Default image when the specific file isn't found
+    const defaultImage = process.env.DEFAULT_MENU_IMAGE;
+    if (defaultImage && fs.existsSync(defaultImage)) {
+      console.log("[IMG PROXY] Using default image for:", filename);
+      return defaultImage;
+    }
+
+    return filePath; // will 404 if default isn't set either
   }
 
   const publicPath = path.join(process.cwd(), "public", clean);
