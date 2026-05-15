@@ -1,8 +1,10 @@
+import { DEFAULT_ITEM_IMAGE } from "./default-image";
+
 export const defaultMenuImages = {
-  breakfast: ["/menu-item-food.jpg"],
-  mainCourse: ["/menu-item-food.jpg"],
-  desserts: ["/menu-item-food.jpg"],
-  default: "/menu-item-food.jpg",
+  breakfast: [DEFAULT_ITEM_IMAGE],
+  mainCourse: [DEFAULT_ITEM_IMAGE],
+  desserts: [DEFAULT_ITEM_IMAGE],
+  default: DEFAULT_ITEM_IMAGE,
 };
 
 export function getDefaultImageForItem(categorySlug: string, itemIndex: number = 0): string {

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect, useMemo } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
-import { getDefaultImageForItem } from "@/lib/menu-data";
+import { DEFAULT_ITEM_IMAGE } from "@/lib/default-image";
 import {
   useLocale,
   getTranslatedItemName,
@@ -20,20 +20,21 @@ import LazyImage from "@/components/lazy-image";
 function getEncodedImageUrl(
   imageUrl: string | null | undefined,
 ): string | null {
-  if (!imageUrl) return null;
+  const trimmedImageUrl = imageUrl?.trim();
+  if (!trimmedImageUrl) return null;
 
   // If it's already a full URL (starts with http), return as-is
-  if (imageUrl.startsWith("http")) return imageUrl;
+  if (trimmedImageUrl.startsWith("http")) return trimmedImageUrl;
 
   // If it's a path starting with /, extract the filename and encode it
-  if (imageUrl.startsWith("/")) {
-    const parts = imageUrl.split("/");
+  if (trimmedImageUrl.startsWith("/")) {
+    const parts = trimmedImageUrl.split("/");
     const filename = parts[parts.length - 1];
     const pathWithoutFilename = parts.slice(0, -1).join("/");
     return pathWithoutFilename + "/" + encodeURIComponent(filename);
   }
 
-  return imageUrl;
+  return trimmedImageUrl;
 }
 
 interface ExpandableDescriptionProps {
@@ -157,13 +158,18 @@ function MenuItemWithImage({
   const locale = useLocale();
   const [imageError, setImageError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const fallbackImage = getDefaultImageForItem(category.slug, index);
   const originalImageUrl = getEncodedImageUrl(item.imageUrl);
+  const hasItemImage = Boolean(originalImageUrl);
   const shouldLoadOriginalImage = Boolean(
-    originalImageUrl && canLoadImage && !imageError,
+    hasItemImage && canLoadImage && !imageError,
   );
 
   const [hasLoadedOriginalImage, setHasLoadedOriginalImage] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+    setHasLoadedOriginalImage(false);
+  }, [item.id, item.imageUrl]);
 
   // Reset imageError only when the ORIGINAL image loads successfully (not the fallback)
   // This prevents infinite retry loops while still allowing recovery from transient failures
@@ -195,22 +201,30 @@ function MenuItemWithImage({
     setImageError(true);
   };
 
-  // Use fallback image while the original image is waiting for its queue slot.
-  // const imageUrl = shouldLoadOriginalImage ? originalImageUrl! : fallbackImage;
+  // Items with no image must always use the bundled default image.
   const imageUrl =
-    hasLoadedOriginalImage || shouldLoadOriginalImage
+    hasItemImage && (hasLoadedOriginalImage || shouldLoadOriginalImage)
       ? originalImageUrl!
-      : fallbackImage;
+      : DEFAULT_ITEM_IMAGE;
 
-  // High-resolution image for modal - use stable cache key based on item ID
-  // Falls back to default image if imageError is true
+  // Full item view uses the same strict default when the item has no image.
   const highResImageUrl = useMemo(() => {
-    if (originalImageUrl && !imageError) {
-      return originalImageUrl;
+    if (
+      hasItemImage &&
+      !imageError &&
+      (hasLoadedOriginalImage || shouldLoadOriginalImage)
+    ) {
+      return originalImageUrl ?? DEFAULT_ITEM_IMAGE;
     }
 
-    return fallbackImage;
-  }, [item.id, originalImageUrl, imageError, fallbackImage]);
+    return DEFAULT_ITEM_IMAGE;
+  }, [
+    hasItemImage,
+    hasLoadedOriginalImage,
+    shouldLoadOriginalImage,
+    originalImageUrl,
+    imageError,
+  ]);
 
   return (
     <>
@@ -412,7 +426,7 @@ export default function MenuCategory({
               index={index}
               allergens={allergens}
               canLoadImage={
-                !item.imageUrl || allowedImageIds?.has(item.id) === true
+                !item.imageUrl?.trim() || allowedImageIds?.has(item.id) === true
               }
               onImageComplete={onImageComplete}
             />

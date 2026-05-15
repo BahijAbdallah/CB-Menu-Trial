@@ -439,7 +439,7 @@ export default function MenuPage() {
     ? (itemsByCategory[activeCategory] ?? [])
     : [];
   const imageQueueItems = useMemo(
-    () => categoryItems.filter((item) => Boolean(item.imageUrl)),
+    () => categoryItems.filter((item) => Boolean(item.imageUrl?.trim())),
     [categoryItems],
   );
   const allowedImageIds = useMemo(

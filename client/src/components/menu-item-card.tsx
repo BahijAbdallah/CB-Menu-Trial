@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { getDefaultImageForItem } from "@/lib/menu-data";
 import { useState } from "react";
 import { DEFAULT_ITEM_IMAGE } from "@/lib/default-image";
 import type { Category, MenuItem } from "@shared/schema";
@@ -9,20 +8,21 @@ import type { Category, MenuItem } from "@shared/schema";
 function getEncodedImageUrl(
   imageUrl: string | null | undefined,
 ): string | null {
-  if (!imageUrl) return null;
+  const trimmedImageUrl = imageUrl?.trim();
+  if (!trimmedImageUrl) return null;
 
   // If it's already a full URL (starts with http), return as-is
-  if (imageUrl.startsWith("http")) return imageUrl;
+  if (trimmedImageUrl.startsWith("http")) return trimmedImageUrl;
 
   // If it's a path starting with /, extract the filename and encode it
-  if (imageUrl.startsWith("/")) {
-    const parts = imageUrl.split("/");
+  if (trimmedImageUrl.startsWith("/")) {
+    const parts = trimmedImageUrl.split("/");
     const filename = parts[parts.length - 1];
     const pathWithoutFilename = parts.slice(0, -1).join("/");
     return pathWithoutFilename + "/" + encodeURIComponent(filename);
   }
 
-  return imageUrl;
+  return trimmedImageUrl;
 }
 
 interface MenuItemCardProps {
@@ -41,7 +41,7 @@ export default function MenuItemCard({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const imgSrc =
-    item.imageUrl && !imageError
+    item.imageUrl?.trim() && !imageError
       ? (getEncodedImageUrl(item.imageUrl) ?? DEFAULT_ITEM_IMAGE)
       : DEFAULT_ITEM_IMAGE;
 
