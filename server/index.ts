@@ -12,25 +12,25 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-console.log("[STARTUP]", {
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: port,
-  UPLOAD_ROOT: process.env.UPLOAD_ROOT,
-  pid: process.pid,
-});
+// console.log("[STARTUP]", {
+//   NODE_ENV: process.env.NODE_ENV,
+//   PORT: port,
+//   UPLOAD_ROOT: process.env.UPLOAD_ROOT,
+//   pid: process.pid,
+// });
 
-setInterval(() => {
-  const memory = process.memoryUsage();
-  console.log("[MEMORY]", {
-    rss: memory.rss,
-    heapTotal: memory.heapTotal,
-    heapUsed: memory.heapUsed,
-    external: memory.external,
-    arrayBuffers: memory.arrayBuffers,
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
-}, 5000);
+// setInterval(() => {
+//   const memory = process.memoryUsage();
+//   console.log("[MEMORY]", {
+//     rss: memory.rss,
+//     heapTotal: memory.heapTotal,
+//     heapUsed: memory.heapUsed,
+//     external: memory.external,
+//     arrayBuffers: memory.arrayBuffers,
+//     uptime: process.uptime(),
+//     timestamp: new Date().toISOString(),
+//   });
+// }, 5000);
 
 process.on("uncaughtException", (error) => {
   console.error("[PROCESS ERROR] uncaughtException", error);

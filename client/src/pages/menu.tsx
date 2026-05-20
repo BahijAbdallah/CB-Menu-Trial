@@ -569,6 +569,16 @@ export default function MenuPage() {
               <img className="icon" src={islam} alt="" />
               <span className="halal-text">Halal Certification</span>
             </Link>
+
+            {/* Feedback */}
+            <Link
+              href="/feedback"
+              className="pill halal-btn"
+              aria-label="Feedback"
+            >
+              <img className="icon" src={islam} alt="" />
+              <span className="halal-text">Feedback</span>
+            </Link>
           </div>
         </div>
       </header>
