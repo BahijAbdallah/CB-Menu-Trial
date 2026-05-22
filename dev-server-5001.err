@@ -1,0 +1,27 @@
+(node:19040) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[PROCESS ERROR] warning Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+    at deprecatedSslModeWarning (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg-connection-string\index.js:216:13)
+    at parse (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg-connection-string\index.js:143:11)
+    at new ConnectionParameters (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg\lib\connection-parameters.js:60:42)
+    at new Client (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg\lib\client.js:40:33)
+    at BoundPool.newClient (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg-pool\index.js:233:20)
+    at BoundPool.connect (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg-pool\index.js:227:10)
+    at BoundPool.query (C:\Users\IT-06\Desktop\ChezBeyrouth\node_modules\pg-pool\index.js:413:10)
+    at <anonymous> (C:\Users\IT-06\Desktop\ChezBeyrouth\server\db.ts:14:6)
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)

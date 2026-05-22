@@ -576,7 +576,7 @@ export default function MenuPage() {
               className="pill halal-btn"
               aria-label="Feedback"
             >
-              <img className="icon" src={islam} alt="" />
+              <img className="icon" src="/assets/review.png" alt="" />
               <span className="halal-text">Feedback</span>
             </Link>
           </div>

@@ -18,6 +18,7 @@ import {
   generateImageFilename,
   uploadImage as saveImage,
 } from "./storage-client";
+import { createClientReview } from "./client-feedback";
 
 // Simple token store for demo purposes
 const activeTokens = new Map<string, number>(); // token -> userId
@@ -1000,6 +1001,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Feedback Route
+  app.post("/api/client-reviews", createClientReview);
 
   const httpServer = createServer(app);
   return httpServer;

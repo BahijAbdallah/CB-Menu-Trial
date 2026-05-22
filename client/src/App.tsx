@@ -12,6 +12,7 @@ import AdminSortPage from "@/pages/admin-sort";
 import LoginPage from "@/pages/login";
 import HalalCertificatesPage from "@/pages/halal-certificates";
 import HalalCertification from "@/pages/HalalCertification";
+import FeedbackPage from "@/pages/Feedback";
 import './i18n';
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
     <Switch>
       <Route path="/" component={MenuPage} />
       <Route path="/halal" component={HalalCertification} />
+      <Route path="/feedback" component={FeedbackPage} />
       <Route path="/halal-certificates" component={HalalCertificatesPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/admin/sort" component={AdminSortPage} />
