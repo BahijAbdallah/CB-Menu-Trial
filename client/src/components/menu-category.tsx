@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect, useMemo } from "react";
 import type { Category, MenuItem } from "@shared/schema";
 import { ALLERGENS_MAP, type AllergenSlug } from "@/constants/allergens";
-import { DEFAULT_ITEM_IMAGE } from "@/lib/default-image";
+import { resolveItemImage } from "@/lib/default-image";
 import {
   useLocale,
   getTranslatedItemName,
@@ -15,27 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import LazyImage from "@/components/lazy-image";
-
-// Helper function to safely encode image URLs for filenames with special characters
-function getEncodedImageUrl(
-  imageUrl: string | null | undefined,
-): string | null {
-  const trimmedImageUrl = imageUrl?.trim();
-  if (!trimmedImageUrl) return null;
-
-  // If it's already a full URL (starts with http), return as-is
-  if (trimmedImageUrl.startsWith("http")) return trimmedImageUrl;
-
-  // If it's a path starting with /, extract the filename and encode it
-  if (trimmedImageUrl.startsWith("/")) {
-    const parts = trimmedImageUrl.split("/");
-    const filename = parts[parts.length - 1];
-    const pathWithoutFilename = parts.slice(0, -1).join("/");
-    return pathWithoutFilename + "/" + encodeURIComponent(filename);
-  }
-
-  return trimmedImageUrl;
-}
 
 interface ExpandableDescriptionProps {
   text: string;
@@ -133,8 +112,6 @@ function ExpandableDescription({
 interface MenuCategoryProps {
   category: Category;
   items: MenuItem[];
-  allowedImageIds?: Set<number>;
-  onImageComplete?: (itemId: number) => void;
 }
 
 interface MenuItemWithImageProps {
@@ -142,8 +119,6 @@ interface MenuItemWithImageProps {
   category: Category;
   index: number;
   allergens: AllergenSlug[];
-  canLoadImage: boolean;
-  onImageComplete?: (itemId: number) => void;
 }
 
 function MenuItemWithImage({
@@ -151,41 +126,13 @@ function MenuItemWithImage({
   category,
   index,
   allergens,
-  canLoadImage,
-  onImageComplete,
 }: MenuItemWithImageProps) {
   const { t } = useTranslation();
   const locale = useLocale();
-  const [imageError, setImageError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const originalImageUrl = getEncodedImageUrl(item.imageUrl);
-  const hasItemImage = Boolean(originalImageUrl);
-  const shouldLoadOriginalImage = Boolean(
-    hasItemImage && canLoadImage && !imageError,
-  );
 
-  const [hasLoadedOriginalImage, setHasLoadedOriginalImage] = useState(false);
-
-  useEffect(() => {
-    setImageError(false);
-    setHasLoadedOriginalImage(false);
-  }, [item.id, item.imageUrl]);
-
-  // Reset imageError only when the ORIGINAL image loads successfully (not the fallback)
-  // This prevents infinite retry loops while still allowing recovery from transient failures
-  const handleImageLoad = (loadedSrc: string) => {
-    if (originalImageUrl && loadedSrc.includes(originalImageUrl)) {
-      setHasLoadedOriginalImage(true);
-
-      if (imageError) {
-        setImageError(false);
-      }
-    }
-
-    if (shouldLoadOriginalImage) {
-      onImageComplete?.(item.id);
-    }
-  };
+  // LazyImage falls back to the default image on its own if this fails to load.
+  const imageUrl = resolveItemImage(item.imageUrl);
 
   // Get translated content with fallback to English
   const itemName = getTranslatedItemName(item, locale);
@@ -193,38 +140,6 @@ function MenuItemWithImage({
 
   // Check if item is out of stock (using outOfStock field from database)
   const isOutOfStock = item.outOfStock;
-
-  const handleImageError = () => {
-    if (shouldLoadOriginalImage) {
-      onImageComplete?.(item.id);
-    }
-    setImageError(true);
-  };
-
-  // Items with no image must always use the bundled default image.
-  const imageUrl =
-    hasItemImage && (hasLoadedOriginalImage || shouldLoadOriginalImage)
-      ? originalImageUrl!
-      : DEFAULT_ITEM_IMAGE;
-
-  // Full item view uses the same strict default when the item has no image.
-  const highResImageUrl = useMemo(() => {
-    if (
-      hasItemImage &&
-      !imageError &&
-      (hasLoadedOriginalImage || shouldLoadOriginalImage)
-    ) {
-      return originalImageUrl ?? DEFAULT_ITEM_IMAGE;
-    }
-
-    return DEFAULT_ITEM_IMAGE;
-  }, [
-    hasItemImage,
-    hasLoadedOriginalImage,
-    shouldLoadOriginalImage,
-    originalImageUrl,
-    imageError,
-  ]);
 
   return (
     <>
@@ -239,8 +154,6 @@ function MenuItemWithImage({
             alt={itemName}
             className="menu-thumb"
             wrapperClassName="thumb-inner"
-            onLoad={handleImageLoad}
-            onError={handleImageError}
           />
         </div>
         <div className="menu-meta">
@@ -302,11 +215,10 @@ function MenuItemWithImage({
             {/* Left side - Large High-Resolution Image */}
             <div className="relative h-[400px] md:h-[500px] bg-white">
               <LazyImage
-                src={highResImageUrl}
+                src={imageUrl}
                 alt={itemName}
                 className="w-full h-full object-cover"
                 wrapperClassName="w-full h-full"
-                onError={handleImageError}
               />
             </div>
 
@@ -391,14 +303,8 @@ function MenuItemWithImage({
   );
 }
 
-export default function MenuCategory({
-  category,
-  items,
-  allowedImageIds,
-  onImageComplete,
-}: MenuCategoryProps) {
+export default function MenuCategory({ category, items }: MenuCategoryProps) {
   const { t } = useTranslation();
-  console.log("items : ", items);
   return (
     <section className="container">
       {/* Responsive menu list: desktop layout scaled down for mobile */}
@@ -425,10 +331,6 @@ export default function MenuCategory({
               category={category}
               index={index}
               allergens={allergens}
-              canLoadImage={
-                !item.imageUrl?.trim() || allowedImageIds?.has(item.id) === true
-              }
-              onImageComplete={onImageComplete}
             />
           );
         })}

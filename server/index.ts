@@ -1,7 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import MemoryStore from "memorystore";
-// import imageOptimizer from "./image-optimizer";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -61,11 +60,6 @@ process.on("SIGINT", () => {
   });
   process.exit(130);
 });
-
-// Image proxy will be registered in routes.ts to ensure it comes before Vite middleware
-
-// Advanced image optimization with client hints support (BEFORE static middleware)
-// app.use(imageOptimizer({ root: "public" }));
 
 // Serve static files from public directory with caching for images
 app.use(

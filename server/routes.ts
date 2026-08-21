@@ -13,11 +13,7 @@ import path from "path";
 import fs from "fs";
 import "./types";
 import { importExcelMenu } from "./import-excel";
-import imgProxy from "./img-proxy";
-import {
-  generateImageFilename,
-  uploadImage as saveImage,
-} from "./storage-client";
+import { storeMenuImage, getImage, getContentType } from "./storage-client";
 
 // Simple token store for demo purposes
 const activeTokens = new Map<string, number>(); // token -> userId
@@ -98,9 +94,6 @@ function requireAuth(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Image proxy route for dynamic optimization (BEFORE any other routes)
-  app.use("/img", imgProxy());
-
   // Serve uploaded files statically
   app.use(
     "/uploads",
@@ -151,59 +144,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Image upload endpoint (using Object Storage)
+  // Image upload: compress to WebP, store, return its serving URL.
   app.post(
     "/api/upload-image",
     requireAuth,
     uploadImageMulter.single("image"),
     async (req, res) => {
       try {
-        console.log("[Upload] Image upload attempt:", {
-          hasFile: !!req.file,
-          originalname: req.file?.originalname,
-          size: req.file?.size,
-          mimetype: req.file?.mimetype,
-        });
-
         if (!req.file) {
-          console.log("[Upload] No file in request");
           return res.status(400).json({ message: "No image file provided" });
         }
 
-        // Generate unique filename
-        const filename = generateImageFilename(req.file.originalname);
-
-        const { default: sharp } = await import("sharp");
-        sharp.cache(false);
-        sharp.concurrency(1);
-
-        const compressedBuffer = await sharp(req.file.buffer)
-          .webp({
-            quality: 75,
-            effort: 4, // default sharpening pass, no extra memory cost
-            smartSubsample: true, // better color accuracy at high quality
-          })
-          .toBuffer();
-
-        console.log(
-          "[Upload] Saving compressed WebP to local storage:",
-          filename,
+        const { ok, key, error } = await storeMenuImage(
+          req.file.originalname,
+          req.file.buffer,
         );
 
-        const { ok, error } = await saveImage(filename, compressedBuffer);
-
-        if (!ok) {
-          console.error("[Upload] Failed to save image:", error);
+        if (!ok || !key) {
+          console.error("[Upload] Failed to store image:", error);
           return res
             .status(500)
             .json({ message: "Failed to save image to storage" });
         }
 
-        // Return the URL pointing to our storage endpoint
-        const imageUrl = `/api/storage/${filename}`;
-        console.log("[Upload] Success! Image URL:", imageUrl);
-
-        res.json({ imageUrl });
+        res.json({ imageUrl: `/api/storage/${key}` });
       } catch (error) {
         console.error("[Upload] Error:", error);
         res.status(500).json({ message: "Failed to upload image" });
@@ -211,79 +175,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // Serve images from Render Disk. Browser caching handles repeat requests.
-  app.get("/api/storage/menu-items/:filename", (req, res) => {
-    const startedAt = Date.now();
+  // Serve stored images. Filenames are content-unique, so they cache forever.
+  app.get("/api/storage/menu-items/:filename", async (req, res) => {
     const filename = path.basename(req.params.filename);
-    const mem = process.memoryUsage();
+    const { ok, buffer, error } = await getImage(`menu-items/${filename}`);
 
-    console.log("[IMAGE START]", {
-      filename,
-      rss: `${Math.round(mem.rss / 1024 / 1024)}MB`,
-      heap: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
-    });
-
-    try {
-      const UPLOAD_ROOT =
-        process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
-      const filePath = path.join(UPLOAD_ROOT, "menu-items", filename);
-
-      console.log("[IMAGE REQUEST START]", { filename });
-
-      if (!fs.existsSync(filePath)) {
-        console.error("[IMAGE REQUEST ERROR]", {
-          filename,
-          durationMs: Date.now() - startedAt,
-          code: "ENOENT",
-          message: "Image not found",
-          filePath,
-        });
-        return res.status(404).json({ message: "Image not found" });
-      }
-
-      const stats = fs.statSync(filePath);
-      console.log("[IMAGE REQUEST START]", {
-        filename,
-        filePath,
-        size: stats.size,
-      });
-
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-
-      res.setHeader("ETag", `${stats.size}-${stats.mtimeMs}`);
-      res.setHeader("Last-Modified", stats.mtime.toUTCString());
-
-      res.sendFile(filePath, (error) => {
-        const durationMs = Date.now() - startedAt;
-
-        if (error) {
-          console.error("[IMAGE REQUEST ERROR]", {
-            filename,
-            durationMs,
-            code: (error as NodeJS.ErrnoException).code,
-            message: error.message,
-          });
-
-          if (!res.headersSent) {
-            res.status(500).json({ message: "Failed to retrieve image" });
-          }
-          return;
-        }
-
-        console.log("[IMAGE REQUEST DONE]", { filename, durationMs });
-      });
-    } catch (error) {
-      console.error("[IMAGE REQUEST ERROR]", {
-        filename,
-        durationMs: Date.now() - startedAt,
-        code: (error as NodeJS.ErrnoException).code,
-        message: error instanceof Error ? error.message : String(error),
-      });
-
-      if (!res.headersSent) {
-        res.status(500).json({ message: "Failed to retrieve image" });
-      }
+    if (!ok || !buffer) {
+      console.warn("[Image] Not found:", filename, error);
+      return res.status(404).json({ message: "Image not found" });
     }
+
+    res.setHeader("Content-Type", getContentType(filename));
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
   });
 
   app.get("/api/auth/me", (req, res) => {

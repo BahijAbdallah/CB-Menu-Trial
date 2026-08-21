@@ -11,7 +11,6 @@ import { useLocale, getTranslatedCategoryName } from "@/utils/translation";
 
 import islam from "@assets/islam.png";
 
-const MENU_IMAGE_BATCH_SIZE = 18;
 
 // Allergens Legend Component
 function AllergensLegend() {
@@ -51,45 +50,9 @@ export default function MenuPage() {
   >({});
   const [menuItemsLoading, setMenuItemsLoading] = useState(false);
 
-  const [imageStateByCategory, setImageStateByCategory] = useState<
-    Record<string, { allowedCount: number; completedIds: Set<number> }>
-  >({});
-
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const categoryStripRef = useRef<HTMLElement>(null);
-
-  const currentImageState = imageStateByCategory[activeCategory] ?? {
-    allowedCount: MENU_IMAGE_BATCH_SIZE,
-    completedIds: new Set<number>(),
-  };
-
-  const allowedImageCount = currentImageState.allowedCount;
-  const completedImageIds = currentImageState.completedIds;
-
-  const setAllowedImageCount = (
-    updater: number | ((current: number) => number),
-  ) => {
-    if (!activeCategory) return;
-
-    setImageStateByCategory((prev) => {
-      const current = prev[activeCategory] ?? {
-        allowedCount: MENU_IMAGE_BATCH_SIZE,
-        completedIds: new Set<number>(),
-      };
-
-      const newCount =
-        typeof updater === "function" ? updater(current.allowedCount) : updater;
-
-      return {
-        ...prev,
-        [activeCategory]: {
-          ...current,
-          allowedCount: newCount,
-        },
-      };
-    });
-  };
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -438,58 +401,6 @@ export default function MenuPage() {
   const categoryItems = activeCategory
     ? (itemsByCategory[activeCategory] ?? [])
     : [];
-  const imageQueueItems = useMemo(
-    () => categoryItems.filter((item) => Boolean(item.imageUrl?.trim())),
-    [categoryItems],
-  );
-  const allowedImageIds = useMemo(
-    () =>
-      new Set(
-        imageQueueItems.slice(0, allowedImageCount).map((item) => item.id),
-      ),
-    [imageQueueItems, allowedImageCount],
-  );
-
-  useEffect(() => {
-    if (imageQueueItems.length === 0) return;
-    if (allowedImageCount >= imageQueueItems.length) return;
-
-    const allowedBatch = imageQueueItems.slice(0, allowedImageCount);
-    const allowedBatchComplete = allowedBatch.every((item) =>
-      completedImageIds.has(item.id),
-    );
-
-    if (allowedBatchComplete) {
-      setAllowedImageCount((current) =>
-        Math.min(current + MENU_IMAGE_BATCH_SIZE, imageQueueItems.length),
-      );
-    }
-  }, [allowedImageCount, completedImageIds, imageQueueItems]);
-
-  const handleMenuImageComplete = (itemId: number) => {
-    if (!activeCategory) return;
-
-    setImageStateByCategory((prev) => {
-      const current = prev[activeCategory] ?? {
-        allowedCount: MENU_IMAGE_BATCH_SIZE,
-        completedIds: new Set<number>(),
-      };
-
-      if (current.completedIds.has(itemId)) return prev;
-
-      const nextCompletedIds = new Set(current.completedIds);
-      nextCompletedIds.add(itemId);
-
-      return {
-        ...prev,
-        [activeCategory]: {
-          ...current,
-          completedIds: nextCompletedIds,
-        },
-      };
-    });
-  };
-
   // Only show full page loading for initial categories load
   if (categoriesLoading) {
     return (
@@ -653,12 +564,7 @@ export default function MenuPage() {
               </div>
             </div>
           ) : activeCategoryData ? (
-            <MenuCategory
-              category={activeCategoryData}
-              items={categoryItems}
-              allowedImageIds={allowedImageIds}
-              onImageComplete={handleMenuImageComplete}
-            />
+            <MenuCategory category={activeCategoryData} items={categoryItems} />
           ) : null}
         </section>
       </div>

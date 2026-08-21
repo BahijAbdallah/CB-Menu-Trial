@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { DEFAULT_ITEM_IMAGE } from "@/lib/default-image";
 
 interface LazyImageProps {
@@ -9,10 +9,15 @@ interface LazyImageProps {
   width?: string | number;
   height?: string | number;
   fallbackSrc?: string;
-  onLoad?: (loadedSrc: string) => void; // Passes the successful src
+  onLoad?: () => void;
   onError?: () => void;
 }
 
+/**
+ * Image with a skeleton placeholder that swaps to a fallback if the source
+ * fails. Loading is deferred by the browser's native lazy loading, which
+ * already holds off until the image nears the viewport.
+ */
 export default function LazyImage({
   src,
   alt,
@@ -25,99 +30,43 @@ export default function LazyImage({
   onError,
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(src);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [failed, setFailed] = useState(false);
 
-  // Reset loading state when src changes
   useEffect(() => {
-    if (src !== currentSrc) {
-      setIsLoaded(false);
-      setHasError(false);
-      setCurrentSrc(src);
-    }
-  }, [src, currentSrc]);
-
-  // Intersection Observer for viewport detection
-  useEffect(() => {
-    if (!wrapperRef.current || isInView) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsInView(true);
-            observer.disconnect();
-          }
-        });
-      },
-      {
-        rootMargin: "100px", // Start loading 100px before image enters viewport
-        threshold: 0.01,
-      },
-    );
-
-    observer.observe(wrapperRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [isInView, currentSrc]); // Re-run when src changes
-
-  const handleLoad = () => {
-    setIsLoaded(true);
-    // Pass the successful src to parent so it can track which image loaded
-    onLoad?.(currentSrc);
-  };
+    setIsLoaded(false);
+    setFailed(false);
+  }, [src]);
 
   const handleError = () => {
-    setHasError(true);
-    setIsLoaded(true); // Mark as loaded to hide placeholder
+    setFailed(true);
     onError?.();
   };
 
-  // Only set inline dimensions if explicitly provided
-  const wrapperStyle = width || height ? { width, height } : undefined;
+  const handleLoad = () => {
+    setIsLoaded(true);
+    onLoad?.();
+  };
 
   return (
     <div
-      ref={wrapperRef}
       className={`relative overflow-hidden ${wrapperClassName}`}
-      style={wrapperStyle}
+      style={width || height ? { width, height } : undefined}
     >
-      {/* Blur placeholder - shown while loading */}
-      {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
-          <div className="text-gray-400 text-xs">Loading...</div>
-        </div>
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       )}
 
-      {/* Error placeholder - shown when image fails to load */}
-      {hasError && fallbackSrc && (
-        <img
-          src={fallbackSrc}
-          alt={alt}
-          className={`${className} opacity-100`}
-          width={width}
-          height={height}
-        />
-      )}
-
-      {/* Actual image - only loaded when in viewport */}
-      {isInView && !hasError && (
-        <img
-          src={currentSrc}
-          alt={alt}
-          className={`${className} ${!isLoaded ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}
-          width={width}
-          height={height}
-          onLoad={handleLoad}
-          onError={handleError}
-          loading="lazy" // Browser-level lazy loading as fallback
-          decoding="async"
-        />
-      )}
+      <img
+        src={failed ? fallbackSrc : src}
+        alt={alt}
+        className={`${className} ${isLoaded ? "opacity-100" : "opacity-0"} transition-opacity duration-300`}
+        width={width}
+        height={height}
+        loading="lazy"
+        decoding="async"
+        onLoad={handleLoad}
+        onError={failed ? handleLoad : handleError}
+      />
     </div>
   );
 }
